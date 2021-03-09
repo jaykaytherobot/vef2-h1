@@ -1,6 +1,8 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
+import { readFile } from 'fs/promises';
 
+import { query } from './db.js';
 dotenv.config();
 
 const {
@@ -27,10 +29,15 @@ async function setup() {
   //        4. Lesa úr .csv skrám til að populate-a
   const createTable = await readFile('./sql/schema.sql');
   const tData = createTable.toString('utf-8');
-  result = await query(tData);
-
-  const Seasons = await readFile('./data/series.csv');
-  console.log(Seasons);
+  const result = await query(tData);
+  let Seasons = ''
+  try {
+    Seasons = await readFile('./data/series.csv');
+  } finally {
+    console.log(Seasons);
+  }
+  
+  
 }
 
 await setup();
