@@ -32,7 +32,8 @@ async function setup() {
   const result = await query(tData);
   let Seasons = ''
   try {
-    Seasons = await readFile('./data/series.csv');
+    Seasons = await readFile('./data/series.json');
+    Seasons = JSON.parse(Seasons);
   } finally {
     console.log(Seasons);
   }
