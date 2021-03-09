@@ -61,6 +61,10 @@ router.post('/:tvId/season/:seasonId/episode/:episodeId', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
-const genres = async (req, res) => {
+export const getGenres = async (req, res) => {
+  res.json({ foo: 'bar'});
+}
+
+export const postGenres = async (req, res) => {
   res.json({ foo: 'bar'});
 }
