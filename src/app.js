@@ -1,4 +1,6 @@
-import { router as tvRouter } from
+import express from 'express';
+import dotenv from 'dotenv';
+import { router as tvRouter } from './tv.js';
 
 dotenv.config();
 
@@ -9,7 +11,7 @@ const {
 
 const app = express();
 
-app.use('tv', tvRouter);
+app.use('/tv', tvRouter);
 
 app.listen(port, () => {
   console.info(`Server running at http://localhost:${port}/`);
