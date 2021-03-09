@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { router as tvRouter } from './tv.js';
+import { router as tvRouter, getGenres, postGenres } from './tv.js';
 
 dotenv.config();
 
@@ -12,6 +12,8 @@ const {
 const app = express();
 
 app.use('/tv', tvRouter);
+app.get('/genres', getGenres);
+app.post('/genres', getGenres);
 
 app.listen(port, () => {
   console.info(`Server running at http://localhost:${port}/`);
