@@ -1,0 +1,38 @@
+{
+  "name": "vef2-2021-h1",
+  "version": "1.0.0",
+  "description": "Legendary REST api",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon ./src/app.js",
+    "test": "eslint --fix ./src",
+    "start": "node ./src/app.js",
+    "setup": "node ./src/setup.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaykaytherobot/vef2-h1.git"
+  },
+  "keywords": [
+    "REST",
+    "API",
+    "vefthjonusta",
+    "no",
+    "spaghetti"
+  ],
+  "author": "Johannes, Marcelo, Sverrir, Tryggvi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jaykaytherobot/vef2-h1/issues"
+  },
+  "homepage": "https://github.com/jaykaytherobot/vef2-h1#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "pg": "^8.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
