@@ -1,8 +1,10 @@
 import pg from 'pg';
-import dotenv from 'dotenv';
+import fs from 'fs';
 import { readFile } from 'fs/promises';
+import dotenv from 'dotenv';
+import csv from 'csv-parser';
 
-import { query } from './db.js';
+import { createNewSeries, query } from './db.js';
 dotenv.config();
 
 const {
@@ -27,17 +29,25 @@ async function setup() {
   //        2. búa til 1 admin og 1 almennan notenda
   //        3. Búa til þátta töflu
   //        4. Lesa úr .csv skrám til að populate-a
+
+  // Býr til töflur
   const createTable = await readFile('./sql/schema.sql');
   const tData = createTable.toString('utf-8');
   const result = await query(tData);
-  let Seasons = ''
-  try {
-    Seasons = await readFile('./data/series.json');
-    Seasons = JSON.parse(Seasons);
-  } finally {
-    console.log(Seasons);
-  }
-  
+
+  const SERIES = [];
+  const GENRES = [];
+  const SEASONS = [];
+  const EPISODES = [];
+
+  fs.createReadStream('./data/series.csv')
+    .pipe(csv())
+    .on('data', async (serie) => { 
+      await createNewSeries(serie);
+    })
+    .on('end', () => {
+      console.log("Finished reading series.csv");
+    });
   
 }
 
