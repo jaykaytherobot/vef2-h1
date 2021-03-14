@@ -78,8 +78,20 @@ export async function getShowByID(id) {
   return result.rows[0];
 }
 
+export async function getSeasonsByShowID(showID) {
+  const q = 'SELECT * FROM Seasons WHERE showID = $1;';
+  let result = '';
+  try {
+    result = await query(q, [showID]);
+  } catch (e) {
+    console.info('Error occured :>> ', e);
+  }
+  console.log(result);
+  return result.rows;
+}
+
 export async function getSeasonByID(id) {
-  const q = 'SELECT * FROM Season WHERE id = $1;';
+  const q = 'SELECT * FROM Seasons WHERE id = $1;';
   let result = '';
   try {
     result = await query(q, [id]);

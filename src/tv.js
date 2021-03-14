@@ -14,28 +14,35 @@ router.post('/', (req, res) => {
 });
 
 // /tv/:id
-router.get('/:tvID', async (req, res) => {
-  let { tvID } = req.params;
-  tvID = Number(tvID);
-  const data = await db.getShowByID(tvID);
+router.get('/:showID', async (req, res) => {
+  let { showID } = req.params;
+  showID = Number(showID);
+  const data = await db.getShowByID(showID);
   // Ef authenticated þá bæta við einkunn og stöðu
   if (!data) {
     res.status(404).json({ msg: 'Fann ekki þátt' });
   }
-  // const stats = await db.getRatingStatsByID(tvID);
   res.json({ data });
 });
 
-router.patch('/:tvID', (req, res) => {
+router.patch('/:showID', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
-router.delete('/:tvID', (req, res) => {
+router.delete('/:showID', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
 // /tv/:id/season/
-router.get('/:id/season', (req, res) => {
+router.get('/:showID/season', async (req, res) => {
+  let { showID } = req.params;
+  showID = Number(showID);
+  const data = await db.getSeasonsByShowID(showID);
+  // Ef authenticated þá bæta við einkunn og stöðu
+  if (!data) {
+    res.status(404).json({ msg: 'Fann ekki þátt' });
+  }
+  res.json({ data });
   res.json({ foo: 'bar' });
 });
 
@@ -44,30 +51,30 @@ router.post('/:id/season', (req, res) => {
 });
 
 // /tv/:id/season/:id
-router.post('/:tvID/season/:seasonID', (req, res) => {
+router.post('/:showID/season/:seasonID', (req, res) => {
   console.log(req.params);
   res.json({ foo: 'bar' });
 });
 
-router.delete('/:tvID/season/:seasonID', (req, res) => {
+router.delete('/:showID/season/:seasonID', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
 // /tv/:id/season/:id/episode/
-router.get('/:tvID/season/:seasonID/episode', (req, res) => {
+router.get('/:showID/season/:seasonID/episode', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
-router.delete('/:tvID/season/:seasonID/episode', (req, res) => {
+router.delete('/:showID/season/:seasonID/episode', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
 // /tv/:id/season/:id/episode/:id
-router.get('/:tvID/season/:seasonID/episode/:episodeID', (req, res) => {
+router.get('/:showID/season/:seasonID/episode/:episodeID', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
-router.post('/:tvID/season/:seasonID/episode/:episodeID', (req, res) => {
+router.post('/:showID/season/:seasonID/episode/:episodeID', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
