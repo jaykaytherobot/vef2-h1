@@ -75,7 +75,7 @@ export async function getShowByID(id) {
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
-  return result.rows;
+  return result.rows[0];
 }
 
 export async function getSeasonByID(id) {
