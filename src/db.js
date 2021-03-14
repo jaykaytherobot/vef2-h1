@@ -89,6 +89,17 @@ export async function getSeasonByID(id) {
   return result.rows;
 }
 
+export async function getRatingStatsByID(id) {
+  const q = 'SELECT AVG(grade), COUNT(grade) FROM showtouser WHERE showId = $1;';
+  let result = '';
+  try {
+    result = await query(q, [id]);
+  } catch (e) {
+    console.info('Error occured :>> ', e);
+  }
+  return result.rows[0];
+}
+
 export async function getEpisodeByID(id) {
   const q = 'SELECT * FROM Episodes WHERE id = $1;';
   let result = '';

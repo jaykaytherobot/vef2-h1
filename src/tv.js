@@ -18,12 +18,13 @@ router.post('/', (req, res) => {
 router.get('/:tvID', async (req, res) => {
   let { tvID } = req.params;
   tvID = Number(tvID);
-  const data = await db.getShowByID(tvID);
+  const basicData = await db.getShowByID(tvID);
   // Ef authenticated þá bæta við einkunn og stöðu
-  if (!data) {
+  if (!basicData) {
     res.status(404).json({ msg: 'Fann ekki þátt' });
   }
-  res.json(data);
+  const stats = await db.getRatingStatsByID(tvID);
+  res.json({ basicData, stats });
 });
 
 router.patch('/:tvID', (req, res) => {
