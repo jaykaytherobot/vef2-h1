@@ -128,7 +128,7 @@ export async function createNewSeason(season) {
 }
 
 export async function createNewUser(user) {
-  await query(`InSERT INTO Users(name, email, password, admin)
-                              VALUES ($1,$2,$3,$4)`,
+  await query(`INSERT INTO Users(name, email, password, admin)
+                              VALUES ($1,$2,$3,$4);`,
                               [user.name, user.email, user.password, user.admin]);
 }
