@@ -8,22 +8,29 @@ router.get('/', async (req, res) => {
   const result = await db.getAllFromTable('Shows');
     if (result.length!==0) return res.json(result);
     else return res.status(400).json({ msg: 'Table not found' });
-});
+  });
 
 router.post('/', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
 // /tv/:id
-router.get('/:tvId', (req, res) => {
+router.get('/:tvID', async (req, res) => {
+  let { tvID } = req.params;
+  tvID = Number(tvID);
+  const data = await db.getShowByID(tvID);
+  // Ef authenticated þá bæta við einkunn og stöðu
+  if (!data) {
+    res.status(404).json({ msg: 'Fann ekki þátt' });
+  }
+  res.json(data);
+});
+
+router.patch('/:tvID', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
-router.patch('/:tvId', (req, res) => {
-  res.json({ foo: 'bar' });
-});
-
-router.delete('/:tvId', (req, res) => {
+router.delete('/:tvID', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
@@ -37,30 +44,30 @@ router.post('/:id/season', (req, res) => {
 });
 
 // /tv/:id/season/:id
-router.post('/:tvId/season/:seasonId', (req, res) => {
+router.post('/:tvID/season/:seasonID', (req, res) => {
   console.log(req.params);
   res.json({ foo: 'bar' });
 });
 
-router.delete('/:tvId/season/:seasonId', (req, res) => {
+router.delete('/:tvID/season/:seasonID', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
 // /tv/:id/season/:id/episode/
-router.get('/:tvId/season/:seasonId/episode', (req, res) => {
+router.get('/:tvID/season/:seasonID/episode', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
-router.delete('/:tvId/season/:seasonId/episode', (req, res) => {
+router.delete('/:tvID/season/:seasonID/episode', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
 // /tv/:id/season/:id/episode/:id
-router.get('/:tvId/season/:seasonId/episode/:episodeId', (req, res) => {
+router.get('/:tvID/season/:seasonID/episode/:episodeID', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
-router.post('/:tvId/season/:seasonId/episode/:episodeId', (req, res) => {
+router.post('/:tvID/season/:seasonID/episode/:episodeID', (req, res) => {
   res.json({ foo: 'bar' });
 });
 

@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS ShowToGenre CASCADE;
-DROP TABLE IF EXISTS EpisodeToUser CASCADE;
+DROP TABLE IF EXISTS SerieToUser CASCADE;
 DROP TABLE IF EXISTS Episodes CASCADE;
 DROP TABLE IF EXISTS Season CASCADE;
 DROP TABLE IF EXISTS Genre CASCADE;
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS Shows(
     id serial PRIMARY KEY,
     name varchar(128) NOT NULL,
     airDate timestamp NOT NULL,
-    inProduction boolean, 
+    inProduction boolean,
     tagline varchar(128),
     img varchar(256) NOT NULL,
     description text,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS Season(
     serieName varchar(128) NOT NULL,
     num integer,
     CHECK(num > 0),
-    airDate timestamp, 
+    airDate timestamp,
     description text,
     poster varchar(256) NOT NULL,
     FOREIGN KEY (showID) REFERENCES Shows(id)
@@ -64,11 +64,11 @@ CREATE TABLE IF NOT EXISTS Users(
     admin boolean DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS EpisodeToUser(
-    episodeID serial,
+CREATE TABLE IF NOT EXISTS SerieToUser(
+    serieID serial,
     userID serial,
     status varchar(128),
     grade integer,
-    FOREIGN KEY (episodeID) REFERENCES Episodes(id),
+    FOREIGN KEY (serieID) REFERENCES Shows(id),
     FOREIGN KEY (userID) REFERENCES Users(id)
 );
