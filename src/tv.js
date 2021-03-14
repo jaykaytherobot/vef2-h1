@@ -1,10 +1,13 @@
 import express from 'express';
+import * as db from './db.js';
 
 export const router = express.Router();
 
 // /tv
-router.get('/', (req, res) => {
-  res.json({ foo: 'bar' });
+router.get('/', async (req, res) => {
+  const result = await db.getAllFromTable('Shows');
+    if (result.length!==0) return res.json(result);
+    else return res.status(400).json({ msg: 'Table not found' });
 });
 
 router.post('/', (req, res) => {
