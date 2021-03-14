@@ -71,7 +71,7 @@ export async function getShowByID(id) {
   const q = 'SELECT * FROM Shows WHERE id = $1;';
   let result = '';
   try {
-    result = await query(q, id);
+    result = await query(q, [id]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }

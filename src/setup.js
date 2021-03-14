@@ -48,7 +48,7 @@ async function setup() {
     .on('end', () => {
       console.log("Finished reading series.csv");
     });
-    /*
+
   fs.createReadStream('./data/seasons.csv')
     .pipe(csv())
     .on('data', async (season) => {
@@ -57,7 +57,7 @@ async function setup() {
     .on('end', () => {
       console.info('Finished reading seasons.csv');
     });
-  */
+
 }
 
 await setup();
