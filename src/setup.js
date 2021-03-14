@@ -39,10 +39,10 @@ async function setup() {
   const GENRES = [];
   const SEASONS = [];
   const EPISODES = [];
-  
+
   fs.createReadStream('./data/series.csv')
     .pipe(csv())
-    .on('data', async (serie) => { 
+    .on('data', async (serie) => {
       await createNewSeries(serie);
     })
     .on('end', () => {

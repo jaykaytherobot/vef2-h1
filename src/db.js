@@ -68,7 +68,7 @@ export async function getUserByID(id) {
 }
 
 export async function getShowByID(id) {
-  const q = 'SELECT * FROM Shows WHERE id = $1;';
+  const q = 'SELECT s.*, AVG(stu.grade) as avgRating, COUNT(stu.grade) as ratingsCount FROM Shows s, ShowToUser stu WHERE s.id = $1 AND stu.showId = $1 GROUP BY s.id;';
   let result = '';
   try {
     result = await query(q, [id]);
@@ -87,17 +87,6 @@ export async function getSeasonByID(id) {
     console.info('Error occured :>> ', e);
   }
   return result.rows;
-}
-
-export async function getRatingStatsByID(id) {
-  const q = 'SELECT AVG(grade), COUNT(grade) FROM showtouser WHERE showId = $1;';
-  let result = '';
-  try {
-    result = await query(q, [id]);
-  } catch (e) {
-    console.info('Error occured :>> ', e);
-  }
-  return result.rows[0];
 }
 
 export async function getEpisodeByID(id) {
@@ -133,7 +122,7 @@ export async function createNewSeries(serie) {
 }
 
 export async function createNewSeason(season) {
-  await query(`INSERT INTO Season(showID, name, serieName, num, airDate, description, poster)
+  await query(`INSERT INTO Seasons(showID, name, serieName, num, airDate, description, poster)
                               VALUES ($1,$2,$3,$4,$5,$6,$7);`,
                               [season.serieId, season.name, season.serie, season.number, season.airDate, season.overview, season.poster]);
 }
