@@ -26,6 +26,8 @@ export async function query(q, values = []) {
   let result = '';
   try {
     result = await client.query(q, values);
+  } catch (e) {
+    console.info('Error occured :>>', e);
   } finally {
     await client.release();
   }
