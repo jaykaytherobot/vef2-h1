@@ -26,25 +26,38 @@ export async function query(q, values = []) {
   let result = '';
   try {
     result = await client.query(q, values);
+  } catch (e) {
+    console.info('Error occured :>>', e);
   } finally {
     await client.release();
   }
   return result;
 }
 
+export async function getAllFromTable(table) {
+  const q = `SELECT * FROM ${table};`;
+  let result = '';
+  try {
+    result = await query(q);
+  } catch (e) {
+    console.info('Error occured :>> ', e);
+  }
+  return result.rows;
+}
+
 export async function getUserByName(name) {
-  const q = 'SELECT * FROM Users WHERE name = $1';
+  const q = 'SELECT * FROM Users WHERE name = $1;';
   let result = '';
   try {
     result = await query(q, name);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
-  return result;
+  return result.rows;
 }
 
 export async function getUserByID(id) {
-  const q = 'SELECT * FROM Users WHERE id = $1';
+  const q = 'SELECT * FROM Users WHERE id = $1;';
   let result = '';
   try {
     result = await query(q, id);
@@ -55,7 +68,7 @@ export async function getUserByID(id) {
 }
 
 export async function getShowByID(id) {
-  const q = 'SELECT * FROM Shows WHERE id = $1';
+  const q = 'SELECT * FROM Shows WHERE id = $1;';
   let result = '';
   try {
     result = await query(q, id);
@@ -66,7 +79,7 @@ export async function getShowByID(id) {
 }
 
 export async function getSeasonByID(id) {
-  const q = 'SELECT * FROM Season WHERE id = $1';
+  const q = 'SELECT * FROM Season WHERE id = $1;';
   let result = '';
   try {
     result = await query(q, id);
@@ -77,7 +90,7 @@ export async function getSeasonByID(id) {
 }
 
 export async function getEpisodeByID(id) {
-  const q = 'SELECT * FROM Episodes WHERE id = $1';
+  const q = 'SELECT * FROM Episodes WHERE id = $1;';
   let result = '';
   try {
     result = await query(q, id);
@@ -87,7 +100,7 @@ export async function getEpisodeByID(id) {
   return result.rows;
 }
 
-/* eslint-disable max-len, indent */
+/* eslint-disable max-len, indent, quotes */
 // passa id seinna
 
 export async function createNewSeries(serie) {
@@ -106,4 +119,10 @@ export async function createNewSeries(serie) {
       await query(`INSERT INTO ShowToGenre(showID, genreID) VALUES ($1, $2);`, [serie.id, genreId]);
     }
   });
+}
+
+export async function createNewSeason(season) {
+  await query(`INSERT INTO Season(showID, name, serieName, num, airDate, description, poster)
+                              VALUES ($1,$2,$3,$4,$5,$6,$7);`,
+                              [season.serieId, season.name, season.serie, season.number, season.airDate, season.overview, season.poster]);
 }
