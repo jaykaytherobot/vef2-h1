@@ -87,7 +87,7 @@ export async function getEpisodeByID(id) {
   return result.rows;
 }
 
-/* eslint-disable max-len, indent */
+/* eslint-disable max-len, indent, quotes */
 // passa id seinna
 
 export async function createNewSeries(serie) {
@@ -106,4 +106,10 @@ export async function createNewSeries(serie) {
       await query(`INSERT INTO ShowToGenre(showID, genreID) VALUES ($1, $2);`, [serie.id, genreId]);
     }
   });
+}
+
+export async function createNewSeason(season) {
+  await query(`INSERT INTO Season(showID, name, serieName, num, airDate, description, poster)
+                              VALUES ($1,$2,$3,$4,$5,$6,$7);`,
+                              [season.serieId, season.name, season.serie, season.number, season.airDate, season.overview, season.poster]);
 }

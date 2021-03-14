@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS Season(
     id serial PRIMARY KEY,
     showID serial,
     name varchar(128) NOT NULL,
+    serieName varchar(128) NOT NULL,
     num integer,
     CHECK(num > 0),
     airDate timestamp, 
