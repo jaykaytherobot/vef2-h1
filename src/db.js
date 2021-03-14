@@ -86,23 +86,24 @@ export async function getEpisodeByID(id) {
   }
   return result.rows;
 }
+
+/* eslint-disable max-len, indent */
 // passa id seinna
+
 export async function createNewSeries(serie) {
   await query(`INSERT INTO Shows(id, name, airDate, inProduction, tagline, img, description, lang, network, website)
-                                        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);`, 
+                                        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);`,
                                         [serie.id, serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.deseriecription, serie.language, serie.network, serie.homepage]);
   serie.genres.split(',').forEach(async (genre) => {
     let genreId;
     try {
       const result = await query(`INSERT INTO Genre(name) VALUES ($1) RETURNING id;`, [genre]);
       genreId = result.rows[0].id;
-    }
-    catch (error) {
+    } catch (error) {
       const result = await query(`SELECT id FROM Genre WHERE name = $1`, [genre]);
       genreId = result.rows[0].id;
-    }
-    finally {
-      await query(`INSERT INTO ShowToGenre(showID, genreID) VALUES ($1, $2);`, [serie.id, genreId])
+    } finally {
+      await query(`INSERT INTO ShowToGenre(showID, genreID) VALUES ($1, $2);`, [serie.id, genreId]);
     }
   });
 }
