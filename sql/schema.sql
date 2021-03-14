@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS ShowToGenre CASCADE;
-DROP TABLE IF EXISTS SerieToUser CASCADE;
+DROP TABLE IF EXISTS ShowToUser CASCADE;
 DROP TABLE IF EXISTS Episodes CASCADE;
 DROP TABLE IF EXISTS Season CASCADE;
 DROP TABLE IF EXISTS Genre CASCADE;
@@ -64,8 +64,8 @@ CREATE TABLE IF NOT EXISTS Users(
     admin boolean DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS SerieToUser(
-    serieID serial,
+CREATE TABLE IF NOT EXISTS ShowToUser(
+    showID serial,
     userID serial,
     status varchar(128),
     grade integer,
