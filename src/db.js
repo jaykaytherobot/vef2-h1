@@ -49,7 +49,7 @@ export async function getUserByName(name) {
   const q = 'SELECT * FROM Users WHERE name = $1;';
   let result = '';
   try {
-    result = await query(q, name);
+    result = await query(q, [name]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
@@ -60,7 +60,7 @@ export async function getUserByID(id) {
   const q = 'SELECT * FROM Users WHERE id = $1;';
   let result = '';
   try {
-    result = await query(q, id);
+    result = await query(q, [id]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
@@ -82,7 +82,7 @@ export async function getSeasonByID(id) {
   const q = 'SELECT * FROM Season WHERE id = $1;';
   let result = '';
   try {
-    result = await query(q, id);
+    result = await query(q, [id]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
@@ -93,7 +93,7 @@ export async function getEpisodeByID(id) {
   const q = 'SELECT * FROM Episodes WHERE id = $1;';
   let result = '';
   try {
-    result = await query(q, id);
+    result = await query(q, [id]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
