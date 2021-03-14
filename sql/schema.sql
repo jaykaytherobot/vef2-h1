@@ -65,10 +65,10 @@ CREATE TABLE IF NOT EXISTS Users(
 );
 
 CREATE TABLE IF NOT EXISTS EpisodeToUser(
-    episodeID serial,
+    serieID serial,
     userID serial,
     status varchar(128),
     grade integer,
-    FOREIGN KEY (episodeID) REFERENCES Episodes(id),
+    FOREIGN KEY (serieID) REFERENCES Shows(id),
     FOREIGN KEY (userID) REFERENCES Users(id)
 );
