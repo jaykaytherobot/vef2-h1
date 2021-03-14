@@ -69,6 +69,6 @@ CREATE TABLE IF NOT EXISTS ShowToUser(
     userID serial,
     status varchar(128),
     grade integer,
-    FOREIGN KEY (serieID) REFERENCES Shows(id),
+    FOREIGN KEY (showID) REFERENCES Shows(id),
     FOREIGN KEY (userID) REFERENCES Users(id)
 );
