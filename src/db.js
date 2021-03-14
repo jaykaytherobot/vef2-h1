@@ -90,7 +90,7 @@ export async function getSeasonByID(id) {
 }
 
 export async function getRatingStatsByID(id) {
-  const q = 'SELECT AVG(grade), COUNT(grade) FROM showtouser WHERE showId = 1;';
+  const q = 'SELECT AVG(grade), COUNT(grade) FROM showtouser WHERE showId = $1;';
   let result = '';
   try {
     result = await query(q, [id]);
