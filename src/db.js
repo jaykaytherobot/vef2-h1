@@ -89,27 +89,27 @@ export async function getSeasonsByShowId(showId) {
   return result.rows;
 }
 
-export async function getSeasonById(showId, seasonId) {
-  const q = 'SELECT * FROM Seasons WHERE id = $1 and showId = $2;';
+export async function getSeasonByShowIdAndSeasonNum(showId, seasonNum) {
+  const q = 'SELECT * FROM Seasons WHERE num = $1 and showId = $2;';
   let result = '';
   try {
-    result = await query(q, [seasonId, showId]);
+    result = await query(q, [seasonNum, showId]);
+  } catch (e) {
+    console.info('Error occured :>> ', e);
+  }
+  return result.rows[0];
+}
+
+export async function getEpisodesByShowIdAndSeasonNum(showId, seasonNum) {
+  const q = 'SELECT * FROM Episodes WHERE season = $1 and showId = $2 ORDER BY num ASC;';
+  let result = '';
+  try {
+    result = await query(q, [seasonNum, showId]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
   return result.rows;
 }
-
-// export async function getEpisodesByShowIdAndSeasonNum(seasonId) {
-//   const q = 'SELECT * FROM Episodes WHERE season = $1 and showId = $2;';
-//   let result = '';
-//   try {
-//     result = await query(q, [seasonId, showId]);
-//   } catch (e) {
-//     console.info('Error occured :>> ', e);
-//   }
-//   return result.rows;
-// }
 
 export async function getEpisodeById(id) {
   const q = 'SELECT * FROM Episodes WHERE id = $1;';
