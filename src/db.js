@@ -45,8 +45,6 @@ export async function getAllFromTable(table) {
   return result.rows;
 }
 
-
-
 export async function getSerieById(id) {
   const q = 'SELECT s.*, AVG(stu.grade) as avgRating, COUNT(stu.grade) as ratingsCount FROM Shows s, ShowToUser stu WHERE s.id = $1 AND stu.showId = $1 GROUP BY s.id;';
   let result = '';
