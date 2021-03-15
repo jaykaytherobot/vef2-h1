@@ -79,7 +79,7 @@ export async function getSeasonBySerieIdAndSeasonNum(serieId, seasonNum) {
 }
 
 export async function getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum, offset = 0, limit = 10) {
-  const q = 'SELECT * FROM Episodes WHERE season = $1 and serieId = $2 OFFSET $3 LIMIT $4 ORDER BY num ASC;';
+  const q = 'SELECT * FROM Episodes WHERE seasonnumber = $1 and serieId = $2 OFFSET $3 LIMIT $4 ORDER BY num ASC;';
   let result = '';
   try {
     result = await query(q, [seasonNum, serieId, offset, limit]);
@@ -101,7 +101,7 @@ export async function getEpisodeById(id) {
 }
 
 export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
-  const q = 'SELECT * FROM Episodes WHERE num = $1 AND season = $2 AND serieId = $3;';
+  const q = 'SELECT e.*, s.id as seasonid FROM Episodes e, Seasons s WHERE e."number" = $1 AND e.seasonnumber = $2 AND e.serieId = $3 AND s.serieId = e.serieId AND s.number = $2;';
   let result = '';
   try {
     result = await query(q, [episodeNum, seasonNum, serieId]);
@@ -133,13 +133,13 @@ export async function createNewSerie(serie) {
 }
 
 export async function createNewSeason(season) {
-  await query(`INSERT INTO Seasons(serieId, name, serieName, num, airDate, overview, poster)
+  await query(`INSERT INTO Seasons(serieId, name, serieName, "number", air_date, overview, poster)
                               VALUES ($1,$2,$3,$4,$5,$6,$7);`,
                               [season.serieId, season.name, season.serie, season.number, season.airDate, season.overview, season.poster]);
 }
 
 export async function createNewEpisode(episode) {
-  await query(`INSERT INTO Episodes(serieId, season, name, num, serie, overview)
+  await query(`INSERT INTO Episodes(serieId, seasonnumber, name, "number", serie, overview)
                               VALUES ($1,$2,$3,$4,$5,$6);`,
                               [episode.serieId, episode.season, episode.name, episode.number, episode.serie, episode.overview]);
 }

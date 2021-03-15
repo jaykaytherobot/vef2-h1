@@ -25,13 +25,13 @@ router.get('/',
     return res.status(404).json({ msg: 'Table not found' });
   });
 
-router.get('/:id',
+router.get('/:id[0-9]+',
   requireAdminAuthentication,
   async (req, res) => {
     // IF ADMIN RETURN USER WITH ID
     const { userId } = req.params;
     const data = await userDb.getUserByID(userId);
-    if(data) return res.json({data});
+    if (data) return res.json({ data });
     return res.status(404).json({ msg: 'User not found' });
   });
 
@@ -58,9 +58,28 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   // RETURNS TOKEN FOR EMAIL+PASSWORD COMBINATION
-  const { email, password = '' } = req.body;
+  const { username, password = '' } = req.body;
 
-  const user = await getUserByEmail(email);
+  const errors = [];
+  if (!username) {
+    errors.push({
+      msg: "username is required, max 256 characters",
+      param: "username",
+      location: "body",
+    });
+  }
+  if (!password) {
+    errors.push({
+      msg: "password is required, max 256 characters",
+      param: "password",
+      location: "body",
+    });
+  }
+  if (errors.length > 0) {
+    return res.status(400).json({ "errors": errors });
+  }
+
+  const user = await getUserByName(username);
 
   if (!user) {
     return res.status(401).json({ error: 'No user with that email' });
@@ -76,26 +95,39 @@ router.post('/login', async (req, res) => {
   return res.status(401).json({ error: 'Invalid password' });
 });
 
-router.get('/logout', (req, res) => {
-  // do something to log user out
-  res.redirect('/');
-});
-
-router.get('/me', (req, res) => {
-  // IF AUTHENTICATED RETURN EMAIL AND PASSWORD
-  res.json({
-    msg: 'Not implemented',
-    email: 'Not implemented',
-    username: 'Not implemented',
+router.get('/me',
+  requireAuthentication,
+  (req, res) => {
+    // IF AUTHENTICATED RETURN EMAIL AND PASSWORD
+    res.json({
+      email: req.user.email,
+      username: req.user.name,
+    });
   });
-});
 
 
-router.patch('/me', (req, res) => {
-  // IF AUTHENTICATED UPDATE INFO
-  res.json({
-    msg: 'Not implemented',
-    email: 'Not implemented',
-    username: 'Not implemented',
+router.patch('/me', requireAuthentication,
+  (req, res) => {
+    const { email, name, password } = req.body;
+
+    if (!email && !name && !password) {
+      res.status(400).json({ error: 'Nothing to update' });
+    }
+
+    if (email) {
+      // update email
+    }
+
+    if (name) {
+      // update name
+    }
+
+    if (password) {
+      //update password
+    }
+    res.json({
+      msg: 'Not implemented',
+      email: 'Not implemented',
+      username: 'Not implemented',
+    });
   });
-});

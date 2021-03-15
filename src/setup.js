@@ -77,4 +77,4 @@ async function setup() {
   });
 }
 
-await setup();
+setup();

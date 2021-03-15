@@ -37,9 +37,9 @@ CREATE TABLE IF NOT EXISTS Seasons(
     serieId serial,
     name varchar(128) NOT NULL,
     serieName varchar(128) NOT NULL,
-    num integer,
-    CHECK(num > 0),
-    airDate timestamp,
+    "number" integer,
+    CHECK("number" > 0),
+    air_date timestamp,
     overview text,
     poster varchar(256) NOT NULL,
     FOREIGN KEY (serieId) REFERENCES Series(id)
@@ -48,11 +48,11 @@ CREATE TABLE IF NOT EXISTS Seasons(
 CREATE TABLE IF NOT EXISTS Episodes(
     id serial PRIMARY KEY,
     serieId integer,
-    season integer,
+    seasonNumber integer,
     name varchar(128) NOT NULL,
-    num integer,
-    CHECK(num > 0),
-    -- airDate datetime,
+    "number" integer,
+    CHECK("number" > 0),
+    air_date varchar(128),
     serie varchar(128),
     overview text,
     FOREIGN KEY (serieId) REFERENCES Series(id)
