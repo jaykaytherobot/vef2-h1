@@ -14,10 +14,9 @@ router.post('/', (req, res) => {
 });
 
 // /tv/:id
-router.get('/:showId', async (req, res) => {
-  let { showId } = req.params;
-  showId = Number(showId);
-  const data = await db.getShowById(showId);
+router.get('/:serieId', async (req, res) => {
+  const { serieId } = req.params;
+  const data = await db.getSerieById(serieId);
   // Ef authenticated þá bæta við einkunn og stöðu
   if (!data) {
     res.status(404).json({ msg: 'Fann ekki þátt' });
@@ -25,19 +24,18 @@ router.get('/:showId', async (req, res) => {
   res.json({ data });
 });
 
-router.patch('/:showId', (req, res) => {
+router.patch('/:serieId', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
-router.delete('/:showId', (req, res) => {
+router.delete('/:serieId', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
 // /tv/:id/season/
-router.get('/:showId/season', async (req, res) => {
-  let { showId } = req.params;
-  showId = Number(showId);
-  const data = await db.getSeasonsByShowId(showId);
+router.get('/:serieId/season', async (req, res) => {
+  const { serieId } = req.params;
+  const data = await db.getSeasonsBySerieId(serieId);
   // Ef authenticated þá bæta við einkunn og stöðu
   if (!data) {
     res.status(404).json({ msg: 'Fann ekki þátt' });
@@ -50,39 +48,41 @@ router.post('/:id/season', (req, res) => {
 });
 
 // /tv/:id/season/:id
-router.get('/:showId/season/:seasonNum', async (req, res) => {
-  let { showId, seasonNum } = req.params;
-  showId = Number(showId);
-  seasonNum = Number(seasonNum);
-  const season = await db.getSeasonByShowIdAndSeasonNum(showId, seasonNum);
+router.get('/:serieId/season/:seasonNum', async (req, res) => {
+  const { serieId, seasonNum } = req.params;
+  const season = await db.getSeasonBySerieIdAndSeasonNum(serieId, seasonNum);
   if (!season) {
     res.status(404).json({ msg: 'Fann ekki þátt' });
   }
-  console.log(season);
-  const episodes = await db.getEpisodesByShowIdAndSeasonNum(showId, seasonNum);
+  const episodes = await db.getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum);
   const combined = Object.assign(season, { episodes });
   res.json({ combined });
 });
 
-router.delete('/:showId/season/:seasonId', (req, res) => {
+router.delete('/:serieId/season/:seasonNum', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
 // /tv/:id/season/:id/episode/
-router.get('/:showId/season/:seasonId/episode', (req, res) => {
+router.post('/:serieId/season/:seasonNum/episode', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
-router.delete('/:showId/season/:seasonId/episode', (req, res) => {
+router.delete('/:serieId/season/:seasonNum/episode', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
 // /tv/:id/season/:id/episode/:id
-router.get('/:showId/season/:seasonId/episode/:episodeId', (req, res) => {
-  res.json({ foo: 'bar' });
+router.get('/:serieId/season/:seasonNum/episode/:episodeNum', async (req, res) => {
+  const { serieId, seasonNum, episodeNum } = req.params;
+  const data = await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
+  if (!data) {
+    res.status(404).json({ msg: 'Fann ekki þátt' });
+  }
+  res.json(data);
 });
 
-router.post('/:showId/season/:seasonId/episode/:episodeId', (req, res) => {
+router.post('/:serieId/season/:seasonNum/episode/:episodeNum', (req, res) => {
   res.json({ foo: 'bar' });
 });
 

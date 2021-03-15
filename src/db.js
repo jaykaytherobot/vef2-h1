@@ -47,7 +47,7 @@ export async function getAllFromTable(table) {
 
 
 
-export async function getShowById(id) {
+export async function getSerieById(id) {
   const q = 'SELECT s.*, AVG(stu.grade) as avgRating, COUNT(stu.grade) as ratingsCount FROM Shows s, ShowToUser stu WHERE s.id = $1 AND stu.showId = $1 GROUP BY s.id;';
   let result = '';
   try {
@@ -58,33 +58,33 @@ export async function getShowById(id) {
   return result.rows[0];
 }
 
-export async function getSeasonsByShowId(showId) {
+export async function getSeasonsBySerieId(serieId) {
   const q = 'SELECT * FROM Seasons WHERE showId = $1;';
   let result = '';
   try {
-    result = await query(q, [showId]);
+    result = await query(q, [serieId]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
   return result.rows;
 }
 
-export async function getSeasonByShowIdAndSeasonNum(showId, seasonNum) {
+export async function getSeasonBySerieIdAndSeasonNum(serieId, seasonNum) {
   const q = 'SELECT * FROM Seasons WHERE num = $1 and showId = $2;';
   let result = '';
   try {
-    result = await query(q, [seasonNum, showId]);
+    result = await query(q, [seasonNum, serieId]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
   return result.rows[0];
 }
 
-export async function getEpisodesByShowIdAndSeasonNum(showId, seasonNum) {
+export async function getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum) {
   const q = 'SELECT * FROM Episodes WHERE season = $1 and showId = $2 ORDER BY num ASC;';
   let result = '';
   try {
-    result = await query(q, [seasonNum, showId]);
+    result = await query(q, [seasonNum, serieId]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
@@ -102,11 +102,22 @@ export async function getEpisodeById(id) {
   return result.rows;
 }
 
+export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
+  const q = 'SELECT * FROM Episodes WHERE num = $1 AND season = $2 AND showId = $3;';
+  let result = '';
+  try {
+    result = await query(q, [episodeNum, seasonNum, serieId]);
+  } catch (e) {
+    console.info('Error occured :>> ', e);
+  }
+  return result.rows[0];
+}
+
 /* eslint-disable max-len, indent, quotes */
 // passa id seinna
 
-export async function createNewSeries(serie) {
-  await query(`INSERT INTO Shows(id, name, airDate, inProduction, tagline, img, description, lang, network, website)
+export async function createNewSerie(serie) {
+  await query(`INSERT INTO Series(id, name, air_date, in_production, tagline, image, description, language, network, url)
                                         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);`,
                                         [serie.id, serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.deseriecription, serie.language, serie.network, serie.homepage]);
   serie.genres.split(',').forEach(async (genre) => {
