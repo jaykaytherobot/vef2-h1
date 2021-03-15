@@ -1,12 +1,8 @@
 // users.js
 import dotenv from 'dotenv';
-<<<<<<< HEAD
 import express from "express";
 import * as db from './db.js';
-=======
-import express  from "express";
 import { comparePasswords, createUser, getUserByName } from "./userdb.js";
->>>>>>> 97bbcc9ff0e1dfbd04078e6c24f1dfb2d79165f1
 import bcrypt from 'bcrypt';
 import passport from "passport";
 import { createTokenForUser, requireAuthentication } from "./login.js";
