@@ -1,12 +1,14 @@
 import express from 'express';
 import * as db from './db.js';
+import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from "./login.js";
 
 export const router = express.Router();
 
 // /tv
 router.get('/', async (req, res) => {
-  const data = await db.getAllFromTable('shows');
-  res.json({ data });
+  const data = await db.getAllFromTable('Shows');
+  if (data) return res.json({ data });
+  return res.status(404).json({ msg: 'Table not found' });
 });
 
 router.post('/', async (req, res) => {
