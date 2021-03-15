@@ -43,7 +43,6 @@ router.get('/:showID/season', async (req, res) => {
     res.status(404).json({ msg: 'Fann ekki þátt' });
   }
   res.json({ data });
-  res.json({ foo: 'bar' });
 });
 
 router.post('/:id/season', (req, res) => {
@@ -51,9 +50,15 @@ router.post('/:id/season', (req, res) => {
 });
 
 // /tv/:id/season/:id
-router.post('/:showID/season/:seasonID', (req, res) => {
-  console.log(req.params);
-  res.json({ foo: 'bar' });
+router.get('/:showID/season/:seasonID', async (req, res) => {
+  let { showID, seasonID } = req.params;
+  showID = Number(showID);
+  seasonID = Number(showID);
+  const data = await db.getSeasonByID(showID, seasonID);
+  if (!data) {
+    res.status(404).json({ msg: 'Fann ekki þátt' });
+  }
+  res.json({ data });
 });
 
 router.delete('/:showID/season/:seasonID', (req, res) => {

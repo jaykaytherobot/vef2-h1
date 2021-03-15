@@ -4,7 +4,7 @@ import { readFile } from 'fs/promises';
 import dotenv from 'dotenv';
 import csv from 'csv-parser';
 
-import { createNewSeries, query, createNewSeason } from './db.js';
+import { createNewSeries, query, createNewSeason, createNewEpisode } from './db.js';
 dotenv.config();
 
 const {
@@ -56,6 +56,16 @@ async function setup() {
     })
     .on('end', () => {
       console.info('Finished reading seasons.csv');
+    });
+
+  fs.createReadStream('./data/episodes.csv')
+    .pipe(csv())
+    .on('data', async (episode) => {
+      console.log(episode);
+      await createNewEpisode(episode);
+    })
+    .on('end', () => {
+      console.info('Finished reading episodes.csv');
     });
 
 }

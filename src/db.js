@@ -86,15 +86,14 @@ export async function getSeasonsByShowID(showID) {
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
-  console.log(result);
   return result.rows;
 }
 
-export async function getSeasonByID(id) {
-  const q = 'SELECT * FROM Seasons WHERE id = $1;';
+export async function getSeasonByID(showID, seasonID) {
+  const q = 'SELECT * FROM Seasons WHERE id = $1 and showID = $2;';
   let result = '';
   try {
-    result = await query(q, [id]);
+    result = await query(q, [seasonID, showID]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
@@ -122,10 +121,10 @@ export async function createNewSeries(serie) {
   serie.genres.split(',').forEach(async (genre) => {
     let genreId;
     try {
-      const result = await query(`INSERT INTO Genre(name) VALUES ($1) RETURNING id;`, [genre]);
+      const result = await query(`INSERT INTO Genres(name) VALUES ($1) RETURNING id;`, [genre]);
       genreId = result.rows[0].id;
     } catch (error) {
-      const result = await query(`SELECT id FROM Genre WHERE name = $1`, [genre]);
+      const result = await query(`SELECT id FROM Genres WHERE name = $1`, [genre]);
       genreId = result.rows[0].id;
     } finally {
       await query(`INSERT INTO ShowToGenre(showID, genreID) VALUES ($1, $2);`, [serie.id, genreId]);
@@ -134,7 +133,13 @@ export async function createNewSeries(serie) {
 }
 
 export async function createNewSeason(season) {
-  await query(`INSERT INTO Seasons(showID, name, serieName, num, airDate, description, poster)
+  await query(`INSERT INTO Seasons(showID, name, serieName, num, airDate, overview, poster)
                               VALUES ($1,$2,$3,$4,$5,$6,$7);`,
                               [season.serieId, season.name, season.serie, season.number, season.airDate, season.overview, season.poster]);
+}
+
+export async function createNewEpisode(episode) {
+  await query(`INSERT INTO Episodes(showID, season, name, num, serie, overview)
+                              VALUES ($1,$2,$3,$4,$5,$6);`,
+                              [episode.serieId, episode.season, episode.name, episode.number, episode.serie, episode.overview]);
 }
