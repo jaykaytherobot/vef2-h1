@@ -54,3 +54,27 @@ export function requireAuthentication(req, res, next) {
       return next();
     })(req, res, next);
 }
+
+export function requireAdminAuthentication(req, res, next) {
+  return passport.authenticate(
+    'jwt', 
+    { session: false }, 
+    (err, user, info) => {
+      if(err) {
+        return next(err);
+      }
+
+      if(!user) {
+        const error = info.name === 'TokenExpiredError'
+          ? 'expired token' : 'invalid token';
+        return res.status(401).json({ error });
+      }
+
+      if(!user.admin) {
+        return res.status(401).json({ error: 'User does not have admin priviledges' });
+      }
+
+      req.user = user;
+      return next();
+    })(req, res, next);
+}
