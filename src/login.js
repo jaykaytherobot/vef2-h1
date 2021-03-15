@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
-import passport from "passport";
-import { Strategy, ExtractJwt } from "passport-jwt";
-import {  getUserByID } from "./db.js";
+import passport from 'passport';
+import { Strategy, ExtractJwt } from 'passport-jwt';
+import jwt from 'jsonwebtoken';
+import { getUserByID } from './userdb.js';
 
 export default passport;
 
@@ -19,7 +20,7 @@ if (!jwtSecret) {
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: jwtSecret
+  secretOrKey: jwtSecret,
 };
 
 async function strat(data, next) {
@@ -35,46 +36,55 @@ async function strat(data, next) {
 
 passport.use(new Strategy(jwtOptions, strat));
 
+export function createTokenForUser(id) {
+  const payload = { id };
+  const tokenOptions = { expiresIn: tokenLifetime };
+  const token = jwt.sign(payload, jwtSecret, tokenOptions);
+  return token;
+}
+
 export function requireAuthentication(req, res, next) {
   return passport.authenticate(
-    'jwt', 
+    'jwt',
     { session: false },
     (err, user, info) => {
       if (err) {
         return next(err);
       }
 
-      if(!user) {
-        const error = info.name === 'TokenExpiredError'
-          	? 'expired token' : 'invalid token';
-        return res.status(401).json({ error });
-      }
-
-      req.user = user;
-      return next();
-    })(req, res, next);
-}
-
-export function requireAdminAuthentication(req, res, next) {
-  return passport.authenticate(
-    'jwt', 
-    { session: false }, 
-    (err, user, info) => {
-      if(err) {
-        return next(err);
-      }
-
-      if(!user) {
+      if (!user) {
         const error = info.name === 'TokenExpiredError'
           ? 'expired token' : 'invalid token';
         return res.status(401).json({ error });
       }
 
-      if(!user.admin) {
+      req.user = user;
+      return next();
+    },
+  )(req, res, next);
+}
+
+export function requireAdminAuthentication(req, res, next) {
+  return passport.authenticate(
+    'jwt',
+    { session: false },
+    (err, user, info) => {
+      if (err) {
+        return next(err);
+      }
+
+      if (!user) {
+        const error = info.name === 'TokenExpiredError'
+          ? 'expired token' : 'invalid token';
+        return res.status(401).json({ error });
+      }
+
+      if (!user.admin) {
         return res.status(401).json({ error: 'User does not have admin priviledges' });
       }
 
       req.user = user;
       return next();
-    })(req, res, next);
+    },
+  )(req, res, next);
 }

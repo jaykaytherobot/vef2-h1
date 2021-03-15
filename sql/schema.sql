@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS Seasons(
     serieName varchar(128) NOT NULL,
     num integer,
     CHECK(num > 0),
-    airDate datetime,
+    airDate timestamp,
     overview text,
     poster varchar(256) NOT NULL,
     FOREIGN KEY (showId) REFERENCES Shows(id)
@@ -60,8 +60,8 @@ CREATE TABLE IF NOT EXISTS Episodes(
 
 CREATE TABLE IF NOT EXISTS Users(
     id serial PRIMARY KEY,
-    name varchar(128) NOT NULL,
-    email varchar(128) NOT NULL,
+    name varchar(128) NOT NULL UNIQUE,
+    email varchar(128) NOT NULL UNIQUE,
     password varchar(128) NOT NULL,
     admin boolean DEFAULT FALSE
 );

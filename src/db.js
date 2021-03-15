@@ -45,37 +45,6 @@ export async function getAllFromTable(table) {
   return result.rows;
 }
 
-export async function getUserByName(name) {
-  const q = 'SELECT * FROM Users WHERE name = $1;';
-  console.log(name);
-  try {
-    const result = await query(q, [name]);
-    console.log(result);
-
-    if(result.rowCount === 1) {
-      return result.rows[0];
-    }
-  } catch (e) {
-    console.error('Error occured :>> ', e);
-    return null;
-  }
-  return false;
-}
-
-export async function getUserById(id) {
-  const q = 'SELECT * FROM Users WHERE id = $1;';
-  try {
-    const result = await query(q, [id]);
-    if(result.rowCount === 1) {
-      return result.rows[0];
-    }
-  } catch (e) {
-    console.error('Error occured :>> ', e);
-    return null;
-  }
-  return false;
-}
-
 export async function getShowById(id) {
   const q = 'SELECT s.*, AVG(stu.grade) as avgRating, COUNT(stu.grade) as ratingsCount FROM Shows s, ShowToUser stu WHERE s.id = $1 AND stu.showId = $1 GROUP BY s.id;';
   let result = '';

@@ -1,11 +1,15 @@
 // users.js
 import dotenv from 'dotenv';
+<<<<<<< HEAD
 import express from "express";
 import * as db from './db.js';
+=======
+import express  from "express";
+import { comparePasswords, createUser, getUserByName } from "./userdb.js";
+>>>>>>> 97bbcc9ff0e1dfbd04078e6c24f1dfb2d79165f1
 import bcrypt from 'bcrypt';
 import passport from "passport";
-import jwt from 'jsonwebtoken';
-import { requireAuthentication } from "./login.js";
+import { createTokenForUser, requireAuthentication } from "./login.js";
 
 dotenv.config();
 
@@ -32,13 +36,33 @@ router.get('/:id', (req, res) => {
   });
 });
 
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   // REGISTERS NON-ADMIN USER
+<<<<<<< HEAD
   res.json({
     msg: 'Not implemented',
     email: 'Not implemented',
     token: 'Not implemented',
   });
+=======
+  const { username, email, password } = req.body;
+
+  if(!username || !email || !password) {
+    const error = 'Missing username, email or password from body';
+    return res.status(400).json({ error });
+  }
+
+  const createdUser = await createUser({ name: username, email, password });
+
+  if(createdUser) {
+    return res.json({
+      email: createdUser.email,
+      token: createTokenForUser(createdUser.id),
+    });
+  }
+  
+  return res.json({ error: 'Villa við skráningu' });
+>>>>>>> 97bbcc9ff0e1dfbd04078e6c24f1dfb2d79165f1
 });
 
 router.post('/login', async (req, res) => {
@@ -52,12 +76,10 @@ router.post('/login', async (req, res) => {
   }
 
   // TODO check if passwords match
-  const passwordIsCorrect = true;
+  const passwordIsCorrect = comparePasswords(password, user.password);
 
   if (passwordIsCorrect) {
-    const payload = { id: user.id };
-    const tokenOptions = { expiresIn: jwtTokenlifetime };
-    const token = jwt.sign(payload, jwtSecret, tokenOptions);
+    const token = createTokenForUser(user.id);
     return res.json({ token, msg: "Password check is not implemented" });
   }
 

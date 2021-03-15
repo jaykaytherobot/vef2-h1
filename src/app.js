@@ -20,13 +20,66 @@ app.use(passport.initialize());
 
 app.get('/', (req, res) => {
   res.json({
-    '/tv': {
-      methods: 'GET POST',
-    }
-  })
+    paths: {
+      '/tv': {
+        methods: 'GET POST',
+        subURL: {
+          '/:id': {
+            methods: 'GET PATCH DELETE',
+            subURL: {
+              '/season': {
+                methods: 'GET POST',
+                subURL: {
+                  '/:id': {
+                    methods: 'GET DELETE',
+                    subURL: {
+                      '/episode': {
+                        methods: 'GET POST',
+                        subURL: {
+                          '/:id': {
+                            methods: 'GET DELETE',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              '/rate': {
+                methods: 'POST PATCH DELETE',
+              },
+              '/state': {
+                methods: 'POST PATCH DELETE',
+              },
+            },
+          },
+        },
+      },
+      '/genres': {
+        methods: 'GET POST',
+      },
+      '/users': {
+        methods: 'GET',
+        subURL: {
+          '/id:': {
+            methods: 'GET PATCH',
+          },
+          '/register': {
+            methods: 'POST',
+          },
+          '/login': {
+            methods: 'POST',
+          },
+          '/me': {
+            methods: 'GET PATCH',
+          },
+        },
+      },
+    },
+  });
 });
 
-app.use('/users', userRouter );
+app.use('/users', userRouter);
 app.use('/tv', tvRouter);
 app.get('/genres', getGenres);
 app.post('/genres', getGenres);
