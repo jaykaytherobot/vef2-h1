@@ -47,6 +47,23 @@ export async function getUserByName(name) {
   return false;
 }
 
+export async function getUserByEmail(email) {
+  const q = 'SELECT * FROM Users WHERE email = $1;';
+  console.log(email);
+  try {
+    const result = await query(q, [email]);
+    console.log(result);
+
+    if(result.rowCount === 1) {
+      return result.rows[0];
+    }
+  } catch (e) {
+    console.error('Error occured :>> ', e);
+    return null;
+  }
+  return false;
+}
+
 export async function getUserByID(id) {
   const q = 'SELECT * FROM Users WHERE id = $1;';
   try {
