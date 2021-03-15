@@ -61,8 +61,15 @@ router.get('/:showID/season/:seasonID', async (req, res) => {
   res.json({ data });
 });
 
-router.delete('/:showID/season/:seasonID', (req, res) => {
-  res.json({ foo: 'bar' });
+router.delete('/:showID/season/:seasonID', async (req, res) => {
+  let { showID, seasonID } = req.params;
+  showID = Number(showID);
+  seasonID = Number(showID);
+  const data = await db.getSeasonByID(showID, seasonID);
+  if (!data) {
+    res.status(404).json({ msg: 'Fann ekki þátt' });
+  }
+  res.json({ data });
 });
 
 // /tv/:id/season/:id/episode/
