@@ -1,15 +1,11 @@
 // users.js
 import dotenv from 'dotenv';
-<<<<<<< HEAD
 import express from "express";
 import * as db from './db.js';
-=======
-import express  from "express";
-import { comparePasswords, createUser, getUserByName } from "./userdb.js";
->>>>>>> 97bbcc9ff0e1dfbd04078e6c24f1dfb2d79165f1
+import * as userDb from "./userdb.js";
 import bcrypt from 'bcrypt';
 import passport from "passport";
-import { createTokenForUser, requireAuthentication } from "./login.js";
+import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from "./login.js";
 
 dotenv.config();
 
@@ -21,48 +17,43 @@ const {
 export const router = express.Router();
 
 router.get('/',
-  requireAuthentication,
-  (req, res) => {
+  requireAdminAuthentication,
+  async (req, res) => {
     // IF ADMIN RETURN ALL USERS
-    res.json({
-      msg: 'Not implemented',
-    });
+    const data = await db.getAllFromTable('Users');
+    if (data) return res.json({ data });
+    return res.status(404).json({ msg: 'Table not found' });
   });
 
-router.get('/:id', (req, res) => {
-  // IF ADMIN RETURN USER WITH ID
-  res.json({
-    msg: 'Not implemented',
+router.get('/:id',
+  requireAdminAuthentication,
+  async (req, res) => {
+    // IF ADMIN RETURN USER WITH ID
+    const { userId } = req.params;
+    const data = await userDb.getUserByID(userId);
+    if(data) return res.json({data});
+    return res.status(404).json({ msg: 'User not found' });
   });
-});
 
 router.post('/register', async (req, res) => {
   // REGISTERS NON-ADMIN USER
-<<<<<<< HEAD
-  res.json({
-    msg: 'Not implemented',
-    email: 'Not implemented',
-    token: 'Not implemented',
-  });
-=======
   const { username, email, password } = req.body;
 
-  if(!username || !email || !password) {
+  if (!username || !email || !password) {
     const error = 'Missing username, email or password from body';
     return res.status(400).json({ error });
   }
 
-  const createdUser = await createUser({ name: username, email, password });
+  const createdUser = await userDb.createUser({ name: username, email, password });
 
-  if(createdUser) {
+  if (createdUser) {
     return res.json({
       email: createdUser.email,
       token: createTokenForUser(createdUser.id),
     });
   }
-  
+
   return res.json({ error: 'Villa við skráningu' });
->>>>>>> 97bbcc9ff0e1dfbd04078e6c24f1dfb2d79165f1
 });
 
 router.post('/login', async (req, res) => {
@@ -76,7 +67,7 @@ router.post('/login', async (req, res) => {
   }
 
   // TODO check if passwords match
-  const passwordIsCorrect = comparePasswords(password, user.password);
+  const passwordIsCorrect = userDb.comparePasswords(password, user.password);
 
   if (passwordIsCorrect) {
     const token = createTokenForUser(user.id);
