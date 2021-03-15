@@ -34,8 +34,8 @@ export async function query(q, values = []) {
   return result;
 }
 
-export async function getAllFromTable(table) {
-  const q = `SELECT * FROM ${table};`;
+export async function getAllFromTable(table, offset = 0, limit = 10) {
+  const q = `SELECT * FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
   let result = '';
   try {
     result = await query(q);
@@ -45,22 +45,22 @@ export async function getAllFromTable(table) {
   return result.rows;
 }
 
-export async function getSerieById(id) {
-  const q = 'SELECT s.*, AVG(stu.grade) as avgRating, COUNT(stu.grade) as ratingsCount FROM Shows s, ShowToUser stu WHERE s.id = $1 AND stu.showId = $1 GROUP BY s.id;';
+export async function getSerieById(id, offset = 0, limit = 10) {
+  const q = 'SELECT s.*, AVG(stu.grade) as avgRating, COUNT(stu.grade) as ratingsCount FROM Shows s, ShowToUser stu WHERE s.id = $1 AND stu.showId = $1 GROUP BY s.id OFFSET $2 LIMIT $3;';
   let result = '';
   try {
-    result = await query(q, [id]);
+    result = await query(q, [id, offset, limit]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
   return result.rows[0];
 }
 
-export async function getSeasonsBySerieId(serieId) {
-  const q = 'SELECT * FROM Seasons WHERE showId = $1;';
+export async function getSeasonsBySerieId(serieId, offset = 0, limit = 10) {
+  const q = 'SELECT * FROM Seasons WHERE showId = $1 OFFSET $2 LIMIT $3;';
   let result = '';
   try {
-    result = await query(q, [serieId]);
+    result = await query(q, [serieId, offset, limit]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
@@ -78,11 +78,11 @@ export async function getSeasonBySerieIdAndSeasonNum(serieId, seasonNum) {
   return result.rows[0];
 }
 
-export async function getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum) {
-  const q = 'SELECT * FROM Episodes WHERE season = $1 and showId = $2 ORDER BY num ASC;';
+export async function getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum, offset = 0, limit = 10) {
+  const q = 'SELECT * FROM Episodes WHERE season = $1 and showId = $2 OFFSET $3 LIMIT $4 ORDER BY num ASC;';
   let result = '';
   try {
-    result = await query(q, [seasonNum, serieId]);
+    result = await query(q, [seasonNum, serieId, offset, limit]);
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
