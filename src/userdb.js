@@ -6,7 +6,9 @@ export async function createUser(user) {
 
   try {
     const result = await query(q, [user.name, user.email, await bcrypt.hash(user.password, 10)]);
-    return result.rows[0];
+    if (result.rowCount === 1){
+      return result.rows[0];
+    }
   }
   catch (error) {
     console.error('Error creating user', error);
