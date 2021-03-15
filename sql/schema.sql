@@ -26,15 +26,15 @@ CREATE TABLE IF NOT EXISTS Genres(
 
 CREATE TABLE IF NOT EXISTS ShowToGenre(
     id serial PRIMARY KEY,
-    showID serial,
-    genreID serial,
-    FOREIGN KEY (showID) REFERENCES Shows(id),
-    FOREIGN KEY (genreID) REFERENCES Genres(id)
+    showId serial,
+    genreId serial,
+    FOREIGN KEY (showId) REFERENCES Shows(id),
+    FOREIGN KEY (genreId) REFERENCES Genres(id)
 );
 
 CREATE TABLE IF NOT EXISTS Seasons(
     id serial PRIMARY KEY,
-    showID serial,
+    showId serial,
     name varchar(128) NOT NULL,
     serieName varchar(128) NOT NULL,
     num integer,
@@ -42,12 +42,12 @@ CREATE TABLE IF NOT EXISTS Seasons(
     airDate datetime,
     overview text,
     poster varchar(256) NOT NULL,
-    FOREIGN KEY (showID) REFERENCES Shows(id)
+    FOREIGN KEY (showId) REFERENCES Shows(id)
 );
 
 CREATE TABLE IF NOT EXISTS Episodes(
     id serial PRIMARY KEY,
-    showID integer,
+    showId integer,
     season integer,
     name varchar(128) NOT NULL,
     num integer,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS Episodes(
     -- airDate datetime,
     serie varchar(128),
     overview text,
-    FOREIGN KEY (showID) REFERENCES Shows(id)
+    FOREIGN KEY (showId) REFERENCES Shows(id)
 );
 
 CREATE TABLE IF NOT EXISTS Users(
@@ -67,10 +67,10 @@ CREATE TABLE IF NOT EXISTS Users(
 );
 
 CREATE TABLE IF NOT EXISTS ShowToUser(
-    showID serial,
-    userID serial,
+    showId serial,
+    userId serial,
     status varchar(128),
     grade integer,
-    FOREIGN KEY (showID) REFERENCES Shows(id),
-    FOREIGN KEY (userID) REFERENCES Users(id)
+    FOREIGN KEY (showId) REFERENCES Shows(id),
+    FOREIGN KEY (userId) REFERENCES Users(id)
 );
