@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS Seasons(
     serieName varchar(128) NOT NULL,
     num integer,
     CHECK(num > 0),
-    airDate datetime,
+    airDate timestamp,
     overview text,
     poster varchar(256) NOT NULL,
     FOREIGN KEY (showId) REFERENCES Shows(id)
