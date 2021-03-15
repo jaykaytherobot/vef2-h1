@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
 import passport from "passport";
 import { Strategy, ExtractJwt } from "passport-jwt";
-import {  getUserByID } from "./db.js";
+import jwt from 'jsonwebtoken';
+import {  getUserByID } from "./userdb.js";
 
 export default passport;
 
@@ -34,6 +35,13 @@ async function strat(data, next) {
 }
 
 passport.use(new Strategy(jwtOptions, strat));
+
+export function createTokenForUser(id) {
+  const payload = { id };
+  const tokenOptions = { expiresIn: tokenLifetime };
+  const token = jwt.sign(payload, jwtSecret, tokenOptions);
+  return token;
+}
 
 export function requireAuthentication(req, res, next) {
   return passport.authenticate(
