@@ -34,13 +34,6 @@ router.get('/:id', (req, res) => {
 
 router.post('/register', async (req, res) => {
   // REGISTERS NON-ADMIN USER
-<<<<<<< HEAD
-  res.json({
-    msg: 'Not implemented',
-    email: 'Not implemented',
-    token: 'Not implemented',
-  });
-=======
   const { username, email, password } = req.body;
 
   if(!username || !email || !password) {
@@ -58,7 +51,6 @@ router.post('/register', async (req, res) => {
   }
   
   return res.json({ error: 'Villa við skráningu' });
->>>>>>> 97bbcc9ff0e1dfbd04078e6c24f1dfb2d79165f1
 });
 
 router.post('/login', async (req, res) => {
