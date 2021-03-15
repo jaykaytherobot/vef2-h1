@@ -79,7 +79,7 @@ app.get('/', (req, res) => {
   });
 });
 
-app.use('/users', userRouter );
+app.use('/users', userRouter);
 app.use('/tv', tvRouter);
 app.get('/genres', getGenres);
 app.post('/genres', getGenres);
