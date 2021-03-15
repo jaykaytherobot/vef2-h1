@@ -47,9 +47,10 @@ export async function getAllFromTable(table) {
 
 export async function getUserByName(name) {
   const q = 'SELECT * FROM Users WHERE name = $1;';
-
+  console.log(name);
   try {
     const result = await query(q, [name]);
+    console.log(result);
 
     if(result.rowCount === 1) {
       return result.rows[0];
@@ -65,7 +66,6 @@ export async function getUserByID(id) {
   const q = 'SELECT * FROM Users WHERE id = $1;';
   try {
     const result = await query(q, [id]);
-
     if(result.rowCount === 1) {
       return result.rows[0];
     }
