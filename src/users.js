@@ -2,7 +2,7 @@
 import dotenv from 'dotenv';
 import express from "express";
 import * as db from './db.js';
-import { comparePasswords, createUser, getUserByName } from "./userdb.js";
+import { comparePasswords, createUser, getUserByEmail } from "./userdb.js";
 import bcrypt from 'bcrypt';
 import passport from "passport";
 import { createTokenForUser, requireAuthentication } from "./login.js";
@@ -55,20 +55,19 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   // RETURNS TOKEN FOR EMAIL+PASSWORD COMBINATION
-  const { username, password = '' } = req.body;
+  const { email, password = '' } = req.body;
 
-  const user = await db.getUserByName(username);
+  const user = await getUserByEmail(email);
 
   if (!user) {
-    return res.status(401).json({ error: 'No user with that username' });
+    return res.status(401).json({ error: 'No user with that email' });
   }
 
-  // TODO check if passwords match
   const passwordIsCorrect = comparePasswords(password, user.password);
 
   if (passwordIsCorrect) {
     const token = createTokenForUser(user.id);
-    return res.json({ token, msg: "Password check is not implemented" });
+    return res.json({ token });
   }
 
   return res.status(401).json({ error: 'Invalid password' });
