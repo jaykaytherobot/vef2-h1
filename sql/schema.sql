@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS ShowToGenre CASCADE;
-DROP TABLE IF EXISTS ShowToUser CASCADE;
+DROP TABLE IF EXISTS SerieToGenre CASCADE;
+DROP TABLE IF EXISTS SerieToUser CASCADE;
 DROP TABLE IF EXISTS Episodes CASCADE;
 DROP TABLE IF EXISTS Seasons CASCADE;
 DROP TABLE IF EXISTS Genres CASCADE;
@@ -28,13 +28,13 @@ CREATE TABLE IF NOT EXISTS SerieToGenre(
     id serial PRIMARY KEY,
     serieId serial,
     genreId serial,
-    FOREIGN KEY (seriesId) REFERENCES Series(id),
+    FOREIGN KEY (serieId) REFERENCES Series(id),
     FOREIGN KEY (genreId) REFERENCES Genres(id)
 );
 
 CREATE TABLE IF NOT EXISTS Seasons(
     id serial PRIMARY KEY,
-    seriesId serial,
+    serieId serial,
     name varchar(128) NOT NULL,
     serieName varchar(128) NOT NULL,
     num integer,
@@ -42,12 +42,12 @@ CREATE TABLE IF NOT EXISTS Seasons(
     airDate timestamp,
     overview text,
     poster varchar(256) NOT NULL,
-    FOREIGN KEY (seriesId) REFERENCES Series(id)
+    FOREIGN KEY (serieId) REFERENCES Series(id)
 );
 
 CREATE TABLE IF NOT EXISTS Episodes(
     id serial PRIMARY KEY,
-    seriesId integer,
+    serieId integer,
     season integer,
     name varchar(128) NOT NULL,
     num integer,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS Episodes(
     -- airDate datetime,
     serie varchar(128),
     overview text,
-    FOREIGN KEY (seriesId) REFERENCES Series(id)
+    FOREIGN KEY (serieId) REFERENCES Series(id)
 );
 
 CREATE TABLE IF NOT EXISTS Users(
@@ -67,10 +67,10 @@ CREATE TABLE IF NOT EXISTS Users(
 );
 
 CREATE TABLE IF NOT EXISTS SerieToUser(
-    seriesId serial,
+    serieId serial,
     userId serial,
     status varchar(128),
     grade integer,
-    FOREIGN KEY (seriesId) REFERENCES Series(id),
+    FOREIGN KEY (serieId) REFERENCES Series(id),
     FOREIGN KEY (userId) REFERENCES Users(id)
 );
