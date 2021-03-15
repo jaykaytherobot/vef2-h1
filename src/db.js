@@ -47,24 +47,33 @@ export async function getAllFromTable(table) {
 
 export async function getUserByName(name) {
   const q = 'SELECT * FROM Users WHERE name = $1;';
-  let result = '';
+
   try {
-    result = await query(q, [name]);
+    const result = await query(q, [name]);
+
+    if(result.rowCount === 1) {
+      return result.rows[0];
+    }
   } catch (e) {
-    console.info('Error occured :>> ', e);
+    console.error('Error occured :>> ', e);
+    return null;
   }
-  return result.rows;
+  return false;
 }
 
 export async function getUserByID(id) {
   const q = 'SELECT * FROM Users WHERE id = $1;';
-  let result = '';
   try {
-    result = await query(q, [id]);
+    const result = await query(q, [id]);
+
+    if(result.rowCount === 1) {
+      return result.rows[0];
+    }
   } catch (e) {
-    console.info('Error occured :>> ', e);
+    console.error('Error occured :>> ', e);
+    return null;
   }
-  return result.rows;
+  return false;
 }
 
 export async function getShowByID(id) {
