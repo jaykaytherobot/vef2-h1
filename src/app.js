@@ -20,63 +20,114 @@ app.use(passport.initialize());
 
 app.get('/', (req, res) => {
   res.json({
-    paths: {
-      '/tv': {
-        methods: 'GET POST',
-        subURL: {
-          '/:id': {
-            methods: 'GET PATCH DELETE',
-            subURL: {
-              '/season': {
-                methods: 'GET POST',
-                subURL: {
-                  '/:id': {
-                    methods: 'GET DELETE',
-                    subURL: {
-                      '/episode': {
-                        methods: 'GET POST',
-                        subURL: {
-                          '/:id': {
-                            methods: 'GET DELETE',
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-              '/rate': {
-                methods: 'POST PATCH DELETE',
-              },
-              '/state': {
-                methods: 'POST PATCH DELETE',
-              },
-            },
-          },
+    "tv": {
+        "series": {
+            "href": "/tv",
+            "methods": [
+                "GET",
+                "POST"
+            ]
         },
-      },
-      '/genres': {
-        methods: 'GET POST',
-      },
-      '/users': {
-        methods: 'GET',
-        subURL: {
-          '/id:': {
-            methods: 'GET PATCH',
-          },
-          '/register': {
-            methods: 'POST',
-          },
-          '/login': {
-            methods: 'POST',
-          },
-          '/me': {
-            methods: 'GET PATCH',
-          },
+        "serie": {
+            "href": "/tv/{id}",
+            "methods": [
+                "GET",
+                "PATCH",
+                "DELETE"
+            ]
         },
-      },
+        "rate": {
+            "href": "/tv/{id}/rate",
+            "methods": [
+                "POST",
+                "PATCH",
+                "DELETE"
+            ]
+        },
+        "state": {
+            "href": "/tv/{id}/state",
+            "methods": [
+                "POST",
+                "PATCH",
+                "DELETE"
+            ]
+        }
     },
-  });
+    "seasons": {
+        "seasons": {
+            "href": "/tv/{id}/season",
+            "methods": [
+                "GET",
+                "POST"
+            ]
+        },
+        "season": {
+            "href": "/tv/{id}/season/{season}",
+            "methods": [
+                "GET",
+                "DELETE"
+            ]
+        }
+    },
+    "episodes": {
+        "episodes": {
+            "href": "/tv/{id}/season/{season}/episode",
+            "methods": [
+                "POST"
+            ]
+        },
+        "episode": {
+            "href": "/tv/{id}/season/{season}/episode/{episode}",
+            "methods": [
+                "GET",
+                "DELETE"
+            ]
+        }
+    },
+    "genres": {
+        "genres": {
+            "href": "/genres",
+            "methods": [
+                "GET",
+                "POST"
+            ]
+        }
+    },
+    "users": {
+        "users": {
+            "href": "/users",
+            "methods": [
+                "GET"
+            ]
+        },
+        "user": {
+            "href": "/users/{id}",
+            "methods": [
+                "GET",
+                "PATCH"
+            ]
+        },
+        "register": {
+            "href": "/users/register",
+            "methods": [
+                "POST"
+            ]
+        },
+        "login": {
+            "href": "/users/login",
+            "methods": [
+                "POST"
+            ]
+        },
+        "me": {
+            "href": "/users/me",
+            "methods": [
+                "GET",
+                "PATCH"
+            ]
+        }
+    }
+});
 });
 
 app.use('/users', userRouter);

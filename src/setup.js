@@ -4,7 +4,8 @@ import { readFile } from 'fs/promises';
 import dotenv from 'dotenv';
 import csv from 'csv-parser';
 
-import { createNewSeries, query, createNewSeason, createNewEpisode } from './db.js';
+import { createNewSerie, query, createNewSeason, createNewEpisode } from './db.js';
+import { createUser } from './userdb.js';
 dotenv.config();
 
 const {
@@ -25,12 +26,6 @@ const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
 const pool = new pg.Pool({ connectionString, ssl });
 
 async function setup() {
-  // TODO   1. búa til user töflu
-  //        2. búa til 1 admin og 1 almennan notenda
-  //        3. Búa til þátta töflu
-  //        4. Lesa úr .csv skrám til að populate-a
-
-  // Býr til töflur
   const createTable = await readFile('./sql/schema.sql');
   const tData = createTable.toString('utf-8');
   const result = await query(tData);
@@ -43,7 +38,7 @@ async function setup() {
   fs.createReadStream('./data/series.csv')
     .pipe(csv())
     .on('data', async (serie) => {
-      await createNewSeries(serie);
+      await createNewSerie(serie);
     })
     .on('end', () => {
       console.log("Finished reading series.csv");
@@ -61,13 +56,25 @@ async function setup() {
   fs.createReadStream('./data/episodes.csv')
     .pipe(csv())
     .on('data', async (episode) => {
-      console.log(episode);
+      // console.log(episode);
       await createNewEpisode(episode);
     })
     .on('end', () => {
       console.info('Finished reading episodes.csv');
     });
 
+  createUser({
+    name: 'admin',
+    email: 'admin@admin.com',
+    password: '0123456789',
+  },
+  true);
+
+  createUser({
+    name: 'notAdmin',
+    email: 'example@example.com',
+    password: '123',
+  });
 }
 
 await setup();
