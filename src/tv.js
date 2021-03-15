@@ -9,8 +9,28 @@ router.get('/', async (req, res) => {
   res.json({ data });
 });
 
-router.post('/', (req, res) => {
-  res.json({ foo: 'bar' });
+router.post('/', async (req, res) => {
+  const {
+    serieId,
+    season,
+    name,
+    num,
+    serie,
+    overview
+  } = req.body;
+
+  if (!name) {
+    const error = 'Name missing from body';
+    return res.status(401).json({ error });
+  }
+
+  const createdEpisode = await db.createNewEpisode({ serieId, season, name, num, serie, overview });
+
+  if (createdEpisode) {
+    return res.json({ msg: 'Episode created' });
+  }
+
+  return res.json({ err: 'Error creating episode' });
 });
 
 // /tv/:id
@@ -87,9 +107,9 @@ router.post('/:serieId/season/:seasonNum/episode/:episodeNum', (req, res) => {
 });
 
 export const getGenres = async (req, res) => {
-  res.json({ foo: 'bar'});
+  res.json({ foo: 'bar' });
 }
 
 export const postGenres = async (req, res) => {
-  res.json({ foo: 'bar'});
+  res.json({ foo: 'bar' });
 }

@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
 
   if (!username || !email || !password) {
     const error = 'Missing username, email or password from body';
-    return res.status(400).json({ error });
+    return res.status(401).json({ error });
   }
 
   const createdUser = await userDb.createUser({ name: username, email, password });
@@ -53,7 +53,7 @@ router.post('/register', async (req, res) => {
     });
   }
 
-  return res.json({ error: 'Villa við skráningu' });
+  return res.json({ error: 'Error registering' });
 });
 
 router.post('/login', async (req, res) => {
