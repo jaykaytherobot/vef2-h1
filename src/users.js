@@ -1,7 +1,7 @@
 // users.js
 import dotenv from 'dotenv';
-import express  from "express";
-import { getUserByName } from "./db.js";
+import express from "express";
+import * as db from './db.js';
 import bcrypt from 'bcrypt';
 import passport from "passport";
 import jwt from 'jsonwebtoken';
@@ -10,20 +10,20 @@ import { requireAuthentication } from "./login.js";
 dotenv.config();
 
 const {
-  JWT_SECRET: jwtSecret, 
+  JWT_SECRET: jwtSecret,
   JWT_TOKENLIFETIME: jwtTokenlifetime = 20,
 } = process.env;
 
 export const router = express.Router();
 
-router.get('/', 
+router.get('/',
   requireAuthentication,
   (req, res) => {
     // IF ADMIN RETURN ALL USERS
     res.json({
       msg: 'Not implemented',
+    });
   });
-});
 
 router.get('/:id', (req, res) => {
   // IF ADMIN RETURN USER WITH ID
@@ -35,8 +35,8 @@ router.get('/:id', (req, res) => {
 router.post('/register', (req, res) => {
   // REGISTERS NON-ADMIN USER
   res.json({
-    msg: 'Not implemented', 
-    email: 'Not implemented', 
+    msg: 'Not implemented',
+    email: 'Not implemented',
     token: 'Not implemented',
   });
 });
@@ -45,7 +45,7 @@ router.post('/login', async (req, res) => {
   // RETURNS TOKEN FOR EMAIL+PASSWORD COMBINATION
   const { username, password = '' } = req.body;
 
-  const user = await getUserByName(username);
+  const user = await db.getUserByName(username);
 
   if (!user) {
     return res.status(401).json({ error: 'No user with that username' });
