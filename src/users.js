@@ -46,6 +46,10 @@ router.get('/',
     } = req.query;
 
     const items = await db.getAllFromTable('Users', offset, limit);
+
+    const next = items.length === limit ? { href: `http://localhost:3000/users?offset=${offset+limit}&limit=${limit}`}: undefined;
+    const prev = offset > 0 ? { href: `http://localhost:3000/users?offset=${Math.max(offset-limit, 0)}&limit=${limit}`}: undefined;
+
     if (items) {
       return res.json({ 
         limit,
@@ -53,8 +57,10 @@ router.get('/',
         items,
         _links: {
           self: {
-            href: `http//localhost:3000/users?offset=${offset}&limit=${limit}`
-          }
+            href: `http://localhost:3000/users?offset=${offset}&limit=${limit}`
+          },
+          next,
+          prev
         }
        });
     }
