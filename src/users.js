@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import express from "express";
 import * as db from './db.js';
 import * as userDb from "./userdb.js";
-import { body, query, validationResult } from "express-validator";
+import { body, query,param, validationResult } from "express-validator";
 import passport, { createTokenForUser, requireAuthentication, requireAdminAuthentication } from "./login.js";
 
 dotenv.config();
@@ -65,16 +65,6 @@ router.get('/',
        });
     }
     return res.status(404).json({ msg: 'Table not found' });
-  });
-
-router.get('/:id[0-9]+',
-  requireAdminAuthentication,
-  async (req, res) => {
-    // IF ADMIN RETURN USER WITH ID
-    const { userId } = req.params;
-    const data = await userDb.getUserByID(userId);
-    if (data) return res.json({ data });
-    return res.status(404).json({ msg: 'User not found' });
   });
 
 router.post('/register',
@@ -242,3 +232,20 @@ router.patch('/me', requireAuthentication,
       admin: user.admin,
     });
   });
+
+  
+router.get('/:id',
+requireAdminAuthentication,
+param('id')
+  .isInt()
+  .withMessage('id must be integer'),
+async (req, res) => {
+  const errors = validationResult(req);
+  if(!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const data = await userDb.getUserByID(req.params.id);
+  if (data) return res.json( data );
+  return res.status(404).json({ msg: 'User not found' });
+});
