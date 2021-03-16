@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/',
-  requireAuthentication,
+  requireAdminAuthentication,
   upload.single('image'),
   serieRules(),
   async (req, res) => {
@@ -66,7 +66,7 @@ router.get('/:serieId/season', async (req, res) => {
 });
 
 router.post('/:serieId/season',
-  requireAuthentication,
+  requireAdminAuthentication,
   upload.single('poster'),
   seasonRules(),
   async (req, res) => {
