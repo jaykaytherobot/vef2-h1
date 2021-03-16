@@ -115,21 +115,24 @@ export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
 // passa id seinna
 
 export async function createNewSerie(serie) {
-  await query(`INSERT INTO Series(id, name, air_date, in_production, tagline, image, description, language, network, url)
-                                        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);`,
-                                        [serie.id, serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.deseriecription, serie.language, serie.network, serie.homepage]);
-  serie.genres.split(',').forEach(async (genre) => {
-    let genreId;
-    try {
-      const result = await query(`INSERT INTO Genres(name) VALUES ($1) RETURNING id;`, [genre]);
-      genreId = result.rows[0].id;
-    } catch (error) {
-      const result = await query(`SELECT id FROM Genres WHERE name = $1`, [genre]);
-      genreId = result.rows[0].id;
-    } finally {
-      await query(`INSERT INTO SerieToGenre(serieId, genreId) VALUES ($1, $2);`, [serie.id, genreId]);
-    }
-  });
+  const s = await query(`INSERT INTO Series(name, air_date, in_production, tagline, image, description, language, network, url)
+                                        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;`,
+                                        [serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.description, serie.language, serie.network, serie.homepage]);
+  if (serie.genres) {
+    serie.genres.split(',').forEach(async (genre) => {
+      let genreId;
+      try {
+        const result = await query(`INSERT INTO Genres(name) VALUES ($1) RETURNING id;`, [genre]);
+        genreId = result.rows[0].id;
+      } catch (error) {
+        const result = await query(`SELECT id FROM Genres WHERE name = $1`, [genre]);
+        genreId = result.rows[0].id;
+      } finally {
+        await query(`INSERT INTO SerieToGenre(serieId, genreId) VALUES ($1, $2);`, [serie.id, genreId]);
+      }
+    });
+  }
+  return s;
 }
 
 export async function createNewSeason(season) {

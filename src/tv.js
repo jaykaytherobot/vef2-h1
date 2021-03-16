@@ -12,22 +12,24 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const {
-    serieId,
-    season,
-    name,
-    num,
-    serie,
-    overview
-  } = req.body;
-
-  if (!name) {
-    const error = 'Name missing from body';
-    return res.status(401).json({ error });
-  }
-
-  const createdEpisode = await db.createNewEpisode({ serieId, season, name, num, serie, overview });
-
+  // const {
+  //   name,
+  //   air_date,
+  //   in_production,
+  //   tagline,
+  //   image,
+  //   description,
+  //   language,
+  //   network,
+  //   url
+  // } = req.body;
+  //
+  // if (!name) {
+  //   const error = 'Name missing from body';
+  //   return res.status(401).json({ error });
+  // }
+  const createdEpisode = await db.createNewSerie(req.body);
+  console.log(createdEpisode);
   if (createdEpisode) {
     return res.json({ msg: 'Episode created' });
   }
