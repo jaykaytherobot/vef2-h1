@@ -76,43 +76,57 @@ router.post('/register',
     return res.json({ error: 'Error registering' });
 });
 
-router.post('/login', async (req, res) => {
-  // RETURNS TOKEN FOR EMAIL+PASSWORD COMBINATION
-  const { username, password = '' } = req.body;
+router.post('/login', 
+  body('username')
+    .trim()
+    .isLength({ min: 1, max: 256 })
+    .withMessage('username is required, max 256 characters'),
+  body('password')
+    .trim()
+    .isLength({ min: 10, max: 256 })
+    .withMessage('password is required, min 10 characters, max 256 characters'),
+  async (req, res) => {
+    const errors = validationResult(req);
 
-  const errors = [];
-  if (!username) {
-    errors.push({
-      msg: "username is required, max 256 characters",
-      param: "username",
-      location: "body",
-    });
-  }
-  if (!password) {
-    errors.push({
-      msg: "password is required, max 256 characters",
-      param: "password",
-      location: "body",
-    });
-  }
-  if (errors.length > 0) {
-    return res.status(400).json({ "errors": errors });
-  }
+    if (!errors.isEmpty()){
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  const user = await getUserByName(username);
+    const { username, password } = req.body;
 
-  if (!user) {
-    return res.status(401).json({ error: 'No user with that email' });
-  }
+    const user = await userDb.getUserByName(username);
 
-  const passwordIsCorrect = userDb.comparePasswords(password, user.password);
+    if (!user) {
+      return res.status(401).json({ errors: [{
+        value: username,
+        msg: "username or password incorrect",
+        param: 'username', 
+        location: 'body'
+      }]});
+    }
 
-  if (passwordIsCorrect) {
-    const token = createTokenForUser(user.id);
-    return res.json({ token });
-  }
+    const passwordIsCorrect = userDb.comparePasswords(password, user.password);
 
-  return res.status(401).json({ error: 'Invalid password' });
+    if (passwordIsCorrect) {
+      const token = createTokenForUser(user.id);
+      return res.json({
+        "user": {
+          id: user.id,
+          username: user.name,
+          email: user.email,
+          admin: user.admin
+        },
+        token,
+        expiresIn: "not implemented",
+      });
+    }
+
+    return res.status(401).json({ errors: [{
+      value: username,
+      msg: "username or password incorrect",
+      param: 'username', 
+      location: 'body'
+    }]});
 });
 
 router.get('/me',
