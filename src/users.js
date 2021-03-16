@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import express from "express";
 import * as db from './db.js';
 import * as userDb from "./userdb.js";
-import { body, validationResult } from "express-validator";
+import { body, query, validationResult } from "express-validator";
 import passport, { createTokenForUser, requireAuthentication, requireAdminAuthentication } from "./login.js";
 
 dotenv.config();
@@ -17,10 +17,47 @@ export const router = express.Router();
 
 router.get('/',
   requireAdminAuthentication,
+  query('offset')
+    .if(query('offset').exists())
+    .isInt()
+    .withMessage('offset must be an integer')
+    .bail()
+    .custom(value => {
+      return Number.parseInt(value) >= 0;
+    })
+    .withMessage('offset must be a positive integer'),
+  query('limit')
+    .if(query('limit').exists())
+    .isInt()
+    .withMessage('limit must be an integer')
+    .bail()
+    .custom(value => {
+      return Number.parseInt(value) >= 0;
+    })
+    .withMessage('limit must be a positive integer'),
   async (req, res) => {
-    // IF ADMIN RETURN ALL USERS
-    const data = await db.getAllFromTable('Users');
-    if (data) return res.json({ data });
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array()})
+    }
+
+    const {
+      offset = 0, limit = 10
+    } = req.query;
+
+    const items = await db.getAllFromTable('Users', offset, limit);
+    if (items) {
+      return res.json({ 
+        limit,
+        offset,
+        items,
+        _links: {
+          self: {
+            href: `http//localhost:3000/users?offset=${offset}&limit=${limit}`
+          }
+        }
+       });
+    }
     return res.status(404).json({ msg: 'Table not found' });
   });
 
