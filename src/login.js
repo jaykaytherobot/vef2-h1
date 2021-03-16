@@ -10,7 +10,7 @@ dotenv.config();
 
 const {
   JWT_SECRET: jwtSecret,
-  JWT_TOKENLIFETIME: tokenLifetime = 20,
+  JWT_TOKENLIFETIME: tokenLifetime = 3600,
 } = process.env;
 
 if (!jwtSecret) {

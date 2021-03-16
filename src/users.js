@@ -1,10 +1,10 @@
 // users.js
 import dotenv from 'dotenv';
-import express from "express";
+import express from 'express';
+import { body, query, validationResult } from 'express-validator';
 import * as db from './db.js';
-import * as userDb from "./userdb.js";
-import { body, query, validationResult } from "express-validator";
-import passport, { createTokenForUser, requireAuthentication, requireAdminAuthentication } from "./login.js";
+import * as userDb from './userdb.js';
+import passport, { createTokenForUser, requireAuthentication, requireAdminAuthentication } from './login.js';
 
 dotenv.config();
 
@@ -22,23 +22,19 @@ router.get('/',
     .isInt()
     .withMessage('offset must be an integer')
     .bail()
-    .custom(value => {
-      return Number.parseInt(value) >= 0;
-    })
+    .custom((value) => Number.parseInt(value, 10) >= 0)
     .withMessage('offset must be a positive integer'),
   query('limit')
     .if(query('limit').exists())
     .isInt()
     .withMessage('limit must be an integer')
     .bail()
-    .custom(value => {
-      return Number.parseInt(value) >= 0;
-    })
+    .custom((value) => Number.parseInt(value, 10) >= 0)
     .withMessage('limit must be a positive integer'),
   async (req, res) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array()})
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
     const {
@@ -47,7 +43,7 @@ router.get('/',
 
     const items = await db.getAllFromTable('Users', offset, limit);
     if (items) {
-      return res.json({ 
+      return res.json({
         limit,
         offset,
         items,
@@ -100,7 +96,7 @@ router.post('/register',
     .isLength({ min: 10, max: 256 })
     .withMessage('Password is required, min 10 characters, max 256 characters'),
   async (req, res) => {
-    
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -112,9 +108,9 @@ router.post('/register',
 
     if (createdUser) {
       return res.json({
-        id: createdUser.id, 
+        id: createdUser.id,
         username: createdUser.name,
-        email: createdUser.email, 
+        email: createdUser.email,
         admin: createdUser.admin,
         token: createTokenForUser(createdUser.id),
       });
@@ -123,7 +119,7 @@ router.post('/register',
     return res.json({ error: 'Error registering' });
 });
 
-router.post('/login', 
+router.post('/login',
   body('username')
     .trim()
     .isLength({ min: 1, max: 256 })
@@ -147,7 +143,7 @@ router.post('/login',
       return res.status(401).json({ errors: [{
         value: username,
         msg: "username or password incorrect",
-        param: 'username', 
+        param: 'username',
         location: 'body'
       }]});
     }
@@ -171,7 +167,7 @@ router.post('/login',
     return res.status(401).json({ errors: [{
       value: username,
       msg: "username or password incorrect",
-      param: 'username', 
+      param: 'username',
       location: 'body'
     }]});
 });
@@ -213,22 +209,22 @@ router.patch('/me', requireAuthentication,
 
     const { email, password } = req.body;
 
-    if(!email && !password) {
+    if (!email && !password) {
       return res.status(400).json({
         errors: [{
           value: req.body,
           msg: 'require at least one of: email, password',
           param: '',
-          location:'body'
-        }]
-      })
+          location: 'body',
+        }],
+      });
     }
 
-    req.user.email = email ? email : req.user.email;
-    req.user.password = password ? password : req.user.password;
+    req.user.email = email || req.user.email;
+    req.user.password = password || req.user.password;
 
     const user = await userDb.updateUser(req.user);
-    
+
     res.json({
       id: user.id,
       username: user.name,

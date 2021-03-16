@@ -16,6 +16,8 @@ if (!connectionString) {
   process.exit(1);
 }
 
+const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/dqjwkhuoh/image/upload/v1615736248/'
+
 // Notum SSL tengingu við gagnagrunn ef við erum *ekki* í development mode, þ.e.a.s. á local vél
 const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
 
@@ -115,7 +117,7 @@ export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
 // passa id seinna
 
 export async function createNewSerie(serie) {
-  const s = await query(`INSERT INTO Series(name, air_date, in_production, tagline, image, description, language, network, url)
+  const s = await query(`INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url)
                                         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;`,
                                         [serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.description, serie.language, serie.network, serie.homepage]);
   if (serie.genres) {
@@ -136,9 +138,10 @@ export async function createNewSerie(serie) {
 }
 
 export async function createNewSeason(season) {
-  await query(`INSERT INTO Seasons(serieId, name, serieName, "number", air_date, overview, poster)
-                              VALUES ($1,$2,$3,$4,$5,$6,$7);`,
-                              [season.serieId, season.name, season.serie, season.number, season.airDate, season.overview, season.poster]);
+  const result = await query(`INSERT INTO Seasons(serieId, name, "number", airDate, overview, poster)
+                              VALUES ($1,$2,$3,$4,$5,$6) RETURNING *;`,
+                              [season.serieId, season.name, season.number, season.airDate, season.overview, season.poster]);
+  return result.rows[0];
 }
 
 export async function createNewEpisode(episode) {

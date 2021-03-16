@@ -1,41 +1,39 @@
 import express from 'express';
+import { validationResult } from 'express-validator';
 import * as db from './db.js';
-import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from "./login.js";
+import { upload } from './upload.js';
+import {
+  createTokenForUser,
+  requireAuthentication,
+  requireAdminAuthentication,
+} from './login.js';
+import { serieRules, seasonRules } from './form-rules.js';
 
 export const router = express.Router();
 
 // /tv
 router.get('/', async (req, res) => {
-  const data = await db.getAllFromTable('Shows');
-  if (data) return res.json({ data });
-  return res.status(404).json({ msg: 'Table not found' });
+  const data = await db.getAllFromTable('shows');
+  res.json({ data });
 });
 
-router.post('/', async (req, res) => {
-  // const {
-  //   name,
-  //   air_date,
-  //   in_production,
-  //   tagline,
-  //   image,
-  //   description,
-  //   language,
-  //   network,
-  //   url
-  // } = req.body;
-  //
-  // if (!name) {
-  //   const error = 'Name missing from body';
-  //   return res.status(401).json({ error });
-  // }
-  const createdEpisode = await db.createNewSerie(req.body);
-  console.log(createdEpisode);
-  if (createdEpisode) {
-    return res.json({ msg: 'Episode created' });
-  }
+router.post('/',
+  requireAuthentication,
+  upload.single('image'),
+  serieRules(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    req.body.image = req.file.filename; // eða path
+    const createdSerie = await db.createNewSerie(req.body);
+    if (createdSerie) {
+      return res.json({ msg: 'Serie created' });
+    }
 
-  return res.json({ err: 'Error creating episode' });
-});
+    return res.json({ err: 'Error creating serie' });
+  });
 
 // /tv/:id
 router.get('/:serieId', async (req, res) => {
@@ -67,9 +65,25 @@ router.get('/:serieId/season', async (req, res) => {
   res.json({ data });
 });
 
-router.post('/:id/season', (req, res) => {
-  res.json({ foo: 'bar' });
-});
+router.post('/:serieId/season',
+  requireAuthentication,
+  upload.single('poster'),
+  seasonRules(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { serieId } = req.params;
+    req.body.poster = req.file.filename; // eða path
+    req.body.serieId = serieId;
+    const createdSeason = await db.createNewSeason(req.body);
+    if (createdSeason) {
+      return res.json({ msg: 'Season created' });
+    }
+
+    return res.json({ err: 'Error creating season' });
+  });
 
 // /tv/:id/season/:id
 router.get('/:serieId/season/:seasonNum', async (req, res) => {
