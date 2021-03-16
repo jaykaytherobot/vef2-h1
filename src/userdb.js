@@ -30,6 +30,23 @@ export async function createUser(user, admin = false) {
   return false;
 }
 
+export async function updateUser(user) {
+  const q = 'UPDATE Users SET email=$1, password=$2 WHERE id=$3 RETURNING *';
+
+  try {
+    const result = await query(q, [user.email, user.password, user.id]);
+
+    if(result.rowCount === 1) {
+      return result.rows[0];
+    }
+  }
+  catch (err) {
+    console.error('Could not update user', err);
+    return null;
+  }
+  return false;
+}
+
 export async function getUserByName(name) {
   const q = 'SELECT * FROM Users WHERE name = $1;';
 

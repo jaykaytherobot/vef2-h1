@@ -4,7 +4,7 @@ import express from "express";
 import * as db from './db.js';
 import * as userDb from "./userdb.js";
 import { body, validationResult } from "express-validator";
-import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from "./login.js";
+import passport, { createTokenForUser, requireAuthentication, requireAdminAuthentication } from "./login.js";
 
 dotenv.config();
 
@@ -39,15 +39,25 @@ router.post('/register',
     .trim()
     .isLength({ min: 1, max: 256 })
     .withMessage('username is required, max 256 characters')
-    .not().custom(userDb.getUserByName)
-    .withMessage('username already exists'),
+    .custom((value) => {
+      return userDb.getUserByName(value).then(user => {
+        if(user) {
+          return Promise.reject('username already exists');
+        }
+      });
+    }),
   body('email')
     .trim()
     .isEmail()
     .withMessage('email is required, max 256 characters')
     .normalizeEmail()
-    .not().custom(userDb.getUserByEmail)
-    .withMessage('email already exists'),
+    .custom((value) => {
+      return userDb.getUserByEmail(value).then(user => {
+        if (user) {
+          return Promise.reject('email already exists');
+        }
+      });
+    }),
   body('password')
     .trim()
     .isLength({ min: 10, max: 256 })
@@ -132,36 +142,60 @@ router.post('/login',
 router.get('/me',
   requireAuthentication,
   (req, res) => {
-    // IF AUTHENTICATED RETURN EMAIL AND PASSWORD
     res.json({
-      email: req.user.email,
+      id: req.user.id,
       username: req.user.name,
+      email: req.user.email,
+      admin: req.user.admin,
     });
   });
 
 
 router.patch('/me', requireAuthentication,
-  (req, res) => {
-    const { email, name, password } = req.body;
-
-    if (!email && !name && !password) {
-      res.status(400).json({ error: 'Nothing to update' });
+  body('password')
+    .if(body('password').exists())
+    .isLength({ min: 10, max: 256 })
+    .withMessage('password must be from 1 to 256 characters long'),
+  body('email')
+    .if(body('email').exists())
+    .isEmail()
+    .withMessage('email must be an email, example@example.com')
+    .normalizeEmail()
+    .custom((value) => {
+      return userDb.getUserByEmail(value).then(user => {
+        if (user) {
+          return Promise.reject('email already exists');
+        }
+      });
+    }),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
     }
 
-    if (email) {
-      // update email
+    const { email, password } = req.body;
+
+    if(!email && !password) {
+      return res.status(400).json({
+        errors: [{
+          value: req.body,
+          msg: 'require at least one of: email, password',
+          param: '',
+          location:'body'
+        }]
+      })
     }
 
-    if (name) {
-      // update name
-    }
+    req.user.email = email ? email : req.user.email;
+    req.user.password = password ? password : req.user.password;
 
-    if (password) {
-      //update password
-    }
+    const user = await userDb.updateUser(req.user);
+    
     res.json({
-      msg: 'Not implemented',
-      email: 'Not implemented',
-      username: 'Not implemented',
+      id: user.id,
+      username: user.name,
+      email: user.email,
+      admin: user.admin,
     });
   });
