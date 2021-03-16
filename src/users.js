@@ -3,8 +3,7 @@ import dotenv from 'dotenv';
 import express from "express";
 import * as db from './db.js';
 import * as userDb from "./userdb.js";
-import bcrypt from 'bcrypt';
-import passport from "passport";
+import { body, validationResult } from "express-validator";
 import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from "./login.js";
 
 dotenv.config();
@@ -35,25 +34,35 @@ router.get('/:id[0-9]+',
     return res.status(404).json({ msg: 'User not found' });
   });
 
-router.post('/register', async (req, res) => {
-  // REGISTERS NON-ADMIN USER
-  const { username, email, password } = req.body;
+router.post('/register', 
+  body('password')
+    .isLength({ min: 10 })
+    .withMessage('Password must be minimum 10 characters'),
+  async (req, res) => {
+    // REGISTERS NON-ADMIN USER
 
-  if (!username || !email || !password) {
-    const error = 'Missing username, email or password from body';
-    return res.status(401).json({ error });
-  }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  const createdUser = await userDb.createUser({ name: username, email, password });
+    const { username, email, password } = req.body;
 
-  if (createdUser) {
-    return res.json({
-      email: createdUser.email,
-      token: createTokenForUser(createdUser.id),
-    });
-  }
+    if (!username || !email || !password) {
+      const error = 'Missing username, email or password from body';
+      return res.status(401).json({ error });
+    }
 
-  return res.json({ error: 'Error registering' });
+    const createdUser = await userDb.createUser({ name: username, email, password });
+
+    if (createdUser) {
+      return res.json({
+        email: createdUser.email,
+        token: createTokenForUser(createdUser.id),
+      });
+    }
+
+    return res.json({ error: 'Error registering' });
 });
 
 router.post('/login', async (req, res) => {
