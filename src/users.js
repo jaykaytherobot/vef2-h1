@@ -34,13 +34,26 @@ router.get('/:id[0-9]+',
     return res.status(404).json({ msg: 'User not found' });
   });
 
-router.post('/register', 
+router.post('/register',
+  body('username')
+    .trim()
+    .isLength({ min: 1, max: 256 })
+    .withMessage('username is required, max 256 characters')
+    .not().custom(userDb.getUserByName)
+    .withMessage('username already exists'),
+  body('email')
+    .trim()
+    .isEmail()
+    .withMessage('email is required, max 256 characters')
+    .normalizeEmail()
+    .not().custom(userDb.getUserByEmail)
+    .withMessage('email already exists'),
   body('password')
-    .isLength({ min: 10 })
-    .withMessage('Password must be minimum 10 characters'),
+    .trim()
+    .isLength({ min: 10, max: 256 })
+    .withMessage('Password is required, min 10 characters, max 256 characters'),
   async (req, res) => {
-    // REGISTERS NON-ADMIN USER
-
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -48,16 +61,14 @@ router.post('/register',
 
     const { username, email, password } = req.body;
 
-    if (!username || !email || !password) {
-      const error = 'Missing username, email or password from body';
-      return res.status(401).json({ error });
-    }
-
     const createdUser = await userDb.createUser({ name: username, email, password });
 
     if (createdUser) {
       return res.json({
-        email: createdUser.email,
+        id: createdUser.id, 
+        username: createdUser.name,
+        email: createdUser.email, 
+        admin: createdUser.admin,
         token: createTokenForUser(createdUser.id),
       });
     }

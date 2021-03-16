@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 
 export async function createUser(user, admin = false) {
   if (admin) {
-    const q = 'INSERT INTO Users (name, email, password, admin) VALUES ($1, $2, $3, $4) RETURNING id, email';
+    const q = 'INSERT INTO Users (name, email, password, admin) VALUES ($1, $2, $3, $4) RETURNING *';
 
     try {
       const result = await query(q, [user.name, user.email, await bcrypt.hash(user.password, 10), true]);
@@ -16,7 +16,7 @@ export async function createUser(user, admin = false) {
     }
   }
 
-  const q = 'INSERT INTO Users (name, email, password) VALUES ($1, $2, $3) RETURNING id, email';
+  const q = 'INSERT INTO Users (name, email, password) VALUES ($1, $2, $3) RETURNING *';
 
   try {
     const result = await query(q, [user.name, user.email, await bcrypt.hash(user.password, 10)]);
@@ -32,10 +32,9 @@ export async function createUser(user, admin = false) {
 
 export async function getUserByName(name) {
   const q = 'SELECT * FROM Users WHERE name = $1;';
-  console.log(name);
+
   try {
     const result = await query(q, [name]);
-    console.log(result);
 
     if(result.rowCount === 1) {
       return result.rows[0];
@@ -49,10 +48,9 @@ export async function getUserByName(name) {
 
 export async function getUserByEmail(email) {
   const q = 'SELECT * FROM Users WHERE email = $1;';
-  console.log(email);
+
   try {
     const result = await query(q, [email]);
-    console.log(result);
 
     if(result.rowCount === 1) {
       return result.rows[0];
