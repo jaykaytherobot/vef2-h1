@@ -79,7 +79,7 @@ export async function getUserByEmail(email) {
   return false;
 }
 
-export async function getUserByID(id) {
+export async function getUserById(id) {
   const q = 'SELECT * FROM Users WHERE id = $1;';
   try {
     const result = await query(q, [id]);

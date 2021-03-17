@@ -246,7 +246,7 @@ async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const data = await userDb.getUserByID(req.params.id);
+  const data = await userDb.getUserById(req.params.id);
   if (data) return res.json( data );
   return res.status(404).json({ msg: 'User not found' });
 });

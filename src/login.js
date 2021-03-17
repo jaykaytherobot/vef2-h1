@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import passport from 'passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import jwt from 'jsonwebtoken';
-import { getUserByID } from './userdb.js';
+import { getUserById } from './userdb.js';
 
 export default passport;
 
@@ -25,7 +25,7 @@ const jwtOptions = {
 
 async function strat(data, next) {
   // fáum id gegnum data sem geymt er í token
-  const user = await getUserByID(data.id);
+  const user = await getUserById(data.id);
 
   if (user) {
     next(null, user);
