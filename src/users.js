@@ -108,13 +108,8 @@ router.post('/register',
     const createdUser = await userDb.createUser({ name: username, email, password });
 
     if (createdUser) {
-      return res.json({
-        id: createdUser.id,
-        username: createdUser.name,
-        email: createdUser.email,
-        admin: createdUser.admin,
-        token: createTokenForUser(createdUser.id),
-      });
+      return res.json(
+        createdUser);
     }
 
     return res.json({ error: 'Error registering' });
@@ -176,12 +171,9 @@ router.post('/login',
 router.get('/me',
   requireAuthentication,
   (req, res) => {
-    res.json({
-      id: req.user.id,
-      username: req.user.name,
-      email: req.user.email,
-      admin: req.user.admin,
-    });
+    res.json(
+      req.user,
+    );
   });
 
 
@@ -222,15 +214,17 @@ router.patch('/me', requireAuthentication,
     }
 
     req.user.email = email || req.user.email;
-    req.user.password = password || req.user.password;
+    
+    if (password) {
+      req.user.password = password;
+    }
+
+    console.log(req.user.email, req.user.password);
 
     const user = await userDb.updateUser(req.user);
 
     res.json({
-      id: user.id,
-      username: user.name,
-      email: user.email,
-      admin: user.admin,
+      user
     });
   });
 
