@@ -46,7 +46,7 @@ router.get('/',
       offset = 0, limit = 10
     } = req.query;
 
-    const items = await db.getAllFromTable('Users', offset, limit);
+    const items = await userDb.getAllUsers('Users', offset, limit);
 
     const next = items.length === limit ? { href: `http://localhost:3000/users?offset=${offset+limit}&limit=${limit}`}: undefined;
     const prev = offset > 0 ? { href: `http://localhost:3000/users?offset=${Math.max(offset-limit, 0)}&limit=${limit}`}: undefined;

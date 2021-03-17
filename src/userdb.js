@@ -1,6 +1,18 @@
 import { query } from './db.js';
 import bcrypt from 'bcrypt';
 
+export async function getAllUsers() {
+  const q = 'SELECT id,name,email,admin FROM Users';
+  try {
+    const result = await query(q);
+    return result.rows;
+  }
+  catch (err) {
+    console.error(err);
+  }
+  return [];
+}
+
 export async function createUser(user, admin = false) {
   if (admin) {
     const q = 'INSERT INTO Users (name, email, password, admin) VALUES ($1, $2, $3, $4) RETURNING id,name,email,admin';
