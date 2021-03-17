@@ -4,7 +4,15 @@ import { readFile } from 'fs/promises';
 import dotenv from 'dotenv';
 import csv from 'csv-parser';
 
-import { createNewSeries, query, createNewSeason } from './db.js';
+import {
+  createNewSerie,
+  query,
+  createNewSeason,
+  createNewEpisode,
+} from './db.js';
+
+import { createUser } from './userdb.js';
+
 dotenv.config();
 
 const {
@@ -20,33 +28,22 @@ if (!connectionString) {
 }
 
 // Notum SSL tengingu við gagnagrunn ef við erum *ekki* í development mode, þ.e.a.s. á local vél
-const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
-
-const pool = new pg.Pool({ connectionString, ssl });
+// const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
+//
+// const pool = new pg.Pool({ connectionString, ssl });
 
 async function setup() {
-  // TODO   1. búa til user töflu
-  //        2. búa til 1 admin og 1 almennan notenda
-  //        3. Búa til þátta töflu
-  //        4. Lesa úr .csv skrám til að populate-a
-
-  // Býr til töflur
   const createTable = await readFile('./sql/schema.sql');
   const tData = createTable.toString('utf-8');
-  const result = await query(tData);
+  await query(tData);
 
-  const SERIES = [];
-  const GENRES = [];
-  const SEASONS = [];
-  const EPISODES = [];
-  
   fs.createReadStream('./data/series.csv')
     .pipe(csv())
-    .on('data', async (serie) => { 
-      await createNewSeries(serie);
+    .on('data', async (serie) => {
+      await createNewSerie(serie);
     })
     .on('end', () => {
-      console.log("Finished reading series.csv");
+      console.info('Finished reading series.csv');
     });
 
   fs.createReadStream('./data/seasons.csv')
@@ -58,6 +55,27 @@ async function setup() {
       console.info('Finished reading seasons.csv');
     });
 
+  fs.createReadStream('./data/episodes.csv')
+    .pipe(csv())
+    .on('data', async (episode) => {
+      await createNewEpisode(episode);
+    })
+    .on('end', () => {
+      console.info('Finished reading episodes.csv');
+    });
+
+  createUser({
+    name: 'admin',
+    email: 'admin@admin.com',
+    password: '0123456789',
+  },
+  true);
+
+  createUser({
+    name: 'notAdmin',
+    email: 'example@example.com',
+    password: '0123456789',
+  });
 }
 
-await setup();
+setup();
