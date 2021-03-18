@@ -42,9 +42,9 @@ router.get('/:serieId', async (req, res) => {
   const data = await db.getSerieById(serieId);
   // Ef authenticated þá bæta við einkunn og stöðu
   if (!data) {
-    res.status(404).json({ msg: 'Fann ekki þátt' });
+    return res.status(404).json({ msg: 'Fann ekki þátt' });
   }
-  res.json({ data });
+  return res.json({ data });
 });
 
 router.patch('/:serieId', (req, res) => {

@@ -2,10 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { router as tvRouter, getGenres, postGenres } from './tv.js';
 import { router as userRouter } from './users.js';
-<<<<<<< HEAD
-=======
 import passport from './login.js';
->>>>>>> 10580a742aef328aecefa260f5e0e0e38e9f45c6
 
 dotenv.config();
 

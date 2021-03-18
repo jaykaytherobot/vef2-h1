@@ -1,36 +1,3 @@
-<<<<<<< HEAD
-import express from 'express';
-import * as db from './db.js';
-
-export const router = express.Router();
-
-router.get('/', async (_req, res) => {
-    const result = await db.getAllFromTable('Users');
-    if (result.length!==0) return res.json(result);
-    else return res.status(400).json({ msg: 'Table not found' });
-});
-
-router.get('/:userId', (req, res) => {
-    res.json({ foo: 'bar' });
-});
-
-router.patch('/:userId', (req, res) => {
-    res.json({ foo: 'bar' });
-});
-
-router.post('/register', (req, res) => {
-    res.json({ foo: 'bar' });
-});
-
-router.get('/me', (req, res) => {
-    res.json({ foo: 'bar' });
-});
-
-router.patch('/me', (req, res) => {
-    res.json({ foo: 'bar' });
-});
-
-=======
 // users.js
 import dotenv from 'dotenv';
 import express from 'express';
@@ -72,7 +39,7 @@ router.get('/',
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(404).json({ errors: errors.array() });
     }
 
     const {
@@ -161,7 +128,7 @@ router.post('/login',
     const errors = validationResult(req);
 
     if (!errors.isEmpty()){
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(404).json({ errors: errors.array() });
     }
 
     const { username, password } = req.body;
@@ -277,4 +244,3 @@ async (req, res) => {
   if (data) return res.json( data );
   return res.status(404).json({ msg: 'User not found' });
 });
->>>>>>> 10580a742aef328aecefa260f5e0e0e38e9f45c6
