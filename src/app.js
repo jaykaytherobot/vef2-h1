@@ -2,13 +2,13 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { router as tvRouter, getGenres, postGenres } from './tv.js';
 import { router as userRouter } from './users.js';
-import passport from './login.js';
+import passport, { requireAdminAuthentication } from './login.js';
+import { webtree } from './webtree.js';
 
 dotenv.config();
 
 const {
   PORT: port = 3000,
-  SESSION_SECRET: sessionSecret,
 } = process.env;
 
 const app = express();
@@ -19,121 +19,13 @@ app.use(express.json());
 app.use(passport.initialize());
 
 app.get('/', (req, res) => {
-  res.json({
-    "tv": {
-        "series": {
-            "href": "/tv",
-            "methods": [
-                "GET",
-                "POST"
-            ]
-        },
-        "serie": {
-            "href": "/tv/{id}",
-            "methods": [
-                "GET",
-                "PATCH",
-                "DELETE"
-            ]
-        },
-        "rate": {
-            "href": "/tv/{id}/rate",
-            "methods": [
-                "POST",
-                "PATCH",
-                "DELETE"
-            ]
-        },
-        "state": {
-            "href": "/tv/{id}/state",
-            "methods": [
-                "POST",
-                "PATCH",
-                "DELETE"
-            ]
-        }
-    },
-    "seasons": {
-        "seasons": {
-            "href": "/tv/{id}/season",
-            "methods": [
-                "GET",
-                "POST"
-            ]
-        },
-        "season": {
-            "href": "/tv/{id}/season/{season}",
-            "methods": [
-                "GET",
-                "DELETE"
-            ]
-        }
-    },
-    "episodes": {
-        "episodes": {
-            "href": "/tv/{id}/season/{season}/episode",
-            "methods": [
-                "POST"
-            ]
-        },
-        "episode": {
-            "href": "/tv/{id}/season/{season}/episode/{episode}",
-            "methods": [
-                "GET",
-                "DELETE"
-            ]
-        }
-    },
-    "genres": {
-        "genres": {
-            "href": "/genres",
-            "methods": [
-                "GET",
-                "POST"
-            ]
-        }
-    },
-    "users": {
-        "users": {
-            "href": "/users",
-            "methods": [
-                "GET"
-            ]
-        },
-        "user": {
-            "href": "/users/{id}",
-            "methods": [
-                "GET",
-                "PATCH"
-            ]
-        },
-        "register": {
-            "href": "/users/register",
-            "methods": [
-                "POST"
-            ]
-        },
-        "login": {
-            "href": "/users/login",
-            "methods": [
-                "POST"
-            ]
-        },
-        "me": {
-            "href": "/users/me",
-            "methods": [
-                "GET",
-                "PATCH"
-            ]
-        }
-    }
-});
+  res.json(webtree);
 });
 
 app.use('/users', userRouter);
 app.use('/tv', tvRouter);
 app.get('/genres', getGenres);
-app.post('/genres', getGenres);
+app.post('/genres', requireAdminAuthentication, postGenres);
 app.use('/users', userRouter);
 
 function notFoundHandler(req, res, next) { // eslint-disable-line

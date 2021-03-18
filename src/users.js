@@ -3,13 +3,13 @@ import dotenv from 'dotenv';
 import express from 'express';
 import {
   body,
-  query,
   param,
   validationResult,
 } from 'express-validator';
 import * as db from './db.js';
 import * as userDb from './userdb.js';
-import passport, { createTokenForUser, requireAuthentication, requireAdminAuthentication } from './login.js';
+import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from './login.js';
+import { paginationRules } from './form-rules.js'
 
 dotenv.config();
 
@@ -22,20 +22,7 @@ export const router = express.Router();
 
 router.get('/',
   requireAdminAuthentication,
-  query('offset')
-    .if(query('offset').exists())
-    .isInt()
-    .withMessage('offset must be an integer')
-    .bail()
-    .custom((value) => Number.parseInt(value, 10) >= 0)
-    .withMessage('offset must be a positive integer'),
-  query('limit')
-    .if(query('limit').exists())
-    .isInt()
-    .withMessage('limit must be an integer')
-    .bail()
-    .custom((value) => Number.parseInt(value, 10) >= 0)
-    .withMessage('limit must be a positive integer'),
+  paginationRules(),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -214,7 +201,7 @@ router.patch('/me', requireAuthentication,
     }
 
     req.user.email = email || req.user.email;
-    
+
     if (password) {
       req.user.password = password;
     }
