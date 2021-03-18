@@ -125,7 +125,7 @@ export async function createNewSerie(serie) {
       let genreId;
       let result;
       try {
-        result = await query(`INSERT INTO Genres(name) VALUES ($1) ON CONFLICT(name) DO NOTHING;`, [genre]);
+        await query(`INSERT INTO Genres(name) VALUES ($1) ON CONFLICT(name) DO NOTHING;`, [genre]);
         result = await query(`SELECT id FROM Genres WHERE name = $1;`, [genre]);
         genreId = result.rows[0].id;
         await query(`INSERT INTO SerieToGenre(serieId, genreId) VALUES ($1, $2);`, [serie.id, genreId]);
