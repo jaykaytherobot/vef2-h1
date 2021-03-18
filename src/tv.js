@@ -20,7 +20,7 @@ cloudinary.v2.config({
 // /tv
 router.get('/', async (req, res) => {
   const {
-    offset = 0, limit = 10
+    offset = 0, limit = 10,
   } = req.query;
 
   const items = await db.getAllFromTable('Shows', offset, limit);
@@ -43,7 +43,6 @@ router.get('/', async (req, res) => {
     });
   }
   return res.status(404).json({ msg: 'Table not found' });
-
 });
 
 router.post('/',
