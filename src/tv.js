@@ -126,9 +126,36 @@ router.post('/:serieId/season/:seasonNum/episode/:episodeNum', (req, res) => {
 });
 
 export const getGenres = async (req, res) => {
-  res.json({ foo: 'bar' });
-}
+  const {
+    offset = 0,
+    limit = 10,
+  } = req.query;
+  const genres = await db.getAllFromTable('Genres', offset, limit);
+  const next = genres.length === limit ? { href: `http://localhost:3000/genres?offset=${offset+limit}&limit=${limit}` } : undefined;
+  const prev = offset > 0 ? { href: `http://localhost:3000/genres?offset=${Math.max(offset-limit, 0)}&limit=${limit}` } : undefined;
+  console.log(genres);
+  res.json({
+    offset: offset,
+    limit: limit,
+    genres,
+    _links: {
+      prev,
+      self: {
+        href: `localhost:3000/genres?offset=${offset}&limit=${limit}`,
+      },
+      next,
+    },
+  });
+};
 
 export const postGenres = async (req, res) => {
-  res.json({ foo: 'bar' });
-}
+  const {
+    name,
+  } = req.body;
+  const q = 'INSERT INTO Genres(name) VALUES ($1) RETURNING *;';
+  const result = await db.query(q, [name]);
+  if (!result) {
+    res.status(400).json({ err: 'Genre er nú þegar til' });
+  }
+  res.json(result.rows);
+};

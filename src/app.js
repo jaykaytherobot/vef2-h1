@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { router as tvRouter, getGenres, postGenres } from './tv.js';
 import { router as userRouter } from './users.js';
-import passport from './login.js';
+import passport, { requireAdminAuthentication } from './login.js';
 
 dotenv.config();
 
@@ -133,7 +133,7 @@ app.get('/', (req, res) => {
 app.use('/users', userRouter);
 app.use('/tv', tvRouter);
 app.get('/genres', getGenres);
-app.post('/genres', getGenres);
+app.post('/genres', requireAdminAuthentication, postGenres);
 app.use('/users', userRouter);
 
 function notFoundHandler(req, res, next) { // eslint-disable-line
