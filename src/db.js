@@ -117,11 +117,8 @@ export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
 // passa id seinna
 export async function initializeSeriesSequence() {
   const s = await query(`SELECT MAX(id) from series`);
-  console.log(s);
   const maxId = s.rows[0].max;
-  console.log('MaxID', maxId + 1);
   await query(`ALTER SEQUENCE series_id_seq RESTART WITH ${maxId+1} INCREMENT BY 1;`);
-  console.log('THETTA VIRKAÐIDIADSFÆLJDFALÆJ')
 }
 
 export async function createNewSerie(serie) {
