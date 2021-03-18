@@ -117,9 +117,16 @@ export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
 // passa id seinna
 
 export async function createNewSerie(serie) {
-  const s = await query(`INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url)
-                                        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;`,
+  let s;
+  if (serie.id) {
+    s = await query(`INSERT INTO Series(id, name, airDate, inProduction, tagline, image, description, language, network, url)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *;`,
+    [serie.id, serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.description, serie.language, serie.network, serie.homepage]);
+  } else {
+    s = await query(`INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;`,
     [serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.description, serie.language, serie.network, serie.homepage]);
+  }
   if (serie.genres) {
     serie.genres.split(',').forEach(async (genre) => {
       let genreId;
@@ -129,25 +136,23 @@ export async function createNewSerie(serie) {
         result = await query(`SELECT id FROM Genres WHERE name = $1;`, [genre]);
         genreId = result.rows[0].id;
         await query(`INSERT INTO SerieToGenre(serieId, genreId) VALUES ($1, $2);`, [serie.id, genreId]);
-      }
-      catch (e) {
+      } catch (e) {
         console.info('Error occured :>> ', e);
       }
     });
-    return s;
   }
+  return s;
 }
 
 export async function createNewSeason(season) {
-  if (season.airDate === "") season.airDate = null;
+  const airDate = (season.airDate === "") ? null : season.airDate;
   let result;
   try {
     result = await query(`INSERT INTO Seasons(serieId, name, "number", airDate, overview, poster)
                               VALUES ($1,$2,$3,$4,$5,$6) RETURNING *;`,
-      [season.serieId, season.name, season.number, season.airDate, season.overview, season.poster]);
+      [season.serieId, season.name, season.number, airDate, season.overview, season.poster]);
     return result.rows[0];
-  }
-  catch (e) {
+  } catch (e) {
     console.info('Error occured :>> ', e);
   }
   return null;
