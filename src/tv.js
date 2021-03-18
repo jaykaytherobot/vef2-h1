@@ -1,5 +1,6 @@
 import express from 'express';
 import { validationResult } from 'express-validator';
+import cloudinary from 'cloudinary';
 import * as db from './db.js';
 import { upload } from './upload.js';
 import {
@@ -11,12 +12,17 @@ import { serieRules, seasonRules } from './form-rules.js';
 
 export const router = express.Router();
 
+cloudinary.v2.config({
+  folder: '',
+  allowed_formats: ['jpg', 'png', 'gif'],
+});
+
 // /tv
 router.get('/', async (req, res) => {
   const result = await db.getAllFromTable('Shows');
-    if (result.length!==0) return res.json(result);
-    else return res.status(400).json({ msg: 'Table not found' });
-  });
+  if (result.length !== 0) return res.json(result);
+  return res.status(400).json({ msg: 'Table not found' });
+});
 
 router.post('/',
   requireAdminAuthentication,

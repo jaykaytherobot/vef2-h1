@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, query } from 'express-validator';
 
 export const serieRules = () => [
   body('name')
@@ -31,4 +31,21 @@ export const seasonRules = () => [
     .isInt()
     .custom((value) => Number.parseInt(value, 10) >= 0),
   // body('image')
+];
+
+export const paginationRules = () => [
+  query('offset')
+    .if(query('offset').exists())
+    .isInt()
+    .withMessage('offset must be an integer')
+    .bail()
+    .custom((value) => Number.parseInt(value, 10) >= 0)
+    .withMessage('offset must be a positive integer'),
+  query('limit')
+    .if(query('limit').exists())
+    .isInt()
+    .withMessage('limit must be an integer')
+    .bail()
+    .custom((value) => Number.parseInt(value, 10) >= 0)
+    .withMessage('limit must be a positive integer')
 ];
