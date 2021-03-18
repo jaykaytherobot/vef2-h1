@@ -9,6 +9,7 @@ import {
   query,
   createNewSeason,
   createNewEpisode,
+  initializeSeriesSequence,
 } from './db.js';
 
 import { createUser } from './userdb.js';
@@ -42,7 +43,8 @@ async function setup() {
     .on('data', async (serie) => {
       await createNewSerie(serie);
     })
-    .on('end', () => {
+    .on('end', async () => {
+      // await initializeSeriesSequence();
       console.info('Finished reading series.csv');
     });
 

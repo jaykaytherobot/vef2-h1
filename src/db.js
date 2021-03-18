@@ -115,7 +115,13 @@ export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
 
 /* eslint-disable max-len, indent, quotes */
 // passa id seinna
-
+export async function initializeSeriesSequence() {
+  const s = await query(`SELECT MAX(id) from series`);
+  console.log(s);
+  const maxId = s.rows[0].max;
+  console.log('MaxID', maxId);
+  await query(`ALTER SEQUENCE series_id_seq RESTART WITH $1 INCREMENT BY 1;`, [maxId + 1]);
+}
 export async function createNewSerie(serie) {
   let s;
   if (serie.id) {
@@ -123,9 +129,13 @@ export async function createNewSerie(serie) {
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *;`,
     [serie.id, serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.description, serie.language, serie.network, serie.homepage]);
   } else {
-    s = await query(`INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;`,
-    [serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.description, serie.language, serie.network, serie.homepage]);
+    try {
+      s = await query(`INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;`,
+      [serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.description, serie.language, serie.network, serie.homepage]);
+    } catch (e) {
+      console.log('CODE', e.code);
+    }
   }
   if (serie.genres) {
     serie.genres.split(',').forEach(async (genre) => {
