@@ -25,8 +25,8 @@ router.get('/', async (req, res) => {
 
   const items = await db.getAllFromTable('Shows', offset, limit);
 
-  const next = items.length === limit ? { href: `http://localhost:3000/users?offset=${offset + limit}&limit=${limit}` } : undefined;
-  const prev = offset > 0 ? { href: `http://localhost:3000/users?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
+  const next = items.length === limit ? { href: `http://localhost:3000/tv?offset=${offset + limit}&limit=${limit}` } : undefined;
+  const prev = offset > 0 ? { href: `http://localhost:3000/tv?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
 
   if (items) {
     return res.json({
@@ -35,12 +35,12 @@ router.get('/', async (req, res) => {
       items,
       _links: {
         self: {
-          href: `http://localhost:3000/users?offset=${offset}&limit=${limit}`
+          href: `http://localhost:3000/tv?offset=${offset}&limit=${limit}`
         },
         next,
-        prev
-      }
-     });
+        prev,
+      },
+    });
   }
   return res.status(404).json({ msg: 'Table not found' });
 
