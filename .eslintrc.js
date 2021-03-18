@@ -6,6 +6,7 @@ module.exports = {
     ecmaVersion: 12,
   },
   rules: {
+    'object-shorthand': 0,
     // Viljum frekar named exports
     'import/prefer-default-export': 0,
 

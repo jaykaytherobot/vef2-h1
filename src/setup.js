@@ -28,16 +28,14 @@ if (!connectionString) {
   process.exit(1);
 }
 
-// Notum SSL tengingu við gagnagrunn ef við erum *ekki* í development mode, þ.e.a.s. á local vél
-// const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
-//
-// const pool = new pg.Pool({ connectionString, ssl });
-
-async function setup() {
+async function createTables() {
   const createTable = await readFile('./sql/schema.sql');
   const tData = createTable.toString('utf-8');
   await query(tData);
+  return;
+}
 
+async function setupSeries() {
   fs.createReadStream('./data/series.csv')
     .pipe(csv())
     .on('data', async (serie) => {
@@ -46,26 +44,39 @@ async function setup() {
     .on('end', async () => {
       await initializeSeriesSequence();
       console.info('Finished reading series.csv');
+      setTimeout(async () => await setupSeasons(), 2000);
     });
+    return;
+}
 
+async function setupSeasons() {
   fs.createReadStream('./data/seasons.csv')
     .pipe(csv())
     .on('data', async (season) => {
       await createNewSeason(season);
     })
-    .on('end', () => {
+    .on('end', async () => {
       console.info('Finished reading seasons.csv');
+      setTimeout(async () => await setupEpisodes(), 2000);
     });
+    return;
+}
 
+async function setupEpisodes() {
   fs.createReadStream('./data/episodes.csv')
     .pipe(csv())
     .on('data', async (episode) => {
       await createNewEpisode(episode);
     })
-    .on('end', () => {
+    .on('end', async () => {
       console.info('Finished reading episodes.csv');
     });
+    return;
+}
 
+async function setup() {
+  await createTables();
+  await setupSeries();
   createUser({
     name: 'admin',
     email: 'admin@admin.com',
