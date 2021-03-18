@@ -44,7 +44,7 @@ async function setup() {
       await createNewSerie(serie);
     })
     .on('end', async () => {
-      // await initializeSeriesSequence();
+      await initializeSeriesSequence();
       console.info('Finished reading series.csv');
     });
 

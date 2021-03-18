@@ -119,9 +119,11 @@ export async function initializeSeriesSequence() {
   const s = await query(`SELECT MAX(id) from series`);
   console.log(s);
   const maxId = s.rows[0].max;
-  console.log('MaxID', maxId);
-  await query(`ALTER SEQUENCE series_id_seq RESTART WITH $1 INCREMENT BY 1;`, [maxId + 1]);
+  console.log('MaxID', maxId + 1);
+  await query(`ALTER SEQUENCE series_id_seq RESTART WITH ${maxId+1} INCREMENT BY 1;`);
+  console.log('THETTA VIRKAÐIDIADSFÆLJDFALÆJ')
 }
+
 export async function createNewSerie(serie) {
   let s;
   if (serie.id) {
@@ -129,13 +131,9 @@ export async function createNewSerie(serie) {
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *;`,
     [serie.id, serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.description, serie.language, serie.network, serie.homepage]);
   } else {
-    try {
-      s = await query(`INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;`,
-      [serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.description, serie.language, serie.network, serie.homepage]);
-    } catch (e) {
-      console.log('CODE', e.code);
-    }
+    s = await query(`INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;`,
+    [serie.name, serie.airDate, serie.inProduction, serie.tagline, serie.image, serie.description, serie.language, serie.network, serie.homepage]);
   }
   if (serie.genres) {
     serie.genres.split(',').forEach(async (genre) => {
