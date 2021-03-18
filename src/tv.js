@@ -13,10 +13,32 @@ export const router = express.Router();
 
 // /tv
 router.get('/', async (req, res) => {
-  const result = await db.getAllFromTable('Shows');
-    if (result.length!==0) return res.json(result);
-    else return res.status(400).json({ msg: 'Table not found' });
-  });
+  const {
+    offset = 0, limit = 10
+  } = req.query;
+
+  const items = await db.getAllFromTable('Shows', offset, limit);
+
+  const next = items.length === limit ? { href: `http://localhost:3000/users?offset=${offset + limit}&limit=${limit}` } : undefined;
+  const prev = offset > 0 ? { href: `http://localhost:3000/users?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
+
+  if (items) {
+    return res.json({
+      limit,
+      offset,
+      items,
+      _links: {
+        self: {
+          href: `http://localhost:3000/users?offset=${offset}&limit=${limit}`
+        },
+        next,
+        prev
+      }
+     });
+  }
+  return res.status(404).json({ msg: 'Table not found' });
+
+});
 
 router.post('/',
   requireAdminAuthentication,
@@ -28,6 +50,7 @@ router.post('/',
       return res.status(400).json({ errors: errors.array() });
     }
     req.body.image = req.file.filename; // eða path
+    if (req.body.id) req.body.id = null;
     const createdSerie = await db.createNewSerie(req.body);
     if (createdSerie) {
       return res.json({ msg: 'Serie created' });
@@ -42,7 +65,7 @@ router.get('/:serieId', async (req, res) => {
   const data = await db.getSerieById(serieId);
   // Ef authenticated þá bæta við einkunn og stöðu
   if (!data) {
-    return res.status(404).json({ msg: 'Fann ekki þátt' });
+    return res.status(404).json({ msg: 'Fann ekki sjónvarpsþátt' });
   }
   return res.json({ data });
 });

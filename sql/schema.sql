@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS Seasons(
 
 CREATE TABLE IF NOT EXISTS Episodes(
     id serial PRIMARY KEY,
-    serieId integer,
+    serieId serial,
     seasonNumber integer,
     name varchar(128) NOT NULL,
     "number" integer,
@@ -68,8 +68,8 @@ CREATE TABLE IF NOT EXISTS Users(
 CREATE TABLE IF NOT EXISTS SerieToUser(
     serieId serial,
     userId serial,
-    status varchar(128),
-    grade integer,
+    status int,
+    grade int,
     FOREIGN KEY (serieId) REFERENCES Series(id),
     FOREIGN KEY (userId) REFERENCES Users(id)
 );
