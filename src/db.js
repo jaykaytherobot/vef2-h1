@@ -61,17 +61,17 @@ export async function getSerieById(id, userId = false, offset = 0, limit = 10) {
     let userResult;
     if(userId) {
       const userQuery = 'SELECT grade, status from SerieToUser WHERE serieId = $1 AND userId = $2;';
-      userResult = await query(userQuery, [id]);
+      userResult = await query(userQuery, [id,userId]);
     }
     else userResult = {rows: 'User not logged in'};
 
     if (serieResult.rowCount === 1) {
       return {
         info: serieResult.rows[0],
+        user: userResult.rows,
         ratings: ratingResult.rows[0],
         genres: genreResult.rows,
-        seasons: seasonResult.rows,
-        user: userResult.rows
+        seasons: seasonResult.rows
       }
     }
   } catch (e) {
@@ -195,4 +195,16 @@ export async function createNewUser(user) {
   await query(`INSERT INTO Users(name, email, password, admin)
                               VALUES ($1,$2,$3,$4);`,
     [user.name, user.email, user.password, user.admin]);
+}
+
+export async function createUserRatingBySerieId(serieId, userId, status, grade) {
+    await query(`INSERT INTO SerieToUser(serieId, userId, status, grade)
+                                VALUES($2,$3,$4,$5);`,
+    [serieId, userId, status, grade]);
+}
+
+export async function updateUserRatingBySerieId(serieId, userId, status, grade) {
+  await query(`INSERT INTO SerieToUser(serieId, userId, status, grade)
+                              VALUES($2,$3,$4,$5);`,
+  [serieId, userId, status, grade]);
 }

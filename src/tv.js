@@ -7,8 +7,9 @@ import {
   createTokenForUser,
   requireAuthentication,
   requireAdminAuthentication,
+  optionalAuthentication
 } from './login.js';
-import { serieRules, seasonRules } from './form-rules.js';
+import { serieRules, seasonRules, paginationRules } from './form-rules.js';
 
 export const router = express.Router();
 
@@ -18,32 +19,39 @@ cloudinary.v2.config({
 });
 
 // /tv
-router.get('/', async (req, res) => {
-  const {
-    offset = 0, limit = 10,
-  } = req.query;
+router.get('/',
+  paginationRules(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(404).json({ errors: errors.array() });
+    }
 
-  const items = await db.getAllFromTable('Shows', offset, limit);
+    const {
+      offset = 0, limit = 10,
+    } = req.query;
 
-  const next = items.length === limit ? { href: `http://localhost:3000/tv?offset=${offset + limit}&limit=${limit}` } : undefined;
-  const prev = offset > 0 ? { href: `http://localhost:3000/tv?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
+    const items = await db.getAllFromTable('Shows', offset, limit);
 
-  if (items) {
-    return res.json({
-      limit,
-      offset,
-      items,
-      _links: {
-        self: {
-          href: `http://localhost:3000/tv?offset=${offset}&limit=${limit}`
+    const next = items.length === limit ? { href: `http://localhost:3000/tv?offset=${offset + limit}&limit=${limit}` } : undefined;
+    const prev = offset > 0 ? { href: `http://localhost:3000/tv?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
+
+    if (items) {
+      return res.json({
+        limit,
+        offset,
+        items,
+        _links: {
+          self: {
+            href: `http://localhost:3000/tv?offset=${offset}&limit=${limit}`
+          },
+          next,
+          prev,
         },
-        next,
-        prev,
-      },
-    });
-  }
-  return res.status(404).json({ msg: 'Table not found' });
-});
+      });
+    }
+    return res.status(404).json({ msg: 'Table not found' });
+  });
 
 router.post('/',
   requireAdminAuthentication,
@@ -65,15 +73,18 @@ router.post('/',
   });
 
 // /tv/:id
-router.get('/:serieId', async (req, res) => {
-  const { serieId } = req.params;
-  const data = await db.getSerieById(serieId);
-  // Ef authenticated þá bæta við einkunn og stöðu
-  if (!data) {
-    return res.status(404).json({ msg: 'Fann ekki sjónvarpsþátt' });
-  }
-  return res.json({ data });
-});
+router.get('/:serieId',
+  optionalAuthentication,
+  async (req, res) => {
+    const { serieId } = req.params;
+    const userId = req.user.id;
+    const data = await db.getSerieById(serieId, userId);
+    // Ef authenticated þá bæta við einkunn og stöðu
+    if (!data) {
+      return res.status(404).json({ msg: 'Fann ekki sjónvarpsþátt' });
+    }
+    return res.json({ data });
+  });
 
 router.patch('/:serieId', (req, res) => {
   res.json({ foo: 'bar' });
@@ -142,7 +153,7 @@ router.delete('/:serieId/season/:seasonNum/episode', (req, res) => {
 // /tv/:id/season/:id/episode/:id
 router.get('/:serieId/season/:seasonNum/episode/:episodeNum', async (req, res) => {
   const { serieId, seasonNum, episodeNum } = req.params;
-  const data = await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
+  await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
   if (!data) {
     res.status(404).json({ msg: 'Fann ekki þátt' });
   }
@@ -153,14 +164,49 @@ router.post('/:serieId/season/:seasonNum/episode/:episodeNum', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
+router.post('/:serieId/rate',
+  requireAuthentication,
+  serieRules(),
+  async (req, res) => {
+    const { serieId, status, grade } = req.params;
+    const userId = req.user.id;
+    try {
+      await db.createUserRatingBySerieId(serieId, userId, status, grade);
+    }
+    catch (e) {
+      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
+    }
+    return res.json({msg: 'Uppfærsla tókst'});
+  });
+
+router.patch('/serieId/rate', (req, res) => {
+  
+});
+
+router.delete('/serieId/rate', (req, res) => {
+  res.json({ foo: 'bar' });
+});
+
+router.post('/serieId/state', (req, res) => {
+  res.json({ foo: 'bar' });
+});
+
+router.patch('/serieId/state', (req, res) => {
+  res.json({ foo: 'bar' });
+});
+
+router.delete('/serieId/state', (req, res) => {
+  res.json({ foo: 'bar' });
+});
+
 export const getGenres = async (req, res) => {
   const {
     offset = 0,
     limit = 10,
   } = req.query;
   const genres = await db.getAllFromTable('Genres', offset, limit);
-  const next = genres.length === limit ? { href: `http://localhost:3000/genres?offset=${offset+limit}&limit=${limit}` } : undefined;
-  const prev = offset > 0 ? { href: `http://localhost:3000/genres?offset=${Math.max(offset-limit, 0)}&limit=${limit}` } : undefined;
+  const next = genres.length === limit ? { href: `http://localhost:3000/genres?offset=${offset + limit}&limit=${limit}` } : undefined;
+  const prev = offset > 0 ? { href: `http://localhost:3000/genres?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
   console.log(genres);
   res.json({
     offset: offset,

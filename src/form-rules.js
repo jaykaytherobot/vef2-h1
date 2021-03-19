@@ -49,3 +49,9 @@ export const paginationRules = () => [
     .custom((value) => Number.parseInt(value, 10) >= 0)
     .withMessage('limit must be a positive integer')
 ];
+
+export const ratingRules = () => [
+  body('status')
+    .isInt()
+    .custom((value) => Number.parseInt(value, 10)<=2&&Number.parseInt(value, 10)>=0)
+];

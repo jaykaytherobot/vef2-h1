@@ -71,5 +71,6 @@ CREATE TABLE IF NOT EXISTS SerieToUser(
     status int,
     grade int,
     FOREIGN KEY (serieId) REFERENCES Series(id),
-    FOREIGN KEY (userId) REFERENCES Users(id)
+    FOREIGN KEY (userId) REFERENCES Users(id),
+    PRIMARY KEY (serieId, userId)
 );
