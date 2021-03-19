@@ -51,6 +51,7 @@ export async function getSerieById(id, offset = 0, limit = 10) {
   const serieQuery = 'SELECT * FROM Series s WHERE id = $1;';
   const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genre ON genreId = Genre.id WHERE serieId = $1';
   const seasonQuery = 'SELECT * FROM Seasons WHERE serieId = $1';
+  const ratingQuery = 'SELECT COUNT(*), AVG(grage) FROM '
   try {
     const serieResult = await query(serieQuery, [id]);
     const genreResult = await query(genreQuery, [id]);
