@@ -9,7 +9,7 @@ import {
   requireAdminAuthentication,
   optionalAuthentication
 } from './login.js';
-import { serieRules, seasonRules, paramIdRules, checkValidationResult } from './form-rules.js';
+import { serieRules, seasonRules, paramIdRules, paginationRules, checkValidationResult } from './form-rules.js';
 
 export const router = express.Router();
 
@@ -21,12 +21,8 @@ cloudinary.v2.config({
 // /tv
 router.get('/',
   paginationRules(),
+  checkValidationResult,
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(404).json({ errors: errors.array() });
-    }
-
     const {
       offset = 0, limit = 10,
     } = req.query;
@@ -57,11 +53,8 @@ router.post('/',
   requireAdminAuthentication,
   upload.single('image'),
   serieRules(),
+  checkValidationResult,
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
     req.body.image = req.file.filename; // eða path
     if (req.body.id) req.body.id = null;
     const createdSerie = await db.createNewSerie(req.body);
@@ -102,11 +95,8 @@ router.patch('/:serieId',
 router.delete('/:serieId', 
   requireAdminAuthentication,
   paramIdRules('serieId'),
+  checkValidationResult,
   (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
       const { serieId } = req.params;
       const deletedSerie = db.deleteSerie(serieId);
       return res.json(deletedSerie);
@@ -127,11 +117,8 @@ router.post('/:serieId/season',
   requireAdminAuthentication,
   upload.single('poster'),
   seasonRules(),
+  checkValidationResult,
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
     const { serieId } = req.params;
     req.body.poster = req.file.filename; // eða path
     req.body.serieId = serieId;
@@ -185,6 +172,7 @@ router.post('/:serieId/season/:seasonNum/episode/:episodeNum', (req, res) => {
 router.post('/:serieId/rate',
   requireAuthentication,
   serieRules(),
+  checkValidationResult,
   async (req, res) => {
     const { serieId, status, grade } = req.params;
     const userId = req.user.id;
