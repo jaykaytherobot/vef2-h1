@@ -61,7 +61,7 @@ export async function getSerieById(id, userId = false, offset = 0, limit = 10) {
     let userResult;
     if(userId) {
       const userQuery = 'SELECT grade, status from SerieToUser WHERE serieId = $1 AND userId = $2;';
-      const userResult = await query(userQuery, [id]);
+      userResult = await query(userQuery, [id]);
     }
     else userResult = {rows: 'User not logged in'};
 
