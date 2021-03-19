@@ -47,21 +47,31 @@ export async function getAllFromTable(table, offset = 0, limit = 10) {
   return result.rows;
 }
 
-export async function getSerieById(id, offset = 0, limit = 10) {
+export async function getSerieById(id, userId = false, offset = 0, limit = 10) {
   const serieQuery = 'SELECT * FROM Series s WHERE id = $1;';
-  const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genre ON genreId = Genre.id WHERE serieId = $1';
-  const seasonQuery = 'SELECT * FROM Seasons WHERE serieId = $1';
-  const ratingQuery = 'SELECT COUNT(*), AVG(grage) FROM '
+  const ratingQuery = 'SELECT COUNT(*), AVG(grade) FROM SerieToUser WHERE serieId = $1;'
+  const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genre ON genreId = Genre.id WHERE serieId = $1;';
+  const seasonQuery = 'SELECT * FROM Seasons WHERE serieId = $1;';
+  
   try {
     const serieResult = await query(serieQuery, [id]);
+    const ratingResult = await query(ratingQuery, [id]);
     const genreResult = await query(genreQuery, [id]);
-    const seasonResult= await query(seasonQuery, [id]);
+    const seasonResult = await query(seasonQuery, [id]);
+    let userResult;
+    if(userId) {
+      const userQuery = 'SELECT grade, status from SerieToUser WHERE serieId = $1 AND userId = $2;';
+      const userResult = await query(userQuery, [id]);
+    }
+    else userResult = {rows: 'User not logged in'};
 
     if (serieResult.rowCount === 1) {
       return {
         info: serieResult.rows[0],
+        ratings: ratingResult.rows[0],
         genres: genreResult.rows,
-        seasons: seasonResult.rows
+        seasons: seasonResult.rows,
+        user: userResult.rows
       }
     }
   } catch (e) {
