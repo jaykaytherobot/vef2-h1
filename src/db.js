@@ -198,9 +198,17 @@ export async function createNewUser(user) {
 }
 
 export async function createUserRatingBySerieId(serieId, userId, status, grade) {
-    await query(`INSERT INTO SerieToUser(serieId, userId, status, grade)
-                                VALUES($2,$3,$4,$5);`,
+    let data;
+    try{
+    data = await query(`INSERT INTO SerieToUser(serieId, userId, status, grade)
+                                VALUES($1,$2,$3,$4) RETURNING *;`,
     [serieId, userId, status, grade]);
+    return data.row[0];
+    }
+    catch (e) {
+      console.info('Error occured :>> ', e);
+    }
+    return data;
 }
 
 export async function updateUserRatingBySerieId(serieId, userId, status, grade) {

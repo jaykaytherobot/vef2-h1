@@ -9,7 +9,8 @@ import {
   requireAdminAuthentication,
   optionalAuthentication
 } from './login.js';
-import { serieRules, seasonRules, paramIdRules, paginationRules, checkValidationResult } from './form-rules.js';
+import * as fr from './form-rules.js';
+//import { serieRules, seasonRules, paramIdRules, paginationRules, checkValidationResult } from './form-rules.js';
 
 export const router = express.Router();
 
@@ -20,8 +21,8 @@ cloudinary.v2.config({
 
 // /tv
 router.get('/',
-  paginationRules(),
-  checkValidationResult,
+  fr.paginationRules(),
+  fr.checkValidationResult,
   async (req, res) => {
     const {
       offset = 0, limit = 10,
@@ -52,8 +53,8 @@ router.get('/',
 router.post('/',
   requireAdminAuthentication,
   upload.single('image'),
-  serieRules(),
-  checkValidationResult,
+  fr.serieRules(),
+  fr.checkValidationResult,
   async (req, res) => {
     req.body.image = req.file.filename; // eða path
     if (req.body.id) req.body.id = null;
@@ -81,9 +82,9 @@ router.get('/:serieId',
 
 router.patch('/:serieId', 
   requireAdminAuthentication,
-  paramIdRules('serieId'),
-  serieRules(),
-  checkValidationResult,
+  fr.paramIdRules('serieId'),
+  fr.serieRules(),
+  fr.checkValidationResult,
   (req, res) => {
 
     const { serieId } = req.params;
@@ -94,8 +95,8 @@ router.patch('/:serieId',
 
 router.delete('/:serieId', 
   requireAdminAuthentication,
-  paramIdRules('serieId'),
-  checkValidationResult,
+  fr.paramIdRules('serieId'),
+  fr.checkValidationResult,
   (req, res) => {
       const { serieId } = req.params;
       const deletedSerie = db.deleteSerie(serieId);
@@ -116,8 +117,8 @@ router.get('/:serieId/season', async (req, res) => {
 router.post('/:serieId/season',
   requireAdminAuthentication,
   upload.single('poster'),
-  seasonRules(),
-  checkValidationResult,
+  fr.seasonRules(),
+  fr.checkValidationResult,
   async (req, res) => {
     const { serieId } = req.params;
     req.body.poster = req.file.filename; // eða path
@@ -171,15 +172,15 @@ router.post('/:serieId/season/:seasonNum/episode/:episodeNum', (req, res) => {
 
 router.post('/:serieId/rate',
   requireAuthentication,
-  serieRules(),
-  checkValidationResult,
+  fr.paramIdRules('serieId'),
+  fr.ratingRules(),
+  fr.checkValidationResult,
   async (req, res) => {
     const { serieId, status, grade } = req.params;
     const userId = req.user.id;
-    try {
-      await db.createUserRatingBySerieId(serieId, userId, status, grade);
-    }
-    catch (e) {
+    let data;
+    data = await db.createUserRatingBySerieId(serieId, userId, status, grade);
+    if(!data) {
       return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
     }
     return res.json({msg: 'Uppfærsla tókst'});
