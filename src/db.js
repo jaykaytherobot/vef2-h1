@@ -48,14 +48,25 @@ export async function getAllFromTable(table, offset = 0, limit = 10) {
 }
 
 export async function getSerieById(id, offset = 0, limit = 10) {
-  const q = 'SELECT s.*, AVG(stu.grade) as avgRating, COUNT(stu.grade) as ratingsCount FROM Series s, SerieToUser stu WHERE s.id = $1 AND stu.serieId = $1 GROUP BY s.id OFFSET $2 LIMIT $3;';
-  let result = '';
+  const serieQuery = 'SELECT * FROM Series s WHERE id = $1;';
+  const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genre ON genreId = Genre.id WHERE serieId = $1';
+  const seasonQuery = 'SELECT * FROM Seasons WHERE serieId = $1';
   try {
-    result = await query(q, [id, offset, limit]);
+    const serieResult = await query(serieQuery, [id]);
+    const genreResult = await query(genreQuery, [id]);
+    const seasonResult= await query(seasonQuery, [id]);
+
+    if (serieResult.rowCount === 1) {
+      return {
+        info: serieResult.rows[0],
+        genres: genreResult.rows,
+        seasons: seasonResult.rows
+      }
+    }
   } catch (e) {
     console.info('Error occured :>> ', e);
   }
-  return result.rows[0];
+  return false;
 }
 
 export async function getSeasonsBySerieId(serieId, offset = 0, limit = 10) {
