@@ -196,3 +196,10 @@ export async function createNewUser(user) {
                               VALUES ($1,$2,$3,$4);`,
     [user.name, user.email, user.password, user.admin]);
 }
+
+export async function deleteSerie(id) {
+  const q = 'DELETE FROM Series WHERE id = $1';
+  const result = await query(q, [id]);
+  console.log(result);
+  return result.rows;
+}

@@ -8,7 +8,7 @@ import {
   requireAuthentication,
   requireAdminAuthentication,
 } from './login.js';
-import { serieRules, seasonRules } from './form-rules.js';
+import { serieRules, seasonRules, paramIdRules, checkValidationResult } from './form-rules.js';
 
 export const router = express.Router();
 
@@ -18,7 +18,9 @@ cloudinary.v2.config({
 });
 
 // /tv
-router.get('/', async (req, res) => {
+router.get('/', 
+
+async (req, res) => {
   const {
     offset = 0, limit = 10,
   } = req.query;
@@ -75,13 +77,31 @@ router.get('/:serieId', async (req, res) => {
   return res.json({ data });
 });
 
-router.patch('/:serieId', (req, res) => {
-  res.json({ foo: 'bar' });
-});
+router.patch('/:serieId', 
+  requireAdminAuthentication,
+  paramIdRules('serieId'),
+  serieRules(),
+  checkValidationResult,
+  (req, res) => {
 
-router.delete('/:serieId', (req, res) => {
-  res.json({ foo: 'bar' });
-});
+    const { serieId } = req.params;
+    console.log(serieId);
+    res.json({error:'not implemented'});
+
+  });
+
+router.delete('/:serieId', 
+  requireAdminAuthentication,
+  paramIdRules('serieId'),
+  (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      const { serieId } = req.params;
+      const deletedSerie = db.deleteSerie(serieId);
+      return res.json(deletedSerie);
+  });
 
 // /tv/:id/season/
 router.get('/:serieId/season', async (req, res) => {

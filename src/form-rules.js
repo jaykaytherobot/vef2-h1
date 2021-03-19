@@ -1,4 +1,4 @@
-import { body, query } from 'express-validator';
+import { body, query, param, validationResult } from 'express-validator';
 
 export const serieRules = () => [
   body('name')
@@ -49,3 +49,20 @@ export const paginationRules = () => [
     .custom((value) => Number.parseInt(value, 10) >= 0)
     .withMessage('limit must be a positive integer')
 ];
+
+// vonandi er hægt að senda inn streng idField sem að er nafnið á 
+// param breytunni 
+export const paramIdRules = (idField) => [
+  param(idField)
+    .isInt()
+    .custom((value) => value > 0)
+    .withMessage(`${idField} must be an integer larger than 0`)
+]
+
+export function checkValidationResult(req, res, next) {
+  const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+}
