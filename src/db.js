@@ -197,24 +197,24 @@ export async function createNewUser(user) {
     [user.name, user.email, user.password, user.admin]);
 }
 
-export async function createUserRatingBySerieId(serieId, userId, status, grade) {
-    let data;
-    try{
-    data = await query(`INSERT INTO SerieToUser(serieId, userId, status, grade)
-                                VALUES($1,$2,$3,$4) RETURNING *;`,
-    [serieId, userId, status, grade]);
-    return data.row[0];
-    }
-    catch (e) {
-      console.info('Error occured :>> ', e);
-    }
-    return data;
+export async function createUserRatingBySerieId(serieId, userId, grade) {
+  const queryExists = 'SELECT * FROM SerieToUser WHERE serieId=$1 AND userId=$2';
+  const existsResult = await query(queryExists, [serieId, userId]);
+  if(existsResult.rowCount === 0) {
+    let data = await query(`INSERT INTO SerieToUser(serieId, userId, grade)
+                                VALUES($1,$2,$3) RETURNING *;`,
+    [serieId, userId, grade]);
+    return data.rows[0];
+  }
+  else{
+    updateUserRatingBySerieId(serieId, userId, grade);
+  }
+  return '';
 }
 
-export async function updateUserRatingBySerieId(serieId, userId, status, grade) {
-  await query(`INSERT INTO SerieToUser(serieId, userId, status, grade)
-                              VALUES($2,$3,$4,$5);`,
-  [serieId, userId, status, grade]);
+export async function updateUserRatingBySerieId(serieId, userId, grade) {
+  await query(`UPDATE SerieToUser SET grade=$1 WHERE serieId=$2 AND userId=$3`,
+  [grade, serieId, userId]);
 }
 
 export async function deleteSerie(id) {

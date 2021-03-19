@@ -51,12 +51,12 @@ export const paginationRules = () => [
 ];
 
 export const ratingRules = () => [
-  body('status')
-    .isInt()
-    .withMessage('Status must be an integer')
-    .bail()
-    .custom((value) => Number.parseInt(value, 10)<=2&&Number.parseInt(value, 10)>=0)
-    .withMessage('Status must be an integer greater than or equal to 0 and less than or equal to 2'),
+  // body('status')
+  //   .isInt()
+  //   .withMessage('Status must be an integer')
+  //   .bail()
+  //   .custom((value) => Number.parseInt(value, 10)<=2&&Number.parseInt(value, 10)>=0)
+    // .withMessage('Status must be an integer greater than or equal to 0 and less than or equal to 2'),
   body('grade')
     .isInt()
     .withMessage('Grade must be an integer')

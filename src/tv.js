@@ -176,21 +176,35 @@ router.post('/:serieId/rate',
   fr.ratingRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    const { serieId, status, grade } = req.params;
+    const { serieId } = req.params;
+    const { grade } = req.body;
     const userId = req.user.id;
     let data;
-    data = await db.createUserRatingBySerieId(serieId, userId, status, grade);
+    data = await db.createUserRatingBySerieId(serieId, userId, grade);
     if(!data) {
       return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
     }
     return res.json({msg: 'Uppfærsla tókst'});
   });
 
-router.patch('/serieId/rate', (req, res) => {
-  
+router.patch('/:serieId/rate', 
+  requireAuthentication,
+  fr.paramIdRules('serieId'),
+  fr.ratingRules(),
+  fr.checkValidationResult,
+  async (req, res) => {
+    const { serieId } = req.params;
+    const { grade } = req.body;
+    const userId = req.user.id;
+    let data;
+    data = await db.createUserRatingBySerieId(serieId, userId, grade);
+    if(!data) {
+      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
+    }
+    return res.json({msg: 'Uppfærsla tókst'});
 });
 
-router.delete('/serieId/rate', (req, res) => {
+router.delete('/:serieId/rate', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
