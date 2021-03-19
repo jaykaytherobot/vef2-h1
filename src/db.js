@@ -82,7 +82,7 @@ export async function getSeasonsBySerieId(serieId, offset = 0, limit = 10) {
 }
 
 export async function getSeasonBySerieIdAndSeasonNum(serieId, seasonNum) {
-  const q = 'SELECT * FROM Seasons WHERE num = $1 and serieId = $2;';
+  const q = 'SELECT * FROM Seasons WHERE number = $1 and serieId = $2;';
   let result = '';
   try {
     result = await query(q, [seasonNum, serieId]);
@@ -93,7 +93,7 @@ export async function getSeasonBySerieIdAndSeasonNum(serieId, seasonNum) {
 }
 
 export async function getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum, offset = 0, limit = 10) {
-  const q = 'SELECT * FROM Episodes WHERE seasonnumber = $1 and serieId = $2 OFFSET $3 LIMIT $4 ORDER BY num ASC;';
+  const q = 'SELECT * FROM Episodes WHERE seasonnumber = $1 and serieId = $2  ORDER BY Episodes.number ASC OFFSET $3 LIMIT $4;';
   let result = '';
   try {
     result = await query(q, [seasonNum, serieId, offset, limit]);
@@ -130,7 +130,7 @@ export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
 export async function initializeSeriesSequence() {
   const s = await query(`SELECT MAX(id) from series`);
   const maxId = s.rows[0].max;
-  await query(`ALTER SEQUENCE series_id_seq RESTART WITH ${maxId+1} INCREMENT BY 1;`);
+  await query(`ALTER SEQUENCE series_id_seq RESTART WITH ${maxId + 1} INCREMENT BY 1;`);
 }
 
 export async function createNewSerie(serie) {
