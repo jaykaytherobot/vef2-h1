@@ -208,3 +208,10 @@ export async function updateUserRatingBySerieId(serieId, userId, status, grade) 
                               VALUES($2,$3,$4,$5);`,
   [serieId, userId, status, grade]);
 }
+
+export async function deleteSerie(id) {
+  const q = 'DELETE FROM Series WHERE id = $1';
+  const result = await query(q, [id]);
+  console.log(result);
+  return result.rows;
+}

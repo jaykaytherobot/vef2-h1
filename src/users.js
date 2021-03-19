@@ -9,7 +9,7 @@ import {
 import * as db from './db.js';
 import * as userDb from './userdb.js';
 import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from './login.js';
-import { paginationRules } from './form-rules.js'
+import { paginationRules, paramIdRules } from './form-rules.js'
 
 dotenv.config();
 
@@ -218,9 +218,7 @@ router.patch('/me', requireAuthentication,
 
 router.get('/:id',
 requireAdminAuthentication,
-param('id')
-  .isInt()
-  .withMessage('id must be integer'),
+paramIdRules('id'),
 async (req, res) => {
   const errors = validationResult(req);
   if(!errors.isEmpty()) {
