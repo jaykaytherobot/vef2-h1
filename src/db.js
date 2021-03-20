@@ -33,6 +33,11 @@ export async function query(q, values = []) {
   return result;
 }
 
+export async function getCountOfTable(table) {
+  const result = await query(`SELECT COUNT(*) FROM ${table};`);
+  return Number(result.rows[0].count);
+}
+
 export async function getAllFromTable(table, offset = 0, limit = 10, orderBy = null) {
   const q = orderBy ? `SELECT * FROM ${table} ORDER BY ${orderBy} OFFSET ${offset} LIMIT ${limit};` : `SELECT * FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
   let result = '';
@@ -85,9 +90,14 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
 }
 
 export async function getSeasonsBySerieId(serieId, offset = 0, limit = 10) {
-  const q = 'SELECT * FROM Seasons WHERE serieId = $1 ORDER BY number OFFSET $2 LIMIT $3;';
-  const result = await query(q, [serieId, offset, limit]);
-  return result.rows;
+  const dataQuery = 'SELECT * FROM Seasons WHERE serieId = $1 ORDER BY number OFFSET $2 LIMIT $3;';
+  const countQuery = 'SELECT COUNT(*) FROM Seasons WHERE serieId = $1;';
+  const result = await query(dataQuery, [serieId, offset, limit]);
+  const count = await query(countQuery, [serieId]);
+  return {
+    data: result.rows,
+    count: Number(count.rows[0].count),
+  };
 }
 
 export async function getSeasonBySerieIdAndSeasonNum(serieId, seasonNum) {

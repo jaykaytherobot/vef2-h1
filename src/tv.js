@@ -8,6 +8,7 @@ import {
   requireAdminAuthentication,
   optionalAuthentication,
 } from './login.js';
+import { getLinks } from './utils.js';
 import * as fr from './form-rules.js';
 
 export const router = express.Router();
@@ -22,17 +23,17 @@ router.get('/',
     } = req.query;
     const orderBy = 'id';
     const items = await db.getAllFromTable('Series', offset, limit, orderBy);
-
     if (items) {
-      const next = items.length === limit ? { href: `http://localhost:3000/tv?offset=${offset + limit}&limit=${limit}` } : undefined;
-      const prev = offset > 0 ? { href: `http://localhost:3000/tv?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
+      const length = await db.getCountOfTable('Series');
+      console.log('LENNNGTH', length);
+      const { next, prev, href } = getLinks('tv', length, offset, limit);
       return res.json({
         limit,
         offset,
         items,
         _links: {
           self: {
-            href: `http://localhost:3000/tv?offset=${offset}&limit=${limit}`,
+            href,
           },
           next,
           prev,
@@ -107,20 +108,20 @@ router.get('/:serieId/season',
     const { serieId } = req.params;
 
     let {
-      offset = 0, limit = 10
+      offset = 0, limit = 10,
     } = req.query;
     offset = Number.parseInt(offset, 10);
     limit = Number.parseInt(limit, 10);
 
-    const data = await db.getSeasonsBySerieId(serieId, offset, limit);
-    console.log(data.length, limit)
-    const next = data.length === limit ? { href: `http://localhost:3000/tv/${serieId}/season?offset=${offset + limit}&limit=${limit}` } : undefined;
-    const prev = offset > 0 ? { href: `http://localhost:3000/tv/${serieId}/season?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
+    const { data, count } = await db.getSeasonsBySerieId(serieId, offset, limit);
+    const { next, prev, href } = getLinks(`tv/${serieId}/season`, count, offset, limit);
 
     if (!data) {
       res.status(404).json({ errors: [{ param: 'id', msg: 'Fann ekki þátt' }] });
     }
-    res.json({ limit, offset, items: data, links: { self: `http://localhost:3000/tv/${serieId}/season?offset=${offset}&limit=${limit}`, prev, next } });
+    res.json({
+      limit, offset, items: data, links: { self: href, prev, next },
+    });
   });
 
 router.post('/:serieId/season',
@@ -157,8 +158,8 @@ router.delete('/:serieId/season/:seasonNum',
   fr.paramIdRules('seasonNum'),
   fr.checkValidationResult,
   async (req, res) => {
-    const {serieId, seasonNum} = req.params;
-    await db.deleteSeasonBySerieIdAndSeasonNumber(serieId,seasonNum);
+    const { serieId, seasonNum } = req.params;
+    await db.deleteSeasonBySerieIdAndSeasonNumber(serieId, seasonNum);
     return res.json({});
   });
 
@@ -173,8 +174,8 @@ router.post('/:serieId/season/:seasonNum/episode',
     episode[serieId] = serieId;
     episode[seasonNum] = seasonNum;
     const result = await db.createNewEpisode(episode);
-    if(result) return res.json({msg: "Sköpun þáttar tókst"});
-    return res.status(404).json({msg: "Sköpun þáttar tókst ekki"});
+    if (result) return res.json({ msg: 'Sköpun þáttar tókst' });
+    return res.status(404).json({ msg: 'Sköpun þáttar tókst ekki' });
   });
 
   router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
@@ -241,7 +242,7 @@ router.delete('/:serieId/rate',
     const userId = req.user.id;
     const del = await db.deleteUserData(serieId, userId);
     if (del) return;
-    else return res.json({ msg: 'Tókst ekki að eyða' });
+    res.json({ msg: 'Tókst ekki að eyða' });
   });
 
 router.post('/:serieId/state',
@@ -295,9 +296,8 @@ export const getGenres = async (req, res) => {
     limit = 10,
   } = req.query;
   const genres = await db.getAllFromTable('Genres', offset, limit);
-  const next = genres.length === limit ? { href: `http://localhost:3000/genres?offset=${offset + limit}&limit=${limit}` } : undefined;
-  const prev = offset > 0 ? { href: `http://localhost:3000/genres?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
-  console.log(genres);
+  const length = await db.getCountOfTable('Genres');
+  const { next, prev, href } = getLinks('genres', length, offset, limit);
   res.json({
     offset: offset,
     limit: limit,
@@ -305,7 +305,7 @@ export const getGenres = async (req, res) => {
     _links: {
       prev,
       self: {
-        href: `localhost:3000/genres?offset=${offset}&limit=${limit}`,
+        href,
       },
       next,
     },
