@@ -63,6 +63,7 @@ router.get('/:serieId',
   optionalAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId } = req.params;
     let userId;
