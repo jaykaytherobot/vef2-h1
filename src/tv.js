@@ -196,8 +196,7 @@ router.patch('/:serieId/rate',
     const { serieId } = req.params;
     const { grade } = req.body;
     const userId = req.user.id;
-    let data;
-    data = await db.createUserRatingBySerieId(serieId, userId, grade);
+    let data = await db.updateUserRatingBySerieId(serieId, userId, grade);
     if(!data) {
       return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
     }

@@ -213,8 +213,13 @@ export async function createUserRatingBySerieId(serieId, userId, grade) {
 }
 
 export async function updateUserRatingBySerieId(serieId, userId, grade) {
-  await query(`UPDATE SerieToUser SET grade=$1 WHERE serieId=$2 AND userId=$3`,
+  const result = await query(`UPDATE SerieToUser SET grade=$1 WHERE serieId=$2 AND userId=$3 RETURNING *`,
   [grade, serieId, userId]);
+  console.log(result);
+  if(result.rowCount === 1) {
+    return result.rows[0];
+  }
+  return false;
 }
 
 export async function deleteSerie(id) {
