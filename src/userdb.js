@@ -1,13 +1,12 @@
-import { query } from './db.js';
 import bcrypt from 'bcrypt';
+import { query } from './db.js';
 
 export async function getAllUsers() {
   const q = 'SELECT id,name,email,admin FROM Users';
   try {
     const result = await query(q);
     return result.rows;
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err);
   }
   return [];
@@ -19,11 +18,10 @@ export async function createUser(user, admin = false) {
 
     try {
       const result = await query(q, [user.name, user.email, await bcrypt.hash(user.password, 10), true]);
-      if (result.rowCount === 1){
+      if (result.rowCount === 1) {
         return result.rows[0];
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error creating user', error);
     }
   }
@@ -32,11 +30,10 @@ export async function createUser(user, admin = false) {
 
   try {
     const result = await query(q, [user.name, user.email, await bcrypt.hash(user.password, 10)]);
-    if (result.rowCount === 1){
+    if (result.rowCount === 1) {
       return result.rows[0];
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error creating user', error);
   }
   return false;
@@ -44,23 +41,21 @@ export async function createUser(user, admin = false) {
 
 export async function updateUser(user) {
   let q;
-  const param = [user.email, user.id]
+  const param = [user.email, user.id];
   if (user.password) {
-    q = 'UPDATE Users SET email=$1, password=$3 WHERE id=$2 RETURNING id,name,email,admin'
+    q = 'UPDATE Users SET email=$1, password=$3 WHERE id=$2 RETURNING id,name,email,admin';
     param.push(await bcrypt.hash(user.password, 10));
-  }
-  else{
+  } else {
     q = 'UPDATE Users SET email=$1 WHERE id=$2 RETURNING id,name,email,admin';
   }
-  
+
   try {
     const result = await query(q, param);
 
-    if(result.rowCount === 1) {
+    if (result.rowCount === 1) {
       return result.rows[0];
     }
-  }
-  catch (err) {
+  } catch (err) {
     console.error('Could not update user', err);
     return null;
   }
@@ -73,7 +68,7 @@ export async function getUserByName(name) {
   try {
     const result = await query(q, [name]);
 
-    if(result.rowCount === 1) {
+    if (result.rowCount === 1) {
       return result.rows[0];
     }
   } catch (e) {
@@ -89,7 +84,7 @@ export async function getUserByEmail(email) {
   try {
     const result = await query(q, [email]);
 
-    if(result.rowCount === 1) {
+    if (result.rowCount === 1) {
       return result.rows[0];
     }
   } catch (e) {
@@ -103,7 +98,7 @@ export async function getUserById(id) {
   const q = 'SELECT id,name,email,admin FROM Users WHERE id = $1;';
   try {
     const result = await query(q, [id]);
-    if(result.rowCount === 1) {
+    if (result.rowCount === 1) {
       return result.rows[0];
     }
   } catch (e) {

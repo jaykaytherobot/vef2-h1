@@ -1,4 +1,6 @@
-import { body, query, param, validationResult } from 'express-validator';
+import {
+  body, query, param, validationResult,
+} from 'express-validator';
 import { getSerieById } from './db.js';
 
 export const serieRules = () => [
@@ -25,18 +27,16 @@ export const serieRules = () => [
 
 export const patchSerieRules = () => [
   body()
-    .custom((value, { req }) => {
-      return req.body.name || 
-      req.body.airDate || 
-      req.body.inProduction || 
-      req.body.description || 
-      req.body.language || 
-      req.body.tagline || 
-      req.body.network || 
-      req.body.url;
-    })
-    .withMessage('require at least one value of: name, airDate, inProduction, tagline, image, description, language, network, url')
-]
+    .custom((value, { req }) => req.body.name
+      || req.body.airDate
+      || req.body.inProduction
+      || req.body.description
+      || req.body.language
+      || req.body.tagline
+      || req.body.network
+      || req.body.url)
+    .withMessage('require at least one value of: name, airDate, inProduction, tagline, image, description, language, network, url'),
+];
 
 export const seasonRules = () => [
   body('name')
@@ -61,7 +61,7 @@ export const paginationRules = () => [
     .custom((value) => Number.parseInt(value, 10) >= 0)
     .withMessage('limit must be a positive integer')
     .isInt()
-    .withMessage('limit must be an integer')
+    .withMessage('limit must be an integer'),
 ];
 
 export const ratingRules = () => [
@@ -70,7 +70,7 @@ export const ratingRules = () => [
     .withMessage('Grade must be an integer greater than or equal to 0 and less than or equal to 5')
     .bail()
     .custom((value) => Number.parseInt(value, 10) <= 5 && Number.parseInt(value, 10) >= 0)
-    .withMessage('Grade must be an integer greater than or equal to 0 and less than or equal to 5')
+    .withMessage('Grade must be an integer greater than or equal to 0 and less than or equal to 5'),
 ];
 
 export const statusRules = () => [
@@ -79,26 +79,28 @@ export const statusRules = () => [
     .withMessage('Status must be an integer greater than or equal to 0 and less than or equal to 2')
     .bail()
     .custom((value) => Number.parseInt(value, 10) <= 2 && Number.parseInt(value, 10) >= 0)
-    .withMessage('Status must be an integer greater than or equal to 0 and less than or equal to 2')
+    .withMessage('Status must be an integer greater than or equal to 0 and less than or equal to 2'),
 ];
 
-// vonandi er hægt að senda inn streng idField sem að er nafnið á 
-// param breytunni 
+// vonandi er hægt að senda inn streng idField sem að er nafnið á
+// param breytunni
 export const paramIdRules = (idField) => [
   param(idField)
     .isInt()
     .custom((value) => value > 0)
-    .withMessage(`${idField} must be an integer larger than 0`)
+    .withMessage(`${idField} must be an integer larger than 0`),
 ];
 
 export async function serieExists(req, res, next) {
   const serie = await getSerieById(req.params.serieId);
-  if(!serie) {
-    return res.status(404).json({ 
-      errors: [{param:'id',
+  if (!serie) {
+    return res.status(404).json({
+      errors: [{
+        param: 'id',
         msg: 'Could not find serie with this id',
-      location:'params'
-    }]})
+        location: 'params',
+      }],
+    });
   }
   next();
 }

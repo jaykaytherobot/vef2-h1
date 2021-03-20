@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon ./src/app.js",
-    "test": "eslint src/*.js",
+    "test": "eslint src/*.js --fix",
     "start": "node ./src/app.js",
     "setup": "node ./src/setup.js"
   },

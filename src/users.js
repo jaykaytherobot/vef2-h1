@@ -9,7 +9,7 @@ import {
 import * as db from './db.js';
 import * as userDb from './userdb.js';
 import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from './login.js';
-import { checkValidationResult, paginationRules, paramIdRules } from './form-rules.js'
+import { checkValidationResult, paginationRules, paramIdRules } from './form-rules.js';
 
 dotenv.config();
 
@@ -25,15 +25,14 @@ router.get('/',
   paginationRules(),
   checkValidationResult,
   async (req, res) => {
-
     const {
-      offset = 0, limit = 10
+      offset = 0, limit = 10,
     } = req.query;
 
     const items = await userDb.getAllUsers('Users', offset, limit);
 
-    const next = items.length === limit ? { href: `http://localhost:3000/users?offset=${offset+limit}&limit=${limit}`}: undefined;
-    const prev = offset > 0 ? { href: `http://localhost:3000/users?offset=${Math.max(offset-limit, 0)}&limit=${limit}`}: undefined;
+    const next = items.length === limit ? { href: `http://localhost:3000/users?offset=${offset + limit}&limit=${limit}` } : undefined;
+    const prev = offset > 0 ? { href: `http://localhost:3000/users?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
 
     if (items) {
       return res.json({
@@ -42,12 +41,12 @@ router.get('/',
         items,
         _links: {
           self: {
-            href: `http://localhost:3000/users?offset=${offset}&limit=${limit}`
+            href: `http://localhost:3000/users?offset=${offset}&limit=${limit}`,
           },
           next,
-          prev
-        }
-       });
+          prev,
+        },
+      });
     }
     return res.status(404).json({ msg: 'Table not found' });
   });
@@ -57,31 +56,26 @@ router.post('/register',
     .trim()
     .isLength({ min: 1, max: 256 })
     .withMessage('username is required, max 256 characters')
-    .custom((value) => {
-      return userDb.getUserByName(value).then(user => {
-        if(user) {
-          return Promise.reject('username already exists');
-        }
-      });
-    }),
+    .custom((value) => userDb.getUserByName(value).then((user) => {
+      if (user) {
+        return Promise.reject('username already exists');
+      }
+    })),
   body('email')
     .trim()
     .isEmail()
     .withMessage('email is required, max 256 characters')
     .normalizeEmail()
-    .custom((value) => {
-      return userDb.getUserByEmail(value).then(user => {
-        if (user) {
-          return Promise.reject('email already exists');
-        }
-      });
-    }),
+    .custom((value) => userDb.getUserByEmail(value).then((user) => {
+      if (user) {
+        return Promise.reject('email already exists');
+      }
+    })),
   body('password')
     .trim()
     .isLength({ min: 10, max: 256 })
     .withMessage('Password is required, min 10 characters, max 256 characters'),
   async (req, res) => {
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -93,11 +87,12 @@ router.post('/register',
 
     if (createdUser) {
       return res.json(
-        createdUser);
+        createdUser,
+      );
     }
 
     return res.json({ error: 'Error registering' });
-});
+  });
 
 router.post('/login',
   body('username')
@@ -111,7 +106,7 @@ router.post('/login',
   async (req, res) => {
     const errors = validationResult(req);
 
-    if (!errors.isEmpty()){
+    if (!errors.isEmpty()) {
       return res.status(404).json({ errors: errors.array() });
     }
 
@@ -120,12 +115,14 @@ router.post('/login',
     const user = await userDb.getUserByName(username);
 
     if (!user) {
-      return res.status(401).json({ errors: [{
-        value: username,
-        msg: "username or password incorrect",
-        param: 'username',
-        location: 'body'
-      }]});
+      return res.status(401).json({
+        errors: [{
+          value: username,
+          msg: 'username or password incorrect',
+          param: 'username',
+          location: 'body',
+        }],
+      });
     }
 
     const passwordIsCorrect = userDb.comparePasswords(password, user.password);
@@ -133,24 +130,26 @@ router.post('/login',
     if (passwordIsCorrect) {
       const token = createTokenForUser(user.id);
       return res.json({
-        "user": {
+        user: {
           id: user.id,
           username: user.name,
           email: user.email,
-          admin: user.admin
+          admin: user.admin,
         },
         token,
-        expiresIn: "not implemented",
+        expiresIn: 'not implemented',
       });
     }
 
-    return res.status(401).json({ errors: [{
-      value: username,
-      msg: "username or password incorrect",
-      param: 'username',
-      location: 'body'
-    }]});
-});
+    return res.status(401).json({
+      errors: [{
+        value: username,
+        msg: 'username or password incorrect',
+        param: 'username',
+        location: 'body',
+      }],
+    });
+  });
 
 router.get('/me',
   requireAuthentication,
@@ -159,7 +158,6 @@ router.get('/me',
       req.user,
     );
   });
-
 
 router.patch('/me', requireAuthentication,
   body('password')
@@ -171,17 +169,15 @@ router.patch('/me', requireAuthentication,
     .isEmail()
     .withMessage('email must be an email, example@example.com')
     .normalizeEmail()
-    .custom((value) => {
-      return userDb.getUserByEmail(value).then(user => {
-        if (user) {
-          return Promise.reject('email already exists');
-        }
-      });
-    }),
+    .custom((value) => userDb.getUserByEmail(value).then((user) => {
+      if (user) {
+        return Promise.reject('email already exists');
+      }
+    })),
   async (req, res) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
     const { email, password } = req.body;
@@ -208,21 +204,20 @@ router.patch('/me', requireAuthentication,
     const user = await userDb.updateUser(req.user);
 
     res.json({
-      user
+      user,
     });
   });
 
-
 router.get('/:id',
-requireAdminAuthentication,
-paramIdRules('id'),
-async (req, res) => {
-  const errors = validationResult(req);
-  if(!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+  requireAdminAuthentication,
+  paramIdRules('id'),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  const data = await userDb.getUserById(req.params.id);
-  if (data) return res.json( data );
-  return res.status(404).json({ msg: 'User not found' });
-});
+    const data = await userDb.getUserById(req.params.id);
+    if (data) return res.json(data);
+    return res.status(404).json({ msg: 'User not found' });
+  });

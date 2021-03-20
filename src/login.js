@@ -43,11 +43,10 @@ export function createTokenForUser(id) {
   return token;
 }
 
-
 export function optionalAuthentication(req, res, next) {
   return passport.authenticate(
     'jwt',
-    {session: false},
+    { session: false },
     (err, user, info) => {
       if (err) {
         next(err);
@@ -60,7 +59,7 @@ export function optionalAuthentication(req, res, next) {
 
       req.user = user;
       return next();
-    }
+    },
   )(req, res, next);
 }
 
