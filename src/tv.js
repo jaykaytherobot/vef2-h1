@@ -1,5 +1,4 @@
 import express from 'express';
-import { validationResult } from 'express-validator';
 import cloudinary from 'cloudinary';
 import * as db from './db.js';
 import { upload } from './upload.js';
@@ -10,7 +9,6 @@ import {
   optionalAuthentication
 } from './login.js';
 import * as fr from './form-rules.js';
-//import { serieRules, seasonRules, paramIdRules, paginationRules, checkValidationResult } from './form-rules.js';
 
 export const router = express.Router();
 
@@ -55,7 +53,7 @@ router.post('/',
   fr.serieRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    req.body.image = req.file.filename; // eða path
+    req.body.image = req.file.path; // eða path
     if (req.body.id) req.body.id = null;
     const createdSerie = await db.createNewSerie(req.body);
     if (createdSerie) {
@@ -70,8 +68,12 @@ router.get('/:serieId',
   optionalAuthentication,
   async (req, res) => {
     const { serieId } = req.params;
-    const userId = req.user.id;
-    const data = await db.getSerieById(serieId, userId);
+    let userId;
+    if (req.user) {
+      userId = req.user.id;
+    }
+    const data = await db.getSerieByIdWithSeasons(serieId, userId);
+    console.log('DATA', data)
     // Ef authenticated þá bæta við einkunn og stöðu
     if (!data) {
       return res.status(404).json({ msg: 'Fann ekki sjónvarpsþátt' });
@@ -190,8 +192,20 @@ router.post('/:serieId/rate',
     return res.json({ msg: 'Uppfærsla tókst' });
   });
 
-router.patch('/serieId/rate', (req, res) => {
-
+router.patch('/:serieId/rate',
+  requireAuthentication,
+  fr.paramIdRules('serieId'),
+  fr.ratingRules(),
+  fr.checkValidationResult,
+  async (req, res) => {
+    const { serieId } = req.params;
+    const { grade } = req.body;
+    const userId = req.user.id;
+    let data = await db.updateUserRatingBySerieId(serieId, userId, grade);
+    if(!data) {
+      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
+    }
+    return res.json({msg: 'Uppfærsla tókst'});
 });
 
 router.delete('/serieId/rate', (req, res) => {
