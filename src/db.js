@@ -32,9 +32,13 @@ export async function query(q, values = []) {
   }
   return result;
 }
+export async function getCountOfTable(table) {
+  const result = await query(`SELECT COUNT(*) FROM ${table};`);
+  return Number(result.rows[0].count);
+}
 
-export async function getAllFromTable(table, offset = 0, limit = 10, orderBy = null) {
-  const q = orderBy ? `SELECT * FROM ${table} ORDER BY ${orderBy} OFFSET ${offset} LIMIT ${limit};` : `SELECT * FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
+export async function getAllFromTable(table, attr = '*', offset = 0, limit = 10, orderBy = null) {
+  const q = orderBy ? `SELECT ${attr} FROM ${table} ORDER BY ${orderBy} OFFSET ${offset} LIMIT ${limit};` : `SELECT ${attr} FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
   let result = '';
   try {
     result = await query(q);
@@ -50,6 +54,15 @@ export async function updateSerieImageById(id, image) {
 
 export async function updateSeasonPosterById(id, poster) {
   await query('UPDATE Seasons SET poster = $1 WHERE id = $2', [poster, id]);
+}
+
+export async function getSerieById(id) {
+  const serieQuery = 'SELECT * FROM Series WHERE id = $1;';
+  const serieResult = await query(serieQuery, [id]);
+  if(serieResult.rowCount === 1) {
+    return serieResult.rows[0];
+  }
+  return false;
 }
 
 export async function getSerieByIdWithSeasons(id, userId = false) {
@@ -87,9 +100,14 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
 }
 
 export async function getSeasonsBySerieId(serieId, offset = 0, limit = 10) {
-  const q = 'SELECT * FROM Seasons WHERE serieId = $1 ORDER BY number OFFSET $2 LIMIT $3;';
-  const result = await query(q, [serieId, offset, limit]);
-  return result.rows;
+  const dataQuery = 'SELECT * FROM Seasons WHERE serieId = $1 ORDER BY number OFFSET $2 LIMIT $3;';
+  const countQuery = 'SELECT COUNT(*) FROM Seasons WHERE serieId = $1;';
+  const result = await query(dataQuery, [serieId, offset, limit]);
+  const count = await query(countQuery, [serieId]);
+  return {
+    data: result.rows,
+    count: Number(count.rows[0].count),
+  };
 }
 
 export async function getSeasonBySerieIdAndSeasonNum(serieId, seasonNum) {
@@ -285,17 +303,19 @@ export async function updateSerieById(id, attributes) {
       airDate: attributes.airDate || curVals.airdate,
       inProduction: attributes.inProduction || curVals.inproduction,
       tagline: attributes.tagline || curVals.tagline,
+      image: attributes.image || curVals.image,
       description: attributes.description || curVals.description,
       language: attributes.language || curVals.language,
       network: attributes.network || curVals.network,
       url: attributes.url || curVals.url
     }
     console.log(newVals);
-    const q = `UPDATE Series SET name=$1,airDate=$2,
-                    inProduction=$3,tagline=$4,
-                    description=$5,language=$6,
-                    network=$7,url=$8 WHERE id=$9 RETURNING *`;
-    const result = await query(q, [newVals.name,newVals.airDate,newVals.inProduction,newVals.tagline,newVals.description,newVals.language,newVals.network,newVals.url,id])
+    const q = `UPDATE Series SET name=$1, airDate=$2,
+                    inProduction=$3, tagline=$4,
+                    image=$5,
+                    description=$6, language=$7,
+                    network=$8, url=$9 WHERE id=$10 RETURNING *`;
+    const result = await query(q, [newVals.name,newVals.airDate,newVals.inProduction,newVals.tagline, newVals.image, newVals.description,newVals.language,newVals.network,newVals.url,id])
     if(result.rowCount === 1) {
       return result.rows[0];
     }

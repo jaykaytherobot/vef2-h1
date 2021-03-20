@@ -12,9 +12,8 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-export function withMulter(req, res, next) {
-  const isSeason = req.path.split('/').length === 3;
-  const imageFieldName = isSeason ? 'poster' : 'image';
+
+function withMulter(req, res, next, imageFieldName) {
   upload
     .single(imageFieldName)(req, res, (err) => {
       if (err) {
@@ -29,4 +28,12 @@ export function withMulter(req, res, next) {
       }
       return next();
     });
+}
+
+export function uploadImage(req, res, next) {
+  withMulter(req, res, next, 'image');
+}
+
+export function uploadPoster(req, res, next) {
+  withMulter(req, res, next, 'poster');
 }
