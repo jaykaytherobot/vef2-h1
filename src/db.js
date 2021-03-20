@@ -185,9 +185,11 @@ export async function createNewSeason(season) {
 }
 
 export async function createNewEpisode(episode) {
-  await query(`INSERT INTO Episodes(serieId, seasonnumber, name, "number", serie, overview)
+  let result;
+  result = await query(`INSERT INTO Episodes(serieId, seasonnumber, name, "number", airdate, overview)
                               VALUES ($1,$2,$3,$4,$5,$6);`,
-    [episode.serieId, episode.season, episode.name, episode.number, episode.serie, episode.overview]);
+    [episode.serieId, episode.season, episode.name, episode.number, episode.airdate, episode.overview]);
+  return result;
 }
 
 export async function createNewUser(user) {
@@ -255,6 +257,12 @@ export async function deleteSerie(id) {
   const q = 'DELETE FROM Series WHERE id = $1 RETURNING *';
   const result = await query(q, [id]);
   return result.rows;
+}
+
+export async function deleteSeasonBySerieIdAndSeasonNumber(id, number) {
+  const q = 'DELETE FROM Seasons WHERE serieId=$1 AND number=$2';
+  await query(q, [id, number]);
+  return;
 }
 
 export async function updateSerieById(id, attributes) {

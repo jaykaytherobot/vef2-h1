@@ -152,14 +152,30 @@ router.get('/:serieId/season/:seasonNum', async (req, res) => {
   res.json({ combined });
 });
 
-router.delete('/:serieId/season/:seasonNum', (req, res) => {
-  res.json({ foo: 'bar' });
-});
+router.delete('/:serieId/season/:seasonNum',
+  fr.paramIdRules('serieId'),
+  fr.paramIdRules('seasonNum'),
+  fr.checkValidationResult,
+  async (req, res) => {
+    const {serieId, seasonNum} = req.params;
+    await db.deleteSeasonBySerieIdAndSeasonNumber(serieId,seasonNum);
+    return res.json({});
+  });
 
 // /tv/:id/season/:id/episode/
-router.post('/:serieId/season/:seasonNum/episode', (req, res) => {
-  res.json({ foo: 'bar' });
-});
+router.post('/:serieId/season/:seasonNum/episode',
+  requireAdminAuthentication,
+  fr.paramIdRules('serieId'),
+  fr.paramIdRules('seasonNum'),
+  async (req, res) => {
+    const { serieId, seasonNum } = req.params;
+    const episode = req.body;
+    episode[serieId] = serieId;
+    episode[seasonNum] = seasonNum;
+    const result = await db.createNewEpisode(episode);
+    if(result) return res.json({msg: "Sköpun þáttar tókst"});
+    return res.json({msg: "Sköpun þáttar tókst ekki"});
+  });
 
 router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
   requireAdminAuthentication,
@@ -263,7 +279,7 @@ router.patch('/:serieId/state',
   });
 
 router.delete('/:serieId/state',
-requireAuthentication,
+  requireAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
 async (req, res) => {
@@ -272,7 +288,7 @@ async (req, res) => {
     const del = await db.deleteSerie(serieId, userId);
     if (del) return;
     else return res.json({ msg: 'Tókst ekki að eyða' });
-});
+  });
 
 export const getGenres = async (req, res) => {
   const {
