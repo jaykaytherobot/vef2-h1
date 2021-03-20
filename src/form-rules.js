@@ -1,4 +1,5 @@
 import { body, query, param, validationResult } from 'express-validator';
+import { getSerieById } from './db.js';
 
 export const serieRules = () => [
   body('name')
@@ -89,6 +90,18 @@ export const paramIdRules = (idField) => [
     .custom((value) => value > 0)
     .withMessage(`${idField} must be an integer larger than 0`)
 ];
+
+export async function serieExists(req, res, next) {
+  const serie = await getSerieById(req.params.serieId);
+  if(!serie) {
+    return res.status(404).json({ 
+      errors: [{param:'id',
+        msg: 'Could not find serie with this id',
+      location:'params'
+    }]})
+  }
+  next();
+}
 
 export function checkValidationResult(req, res, next) {
   const errors = validationResult(req);

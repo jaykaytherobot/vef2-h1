@@ -1,15 +1,16 @@
 url,method,role,status,todo
-tv,GET,unrestricted,MEDIUM,img in response is not a cloudinary url,done
-tv,POST,admin,CRITICAL,if image is not provided server errors out, must supply api key is an anoying error i cant figure out
-tv/:id,GET,unrestricted,SMALL,average rating has too many decimal points,error msg on serie not found is not wrapped in errors list like Ólis solution
-tv/:id,PATCH,admin,MEDIUM,not possible to patch image
+tv,GET,unrestricted,MEDIUM,img in response is not a cloudinary url, done
+tv,POST,admin,CRITICAL,if image is not provided server errors out, must supply api key is an anoying error i cant figure out, done
+tv/:id,GET,unrestricted,SMALL,average rating has too many decimal points,error msg on serie not found is not wrapped in errors list like Ólis solution, none
+tv/:id,PATCH,admin,MEDIUM,not possible to patch image, Sverrir tekur
 tv/:id,DELETE,admin,done
 tv/:id/season,GET,unrestricted,done,
-tv/:id/season,POST,admin,CRITICAL,if poster is not provided server errors out,api key, done, mig grunar ad þad se haegt ad setja tvo season med sama number thott thað se i sama thaetti
-tv/:id/season/:id,DELETE,admin,CRITICAL,NOT IMPLEMENTED
-tv/:id/season/:id/episode,POST,admin,CRITICAL, NOT IMPLEMENTED
-tv/:id/season/:id/episode/:id,GET,unrestricted,SMALL,params in url are not validated!USE paramIdRules TO FIX
-tv/:id/season/:id/episode/:id,DELETE,admin,CRITICAL, NOT IMPLEMENTED AND MISSING FROM tv.js
+tv/:id/season,POST,admin,CRITICAL,if poster is not provided server errors out,api key, mig grunar ad þad se haegt ad setja tvo season med sama number thott thað se i sama thaetti, done
+tv/:id/season/:id,GET,unrestricted,MEDIUM, poster in response is not a cloudinary url, done
+tv/:id/season/:id,DELETE,admin,done,implemented
+tv/:id/season/:id/episode,POST,admin,CRITICAL, implemented, done
+tv/:id/season/:id/episode/:id,GET,unrestricted,SMALL,params in url are not validated!USE paramIdRules TO FIX, done
+tv/:id/season/:id/episode/:id,DELETE,admin,CRITICAL, implemented, done
 ,,
 genres,GET,unrestricted,SMALL,id should not be in the response
 genres,POST,admin,MEDIUM,body is not validated correctly,json is return in a list but doesnt need to be
