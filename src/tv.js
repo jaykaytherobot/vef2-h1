@@ -66,6 +66,8 @@ router.post('/',
 // /tv/:id
 router.get('/:serieId',
   optionalAuthentication,
+  fr.paramIdRules('serieId'),
+  fr.checkValidationResult,
   async (req, res) => {
     const { serieId } = req.params;
     let userId;
@@ -83,14 +85,13 @@ router.get('/:serieId',
 router.patch('/:serieId',
   requireAdminAuthentication,
   fr.paramIdRules('serieId'),
-  fr.serieRules(),
+  fr.patchSerieRules(),
   fr.checkValidationResult,
-  (req, res) => {
+  async (req, res) => {
 
     const { serieId } = req.params;
-    console.log(serieId);
-    res.json({ error: 'not implemented' });
-
+    const newSerie = await db.updateSerieById(serieId, req.body);
+    return res.json(newSerie);
   });
 
 router.delete('/:serieId',
@@ -157,9 +158,15 @@ router.get('/:serieId/season/:seasonNum', async (req, res) => {
   res.json({ combined });
 });
 
-router.delete('/:serieId/season/:seasonNum', (req, res) => {
-  res.json({ foo: 'bar' });
-});
+router.delete('/:serieId/season/:seasonNum',
+  fr.paramIdRules('serieId'),
+  fr.paramIdRules('seasonNum'),
+  fr.checkValidationResult,
+  async (req, res) => {
+    const {serieId, seasonNum} = req.params;
+    await db.deleteSeasonBySerieIdAndSeasonNumber(serieId,seasonNum);
+    return res.json({});
+  });
 
 // /tv/:id/season/:id/episode/
 router.post('/:serieId/season/:seasonNum/episode',
@@ -281,9 +288,9 @@ router.delete('/:serieId/state',
   requireAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
-  async (req, res) => {
-    const { serieId } = req.params;
-    const userId = req.user.id;
+async (req, res) => {
+  const { serieId } = req.params;
+  const userId = req.user.id;
     const del = await db.deleteSerie(serieId, userId);
     if (del) return;
     else return res.json({ msg: 'Tókst ekki að eyða' });

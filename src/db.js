@@ -54,7 +54,7 @@ export async function updateSeasonPosterById(id, poster) {
 
 export async function getSerieByIdWithSeasons(id, userId = false) {
   const serieQuery = 'SELECT * FROM Series s WHERE id = $1;';
-  const ratingQuery = 'SELECT COUNT(*), AVG(grade) FROM SerieToUser WHERE serieId = $1;'
+  const ratingQuery = 'SELECT COUNT(*), AVG(grade) FROM SerieToUser WHERE serieId = $1;';
   const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genres ON genreId = Genres.id WHERE serieId = $1;';
   const seasonQuery = 'SELECT * FROM Seasons WHERE serieId = $1;';
 
@@ -86,7 +86,7 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
 
 export async function getSeasonsBySerieId(serieId, offset = 0, limit = 10) {
   const q = 'SELECT * FROM Seasons WHERE serieId = $1 ORDER BY number OFFSET $2 LIMIT $3;';
-  let result = await query(q, [serieId, offset, limit]);
+  const result = await query(q, [serieId, offset, limit]);
   return result.rows;
 }
 
@@ -257,4 +257,39 @@ export async function deleteSerie(id) {
   const q = 'DELETE FROM Series WHERE id = $1 RETURNING *';
   const result = await query(q, [id]);
   return result.rows;
+}
+
+export async function deleteSeasonBySerieIdAndSeasonNumber(id, number) {
+  const q = 'DELETE FROM Seasons WHERE serieId=$1 AND number=$2';
+  await query(q, [id, number]);
+  return;
+}
+
+export async function updateSerieById(id, attributes) {
+  const querySerie = 'SELECT * FROM Series WHERE id=$1';
+  const serieResult = await query(querySerie, [id]);
+  if (serieResult.rowCount === 1) {
+    const curVals = serieResult.rows[0];
+    console.log(curVals);
+    const newVals = {
+      name: attributes.name || curVals.name,
+      airDate: attributes.airDate || curVals.airdate,
+      inProduction: attributes.inProduction || curVals.inproduction,
+      tagline: attributes.tagline || curVals.tagline,
+      description: attributes.description || curVals.description,
+      language: attributes.language || curVals.language,
+      network: attributes.network || curVals.network,
+      url: attributes.url || curVals.url
+    }
+    console.log(newVals);
+    const q = `UPDATE Series SET name=$1,airDate=$2,
+                    inProduction=$3,tagline=$4,
+                    description=$5,language=$6,
+                    network=$7,url=$8 WHERE id=$9 RETURNING *`;
+    const result = await query(q, [newVals.name,newVals.airDate,newVals.inProduction,newVals.tagline,newVals.description,newVals.language,newVals.network,newVals.url,id])
+    if(result.rowCount === 1) {
+      return result.rows[0];
+    }
+  }
+  return false;
 }

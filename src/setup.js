@@ -21,7 +21,6 @@ dotenv.config();
 
 const {
   DATABASE_URL: connectionString,
-  NODE_ENV: nodeEnv = '',
 } = process.env;
 
 console.info('process.env :>> ', process.env.DATABASE_URL);
@@ -98,12 +97,6 @@ async function setupSeries() {
       setTimeout(async () => setupSeasons(), 2000);
     });
 }
-
-
-
-
-
-
 
 async function setup() {
   await createTables();
