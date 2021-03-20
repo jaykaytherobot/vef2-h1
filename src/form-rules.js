@@ -36,18 +36,16 @@ export const seasonRules = () => [
 export const paginationRules = () => [
   query('offset')
     .if(query('offset').exists())
-    .isInt()
-    .withMessage('offset must be an integer')
-    .bail()
     .custom((value) => Number.parseInt(value, 10) >= 0)
-    .withMessage('offset must be a positive integer'),
+    .withMessage('offset must be a positive integer')
+    .isInt()
+    .withMessage('offset must be an integer'),
   query('limit')
     .if(query('limit').exists())
-    .isInt()
-    .withMessage('limit must be an integer')
-    .bail()
     .custom((value) => Number.parseInt(value, 10) >= 0)
     .withMessage('limit must be a positive integer')
+    .isInt()
+    .withMessage('limit must be an integer')
 ];
 
 export const ratingRules = () => [
