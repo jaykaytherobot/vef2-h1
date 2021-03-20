@@ -158,9 +158,15 @@ router.get('/:serieId/season/:seasonNum', async (req, res) => {
   res.json({ combined });
 });
 
-router.delete('/:serieId/season/:seasonNum', (req, res) => {
-  res.json({ foo: 'bar' });
-});
+router.delete('/:serieId/season/:seasonNum',
+  fr.paramIdRules('serieId'),
+  fr.paramIdRules('seasonNum'),
+  fr.checkValidationResult,
+  async (req, res) => {
+    const {serieId, seasonNum} = req.params;
+    await db.deleteSeasonBySerieIdAndSeasonNumber(serieId,seasonNum);
+    return res.json({});
+  });
 
 // /tv/:id/season/:id/episode/
 router.post('/:serieId/season/:seasonNum/episode', (req, res) => {
