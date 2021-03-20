@@ -71,8 +71,15 @@ router.get('/:serieId',
       userId = req.user.id;
     }
     const data = await db.getSerieByIdWithSeasons(serieId, userId);
+    console.log(data);
     if (!data) {
-      return res.status(404).json({ msg: 'Fann ekki sjónvarpsþátt' });
+      return res.status(404).json({ errors: [
+       {
+        msg: "not found",
+        param: "id",
+        location: "params"
+      }
+      ] });
     }
     return res.json({ data });
   });
@@ -137,8 +144,7 @@ router.post('/:serieId/season',
     if (createdSeason) {
       return res.json({ msg: 'Season created' });
     }
-
-    return res.json({ err: 'Error creating season' });
+    return res.status('404').json({ err: 'Error creating season' });
   });
 
 // /tv/:id/season/:id
@@ -178,7 +184,17 @@ router.post('/:serieId/season/:seasonNum/episode',
     return res.status(404).json({msg: "Sköpun þáttar tókst ekki"});
   });
 
-  router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
+// /tv/:id/season/:id/episode/:id
+router.get('/:serieId/season/:seasonNum/episode/:episodeNum', async (req, res) => {
+  const { serieId, seasonNum, episodeNum } = req.params;
+  await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
+  if (!data) {
+    res.status('404').json({ msg: 'Fann ekki þátt' });
+  }
+  res.json(data);
+});
+
+router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
   requireAdminAuthentication,
   fr.paramIdRules('serieId'),
   fr.paramIdRules('seasonNum'),
@@ -189,16 +205,6 @@ router.post('/:serieId/season/:seasonNum/episode',
     if(del) return res.json({msg: 'Þætti hefur verið eytt'});
     return res.status('404').json({msg: 'Ekki tókst að eyða þætti'});
   });
-
-// /tv/:id/season/:id/episode/:id
-router.get('/:serieId/season/:seasonNum/episode/:episodeNum', async (req, res) => {
-  const { serieId, seasonNum, episodeNum } = req.params;
-  await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
-  if (!data) {
-    res.status('404').json({ msg: 'Fann ekki þátt' });
-  }
-  res.json(data);
-});
 
 router.post('/:serieId/rate',
   requireAuthentication,
