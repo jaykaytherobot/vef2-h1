@@ -59,7 +59,7 @@ export async function updateSeasonPosterById(id, poster) {
 export async function getSerieById(id) {
   const serieQuery = 'SELECT * FROM Series WHERE id = $1;';
   const serieResult = await query(serieQuery, [id]);
-  if(serieResult.rowCount === 1) {
+  if (serieResult.rowCount === 1) {
     return serieResult.rows[0];
   }
   return false;
@@ -74,8 +74,8 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
   try {
     const serieResult = await query(serieQuery, [id]);
     const ratingResult = await query(ratingQuery, [id]);
-    let rate = ratingResult.rows[0].rating
-    ratingResult.rows[0].rating = rate ? Number.parseInt(rate).toFixed(1) : 0; 
+    const rate = ratingResult.rows[0].rating;
+    ratingResult.rows[0].rating = rate ? Number.parseInt(rate).toFixed(1) : 0;
     const genreResult = await query(genreQuery, [id]);
     const seasonResult = await query(seasonQuery, [id]);
     let userResult;
@@ -221,15 +221,15 @@ export async function createNewUser(user) {
 export async function createUserRatingBySerieId(serieId, userId, grade) {
   const queryExists = 'SELECT * FROM SerieToUser WHERE serieId=$1 AND userId=$2';
   const existsResult = await query(queryExists, [serieId, userId]);
-  if(existsResult.rowCount === 0) {
-    let data = await query(`INSERT INTO SerieToUser(serieId, userId, grade)
+  if (existsResult.rowCount === 0) {
+    const data = await query(`INSERT INTO SerieToUser(serieId, userId, grade)
                                 VALUES($1,$2,$3) RETURNING *;`,
     [serieId, userId, grade]);
     return data.rows[0];
   }
-  else{
+
     updateUserRatingBySerieId(serieId, userId, grade);
-  }
+
   return '';
 }
 
@@ -237,7 +237,7 @@ export async function updateUserRatingBySerieId(serieId, userId, grade) {
   const result = await query(`UPDATE SerieToUser SET grade=$1 WHERE serieId=$2 AND userId=$3 RETURNING *`,
   [grade, serieId, userId]);
   console.log(result);
-  if(result.rowCount === 1) {
+  if (result.rowCount === 1) {
     return result.rows[0];
   }
   return false;
@@ -246,22 +246,22 @@ export async function updateUserRatingBySerieId(serieId, userId, grade) {
 export async function createUserStatusBySerieId(serieId, userId, status) {
   const queryExists = 'SELECT * FROM SerieToUser WHERE serieId=$1 AND userId=$2';
   const existsResult = await query(queryExists, [serieId, userId]);
-  if(existsResult.rowCount === 0) {
-    let data = await query(`INSERT INTO SerieToUser(serieId, userId, status)
+  if (existsResult.rowCount === 0) {
+    const data = await query(`INSERT INTO SerieToUser(serieId, userId, status)
                                 VALUES($1,$2,$3) RETURNING *;`,
     [serieId, userId, status]);
     return data.rows[0];
   }
-  else{
+
     updateUserRatingBySerieId(serieId, userId, status);
-  }
+
   return '';
 }
 
 export async function updateUserStatusBySerieId(serieId, userId, status) {
   const result = await query(`UPDATE SerieToUser SET status=$1 WHERE serieId=$2 AND userId=$3 RETURNING *`,
   [status, serieId, userId]);
-  if(result.rowCount === 1) {
+  if (result.rowCount === 1) {
     return result.rows[0];
   }
   return false;
@@ -282,7 +282,6 @@ export async function deleteSerie(id) {
 export async function deleteSeasonBySerieIdAndSeasonNumber(id, number) {
   const q = 'DELETE FROM Seasons WHERE serieId=$1 AND number=$2';
   await query(q, [id, number]);
-  return;
 }
 
 export async function deleteEpisode(episodeNum, serieId, seasonNum) {
@@ -307,16 +306,16 @@ export async function updateSerieById(id, attributes) {
       description: attributes.description || curVals.description,
       language: attributes.language || curVals.language,
       network: attributes.network || curVals.network,
-      url: attributes.url || curVals.url
-    }
+      url: attributes.url || curVals.url,
+    };
     console.log(newVals);
     const q = `UPDATE Series SET name=$1, airDate=$2,
                     inProduction=$3, tagline=$4,
                     image=$5,
                     description=$6, language=$7,
                     network=$8, url=$9 WHERE id=$10 RETURNING *`;
-    const result = await query(q, [newVals.name,newVals.airDate,newVals.inProduction,newVals.tagline, newVals.image, newVals.description,newVals.language,newVals.network,newVals.url,id])
-    if(result.rowCount === 1) {
+    const result = await query(q, [newVals.name, newVals.airDate, newVals.inProduction, newVals.tagline, newVals.image, newVals.description, newVals.language, newVals.network, newVals.url, id]);
+    if (result.rowCount === 1) {
       return result.rows[0];
     }
   }

@@ -55,7 +55,7 @@ router.post('/',
       return res.json({ msg: 'Serie created' });
     }
 
-    return res.status('404').json({ err: 'Error creating serie' });
+    return res.status(400).json({ err: 'Error creating serie' });
   });
 
 // /tv/:id
@@ -77,11 +77,11 @@ router.get('/:serieId',
     return res.status(404).json({
       errors: [
         {
-          msg: "not found",
-          param: "id",
-          location: "params"
-        }
-      ]
+          msg: 'not found',
+          param: 'id',
+          location: 'params',
+        },
+      ],
     });
   });
 
@@ -146,7 +146,7 @@ router.post('/:serieId/season',
     if (createdSeason) {
       return res.json({ msg: 'Season created' });
     }
-    return res.status('404').json({ err: 'Error creating season' });
+    return res.status(400).json({ err: 'Error creating season' });
   });
 
 // /tv/:id/season/:id
@@ -183,7 +183,7 @@ router.post('/:serieId/season/:seasonNum/episode',
     episode[seasonNum] = seasonNum;
     const result = await db.createNewEpisode(episode);
     if (result) return res.json({ msg: 'Sköpun þáttar tókst' });
-    return res.status(404).json({ msg: 'Sköpun þáttar tókst ekki' });
+    return res.status(400).json({ msg: 'Sköpun þáttar tókst ekki' });
   });
 
 // /tv/:id/season/:id/episode/:id
@@ -209,7 +209,7 @@ router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
     const { serieId, seasonNum, episodeNum } = req.params;
     const del = await db.deleteEpisode(episodeNum, serieId, seasonNum);
     if (del) return res.json({ msg: 'Þætti hefur verið eytt' });
-    return res.status('404').json({ msg: 'Ekki tókst að eyða þætti' });
+    return res.status(400).json({ msg: 'Ekki tókst að eyða þætti' });
   });
 
 router.post('/:serieId/rate',
@@ -224,7 +224,7 @@ router.post('/:serieId/rate',
     let data;
     data = await db.createUserRatingBySerieId(serieId, userId, grade);
     if (!data) {
-      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
+      return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
     }
     return res.json({ msg: 'Uppfærsla tókst' });
   });
@@ -238,9 +238,9 @@ router.patch('/:serieId/rate',
     const { serieId } = req.params;
     const { grade } = req.body;
     const userId = req.user.id;
-    let data = await db.updateUserRatingBySerieId(serieId, userId, grade);
+    const data = await db.updateUserRatingBySerieId(serieId, userId, grade);
     if (!data) {
-      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
+      return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
     }
     return res.json({ msg: 'Uppfærsla tókst' });
   });
@@ -254,7 +254,7 @@ router.delete('/:serieId/rate',
     const userId = req.user.id;
     const del = await db.deleteUserData(serieId, userId);
     if (del) return;
-    res.json({ msg: 'Tókst ekki að eyða' });
+    res.status(400).json({ msg: 'Tókst ekki að eyða' });
   });
 
 router.post('/:serieId/state',
@@ -269,7 +269,7 @@ router.post('/:serieId/state',
     let data;
     data = await db.createUserStatusBySerieId(serieId, userId, status);
     if (!data) {
-      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
+      return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
     }
     return res.json({ msg: 'Uppfærsla tókst' });
   });
@@ -283,9 +283,9 @@ router.patch('/:serieId/state',
     const { serieId } = req.params;
     const { status } = req.body;
     const userId = req.user.id;
-    let data = await db.updateUserStatusBySerieId(serieId, userId, status);
+    const data = await db.updateUserStatusBySerieId(serieId, userId, status);
     if (!data) {
-      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
+      return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
     }
     return res.json({ msg: 'Uppfærsla tókst' });
   });
@@ -299,7 +299,7 @@ router.delete('/:serieId/state',
     const userId = req.user.id;
     const del = await db.deleteSerie(serieId, userId);
     if (del) return;
-    else return res.json({ msg: 'Tókst ekki að eyða' });
+    return res.status(400).json({ msg: 'Tókst ekki að eyða' });
   });
 
 export const getGenres = async (req, res) => {
@@ -331,7 +331,7 @@ export const postGenres = async (req, res) => {
   const q = 'INSERT INTO Genres(name) VALUES ($1) RETURNING *;';
   const result = await db.query(q, [name]);
   if (!result) {
-    res.status(401).json({ err: 'Genre er nú þegar til' });
+    res.status(400).json({ err: 'Genre er nú þegar til' });
   }
   res.json(result.rows);
 };
