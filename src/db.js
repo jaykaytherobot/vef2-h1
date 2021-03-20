@@ -32,14 +32,13 @@ export async function query(q, values = []) {
   }
   return result;
 }
-
 export async function getCountOfTable(table) {
   const result = await query(`SELECT COUNT(*) FROM ${table};`);
   return Number(result.rows[0].count);
 }
 
-export async function getAllFromTable(table, offset = 0, limit = 10, orderBy = null) {
-  const q = orderBy ? `SELECT * FROM ${table} ORDER BY ${orderBy} OFFSET ${offset} LIMIT ${limit};` : `SELECT * FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
+export async function getAllFromTable(table, attr = '*', offset = 0, limit = 10, orderBy = null) {
+  const q = orderBy ? `SELECT ${attr} FROM ${table} ORDER BY ${orderBy} OFFSET ${offset} LIMIT ${limit};` : `SELECT * FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
   let result = '';
   try {
     result = await query(q);
