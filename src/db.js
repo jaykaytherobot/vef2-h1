@@ -265,6 +265,13 @@ export async function deleteSeasonBySerieIdAndSeasonNumber(id, number) {
   return;
 }
 
+export async function deleteEpisode(episodeNum, serieId, seasonNum) {
+  let result;
+  const q = 'DELETE FROM Episodes WHERE id = $1 AND serieId = $2 AND seasonNumber = $3 RETURNING *;';
+  result = await query(q, [episodeNum, serieId, seasonNum]);
+  return result;
+}
+
 export async function updateSerieById(id, attributes) {
   const querySerie = 'SELECT * FROM Series WHERE id=$1';
   const serieResult = await query(querySerie, [id]);
