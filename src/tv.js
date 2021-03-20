@@ -27,13 +27,12 @@ router.get('/',
     const {
       offset = 0, limit = 10,
     } = req.query;
-
-    const items = await db.getAllFromTable('Shows', offset, limit);
-
-    const next = items.length === limit ? { href: `http://localhost:3000/tv?offset=${offset + limit}&limit=${limit}` } : undefined;
-    const prev = offset > 0 ? { href: `http://localhost:3000/tv?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
+    const orderBy = `id`;
+    const items = await db.getAllFromTable('Series', offset, limit, orderBy);
 
     if (items) {
+      const next = items.length === limit ? { href: `http://localhost:3000/tv?offset=${offset + limit}&limit=${limit}` } : undefined;
+      const prev = offset > 0 ? { href: `http://localhost:3000/tv?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
       return res.json({
         limit,
         offset,
@@ -71,19 +70,16 @@ router.get('/:serieId',
   optionalAuthentication,
   async (req, res) => {
     const { serieId } = req.params;
-    let userId;
-    if (req.user) {
-      userId = req.user.id;
-    }
+    const userId = req.user.id;
     const data = await db.getSerieById(serieId, userId);
     // Ef authenticated þá bæta við einkunn og stöðu
     if (!data) {
       return res.status(404).json({ msg: 'Fann ekki sjónvarpsþátt' });
     }
-    return res.json(data);
+    return res.json({ data });
   });
 
-router.patch('/:serieId', 
+router.patch('/:serieId',
   requireAdminAuthentication,
   fr.paramIdRules('serieId'),
   fr.serieRules(),
@@ -92,18 +88,18 @@ router.patch('/:serieId',
 
     const { serieId } = req.params;
     console.log(serieId);
-    res.json({error:'not implemented'});
+    res.json({ error: 'not implemented' });
 
   });
 
-router.delete('/:serieId', 
+router.delete('/:serieId',
   requireAdminAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
   (req, res) => {
-      const { serieId } = req.params;
-      const deletedSerie = db.deleteSerie(serieId);
-      return res.json(deletedSerie);
+    const { serieId } = req.params;
+    const deletedSerie = db.deleteSerie(serieId);
+    return res.json(deletedSerie);
   });
 
 // /tv/:id/season/
@@ -155,9 +151,14 @@ router.post('/:serieId/season/:seasonNum/episode', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
-router.delete('/:serieId/season/:seasonNum/episode', (req, res) => {
-  res.json({ foo: 'bar' });
-});
+router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
+  requireAdminAuthentication,
+  fr.paramIdRules('serieId'),
+  fr.paramIdRules('seasonNum'),
+  fr.paramIdRules('episodeNum'),
+  async (req, res) => {
+    res.json({ foo: 'bar' });
+  });
 
 // /tv/:id/season/:id/episode/:id
 router.get('/:serieId/season/:seasonNum/episode/:episodeNum', async (req, res) => {
@@ -169,40 +170,31 @@ router.get('/:serieId/season/:seasonNum/episode/:episodeNum', async (req, res) =
   res.json(data);
 });
 
+router.post('/:serieId/season/:seasonNum/episode/:episodeNum', (req, res) => {
+  res.json({ foo: 'bar' });
+});
+
 router.post('/:serieId/rate',
   requireAuthentication,
   fr.paramIdRules('serieId'),
   fr.ratingRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    const { serieId } = req.params;
-    const { grade } = req.body;
+    const { serieId, status, grade } = req.params;
     const userId = req.user.id;
     let data;
-    data = await db.createUserRatingBySerieId(serieId, userId, grade);
-    if(!data) {
+    data = await db.createUserRatingBySerieId(serieId, userId, status, grade);
+    if (!data) {
       return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
     }
-    return res.json({msg: 'Uppfærsla tókst'});
+    return res.json({ msg: 'Uppfærsla tókst' });
   });
 
-router.patch('/:serieId/rate', 
-  requireAuthentication,
-  fr.paramIdRules('serieId'),
-  fr.ratingRules(),
-  fr.checkValidationResult,
-  async (req, res) => {
-    const { serieId } = req.params;
-    const { grade } = req.body;
-    const userId = req.user.id;
-    let data = await db.updateUserRatingBySerieId(serieId, userId, grade);
-    if(!data) {
-      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
-    }
-    return res.json({msg: 'Uppfærsla tókst'});
+router.patch('/serieId/rate', (req, res) => {
+
 });
 
-router.delete('/:serieId/rate', (req, res) => {
+router.delete('/serieId/rate', (req, res) => {
   res.json({ foo: 'bar' });
 });
 
