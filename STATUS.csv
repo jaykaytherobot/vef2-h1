@@ -23,10 +23,10 @@ users/login,POST,unrestricted,
 users/me,GET,users,
 users/me,PATCH,users,
 ,,
-tv/:id/rate,POST,users,
-tv/:id/rate,PATCH,users,
-tv/:id/rate,DELETE,users,
-tv/:id/state,POST,users,
-tv/:id/state,PATCH,users,
-tv/:id/state,DELETE,users,
-tv/:id,GET,users,
+tv/:id/rate,POST,users,done
+tv/:id/rate,PATCH,users,done
+tv/:id/rate,DELETE,users,done
+tv/:id/state,POST,users,done
+tv/:id/state,PATCH,users,done
+tv/:id/state,DELETE,users,done
+tv/:id,GET,users,done
