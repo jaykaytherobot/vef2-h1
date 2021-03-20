@@ -86,7 +86,7 @@ router.get('/:serieId',
   });
 
 router.patch('/:serieId',
-  // requireAdminAuthentication,
+  requireAdminAuthentication,
   uploadImage,
   fr.paramIdRules('serieId'),
   fr.patchSerieRules(),
