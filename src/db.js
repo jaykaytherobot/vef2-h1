@@ -227,3 +227,32 @@ export async function deleteSerie(id) {
   console.log(result);
   return result.rows;
 }
+
+export async function updateSerieById(id, attributes) {
+  const querySerie = 'SELECT * FROM Series WHERE id=$1';
+  const serieResult = await query(querySerie, [id]);
+  if (serieResult.rowCount === 1) {
+    const curVals = serieResult.rows[0];
+    console.log(curVals);
+    const newVals = {
+      name: attributes.name || curVals.name,
+      airDate: attributes.airDate || curVals.airdate,
+      inProduction: attributes.inProduction || curVals.inproduction,
+      tagline: attributes.tagline || curVals.tagline,
+      description: attributes.description || curVals.description,
+      language: attributes.language || curVals.language,
+      network: attributes.network || curVals.network,
+      url: attributes.url || curVals.url
+    }
+    console.log(newVals);
+    const q = `UPDATE Series SET name=$1,airDate=$2,
+                    inProduction=$3,tagline=$4,
+                    description=$5,language=$6,
+                    network=$7,url=$8 WHERE id=$9 RETURNING *`;
+    const result = await query(q, [newVals.name,newVals.airDate,newVals.inProduction,newVals.tagline,newVals.description,newVals.language,newVals.network,newVals.url,id])
+    if(result.rowCount === 1) {
+      return result.rows[0];
+    }
+  }
+  return false;
+}

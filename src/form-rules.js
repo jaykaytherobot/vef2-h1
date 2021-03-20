@@ -22,6 +22,21 @@ export const serieRules = () => [
     .isLength(2),
 ];
 
+export const patchSerieRules = () => [
+  body()
+    .custom((value, { req }) => {
+      return req.body.name || 
+      req.body.airDate || 
+      req.body.inProduction || 
+      req.body.description || 
+      req.body.language || 
+      req.body.tagline || 
+      req.body.network || 
+      req.body.url;
+    })
+    .withMessage('require at least one value of: name, airDate, inProduction, tagline, image, description, language, network, url')
+]
+
 export const seasonRules = () => [
   body('name')
     .isLength({ min: 1 })

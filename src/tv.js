@@ -67,6 +67,8 @@ router.post('/',
 // /tv/:id
 router.get('/:serieId',
   optionalAuthentication,
+  fr.paramIdRules('serieId'),
+  fr.checkValidationResult,
   async (req, res) => {
     const { serieId } = req.params;
     let userId;
@@ -85,14 +87,13 @@ router.get('/:serieId',
 router.patch('/:serieId',
   requireAdminAuthentication,
   fr.paramIdRules('serieId'),
-  fr.serieRules(),
+  fr.patchSerieRules(),
   fr.checkValidationResult,
-  (req, res) => {
+  async (req, res) => {
 
     const { serieId } = req.params;
-    console.log(serieId);
-    res.json({error:'not implemented'});
-
+    const newSerie = await db.updateSerieById(serieId, req.body);
+    return res.json(newSerie);
   });
 
 router.delete('/:serieId',
