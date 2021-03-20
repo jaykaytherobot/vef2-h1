@@ -33,8 +33,8 @@ export async function query(q, values = []) {
   return result;
 }
 
-export async function getAllFromTable(table, offset = 0, limit = 10) {
-  const q = `SELECT * FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
+export async function getAllFromTable(table, offset = 0, limit = 10, orderBy = null) {
+  const q = orderBy ? `SELECT * FROM ${table} ORDER BY ${orderBy} OFFSET ${offset} LIMIT ${limit};` : `SELECT * FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
   let result = '';
   try {
     result = await query(q);
@@ -52,7 +52,7 @@ export async function updateSeasonPosterById(id, poster) {
   await query('UPDATE Seasons SET poster = $1 WHERE id = $2', [poster, id]);
 }
 
-export async function getSerieByIdWithSeasons(id, userId = false, offset = 0, limit = 10) {
+export async function getSerieByIdWithSeasons(id, userId = false) {
   const serieQuery = 'SELECT * FROM Series s WHERE id = $1;';
   const ratingQuery = 'SELECT COUNT(*), AVG(grade) FROM SerieToUser WHERE serieId = $1;'
   const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genres ON genreId = Genres.id WHERE serieId = $1;';
@@ -221,10 +221,39 @@ export async function updateUserRatingBySerieId(serieId, userId, grade) {
   return false;
 }
 
+export async function createUserStatusBySerieId(serieId, userId, status) {
+  const queryExists = 'SELECT * FROM SerieToUser WHERE serieId=$1 AND userId=$2';
+  const existsResult = await query(queryExists, [serieId, userId]);
+  if(existsResult.rowCount === 0) {
+    let data = await query(`INSERT INTO SerieToUser(serieId, userId, status)
+                                VALUES($1,$2,$3) RETURNING *;`,
+    [serieId, userId, status]);
+    return data.rows[0];
+  }
+  else{
+    updateUserRatingBySerieId(serieId, userId, status);
+  }
+  return '';
+}
+
+export async function updateUserStatusBySerieId(serieId, userId, status) {
+  const result = await query(`UPDATE SerieToUser SET status=$1 WHERE serieId=$2 AND userId=$3 RETURNING *`,
+  [status, serieId, userId]);
+  if(result.rowCount === 1) {
+    return result.rows[0];
+  }
+  return false;
+}
+
+export async function deleteUserData(serieId, userId) {
+  const q = 'DELETE FROM SerieToUser WHERE serieId = $1 AND userId = $2 RETURNING *';
+  const result = await query(q, [serieId, userId]);
+  return result.rows;
+}
+
 export async function deleteSerie(id) {
-  const q = 'DELETE FROM Series WHERE id = $1';
+  const q = 'DELETE FROM Series WHERE id = $1 RETURNING *';
   const result = await query(q, [id]);
-  console.log(result);
   return result.rows;
 }
 

@@ -64,19 +64,23 @@ export const paginationRules = () => [
 ];
 
 export const ratingRules = () => [
-  // body('status')
-  //   .isInt()
-  //   .withMessage('Status must be an integer')
-  //   .bail()
-  //   .custom((value) => Number.parseInt(value, 10)<=2&&Number.parseInt(value, 10)>=0)
-    // .withMessage('Status must be an integer greater than or equal to 0 and less than or equal to 2'),
   body('grade')
     .isInt()
-    .withMessage('Grade must be an integer')
+    .withMessage('Grade must be an integer greater than or equal to 0 and less than or equal to 5')
     .bail()
-    .custom((value) => Number.parseInt(value, 10)<=5&&Number.parseInt(value, 10)>=0)
-    .withMessage('Grade must be an integer greater than or equal to 0 and less than  or equal to 5')
+    .custom((value) => Number.parseInt(value, 10) <= 5 && Number.parseInt(value, 10) >= 0)
+    .withMessage('Grade must be an integer greater than or equal to 0 and less than or equal to 5')
 ];
+
+export const statusRules = () => [
+  body('status')
+    .isInt()
+    .withMessage('Status must be an integer greater than or equal to 0 and less than or equal to 2')
+    .bail()
+    .custom((value) => Number.parseInt(value, 10) <= 2 && Number.parseInt(value, 10) >= 0)
+    .withMessage('Status must be an integer greater than or equal to 0 and less than or equal to 2')
+];
+
 // vonandi er hægt að senda inn streng idField sem að er nafnið á 
 // param breytunni 
 export const paramIdRules = (idField) => [
@@ -88,8 +92,8 @@ export const paramIdRules = (idField) => [
 
 export function checkValidationResult(req, res, next) {
   const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
 }
