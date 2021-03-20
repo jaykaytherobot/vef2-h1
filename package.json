@@ -29,6 +29,7 @@
   "dependencies": {
     "bcrypt": "^5.0.1",
     "cloudinary": "^1.25.0",
+    "csv-parser": "^3.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-validator": "^6.10.0",
@@ -40,7 +41,6 @@
     "pg": "^8.5.1"
   },
   "devDependencies": {
-    "csv-parser": "^3.0.0",
     "eslint": "^7.21.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.1",
