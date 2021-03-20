@@ -11,8 +11,8 @@ tv/:id/season/:id,DELETE,admin,done,implemented
 tv/:id/season/:id/episode,POST,admin,CRITICAL, implemented, done
 tv/:id/season/:id/episode/:id,GET,unrestricted,SMALL,params in url are not validated!USE paramIdRules TO FIX, done
 tv/:id/season/:id/episode/:id,DELETE,admin,CRITICAL, implemented, done
+genres,GET,unrestricted,SMALL,id should not be in the response, done
 ,,
-genres,GET,unrestricted,SMALL,id should not be in the response
 genres,POST,admin,MEDIUM,body is not validated correctly,json is return in a list but doesnt need to be
 ,,
 users,GET,admin,SMALL,no fields for created and last modified

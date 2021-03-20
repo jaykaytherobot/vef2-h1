@@ -22,7 +22,7 @@ router.get('/',
       offset = 0, limit = 10,
     } = req.query;
     const orderBy = 'id';
-    const items = await db.getAllFromTable('Series', offset, limit, orderBy);
+    const items = await db.getAllFromTable('Series', '*', offset, limit, orderBy);
     if (items) {
       const length = await db.getCountOfTable('Series');
       console.log('LENNNGTH', length);
@@ -74,13 +74,15 @@ router.get('/:serieId',
     const data = await db.getSerieByIdWithSeasons(serieId, userId);
     console.log(data);
     if (!data) {
-      return res.status(404).json({ errors: [
-       {
-        msg: "not found",
-        param: "id",
-        location: "params"
-      }
-      ] });
+      return res.status(404).json({
+        errors: [
+          {
+            msg: "not found",
+            param: "id",
+            location: "params"
+          }
+        ]
+      });
     }
     return res.json({ data });
   });
@@ -203,8 +205,8 @@ router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
   async (req, res) => {
     const { serieId, seasonNum, episodeNum } = req.params;
     const del = await db.deleteEpisode(episodeNum, serieId, seasonNum);
-    if(del) return res.json({msg: 'Þætti hefur verið eytt'});
-    return res.status('404').json({msg: 'Ekki tókst að eyða þætti'});
+    if (del) return res.json({ msg: 'Þætti hefur verið eytt' });
+    return res.status('404').json({ msg: 'Ekki tókst að eyða þætti' });
   });
 
 router.post('/:serieId/rate',
@@ -289,9 +291,9 @@ router.delete('/:serieId/state',
   requireAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
-async (req, res) => {
-  const { serieId } = req.params;
-  const userId = req.user.id;
+  async (req, res) => {
+    const { serieId } = req.params;
+    const userId = req.user.id;
     const del = await db.deleteSerie(serieId, userId);
     if (del) return;
     else return res.json({ msg: 'Tókst ekki að eyða' });
@@ -302,7 +304,7 @@ export const getGenres = async (req, res) => {
     offset = 0,
     limit = 10,
   } = req.query;
-  const genres = await db.getAllFromTable('Genres', offset, limit);
+  const genres = await db.getAllFromTable('Genres', 'name', offset, limit);
   const length = await db.getCountOfTable('Genres');
   const { next, prev, href } = getLinks('genres', length, offset, limit);
   res.json({
