@@ -1,21 +1,16 @@
 import express from 'express';
 import cloudinary from 'cloudinary';
 import * as db from './db.js';
-import { upload } from './upload.js';
+import { withMulter } from './upload.js';
 import {
   createTokenForUser,
   requireAuthentication,
   requireAdminAuthentication,
-  optionalAuthentication
+  optionalAuthentication,
 } from './login.js';
 import * as fr from './form-rules.js';
 
 export const router = express.Router();
-
-cloudinary.v2.config({
-  folder: '',
-  allowed_formats: ['jpg', 'png', 'gif'],
-});
 
 // /tv
 router.get('/',
@@ -25,7 +20,7 @@ router.get('/',
     const {
       offset = 0, limit = 10,
     } = req.query;
-    const orderBy = `id`;
+    const orderBy = 'id';
     const items = await db.getAllFromTable('Series', offset, limit, orderBy);
 
     if (items) {
@@ -37,7 +32,7 @@ router.get('/',
         items,
         _links: {
           self: {
-            href: `http://localhost:3000/tv?offset=${offset}&limit=${limit}`
+            href: `http://localhost:3000/tv?offset=${offset}&limit=${limit}`,
           },
           next,
           prev,
@@ -49,7 +44,7 @@ router.get('/',
 
 router.post('/',
   requireAdminAuthentication,
-  upload.single('image'),
+  withMulter,
   fr.serieRules(),
   fr.checkValidationResult,
   async (req, res) => {
@@ -75,7 +70,6 @@ router.get('/:serieId',
       userId = req.user.id;
     }
     const data = await db.getSerieByIdWithSeasons(serieId, userId);
-    console.log('DATA', data)
     if (!data) {
       return res.status(404).json({ msg: 'Fann ekki sjónvarpsþátt' });
     }
@@ -131,12 +125,12 @@ router.get('/:serieId/season',
 
 router.post('/:serieId/season',
   requireAdminAuthentication,
-  upload.single('poster'),
+  withMulter,
   fr.seasonRules(),
   fr.checkValidationResult,
   async (req, res) => {
     const { serieId } = req.params;
-    req.body.poster = req.file.filename; // eða path
+    req.body.poster = req.file.path;
     req.body.serieId = serieId;
     const createdSeason = await db.createNewSeason(req.body);
     if (createdSeason) {
