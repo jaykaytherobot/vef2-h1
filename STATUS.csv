@@ -5,8 +5,8 @@ tv/:id,GET,unrestricted,SMALL,average rating has too many decimal points,error m
 tv/:id,PATCH,admin,MEDIUM,not possible to patch image, Sverrir tekur
 tv/:id,DELETE,admin,done
 tv/:id/season,GET,unrestricted,done,
-tv/:id/season,POST,admin,CRITICAL,if poster is not provided server errors out,api key, mig grunar ad þad se haegt ad setja tvo season med sama number thott thað se i sama thaetti
-tv/:id/season/:id,GET,unrestricted,MEDIUM, poster in response is not a cloudinary url
+tv/:id/season,POST,admin,CRITICAL,if poster is not provided server errors out,api key, mig grunar ad þad se haegt ad setja tvo season med sama number thott thað se i sama thaetti, done
+tv/:id/season/:id,GET,unrestricted,MEDIUM, poster in response is not a cloudinary url, done
 tv/:id/season/:id,DELETE,admin,done,implemented
 tv/:id/season/:id/episode,POST,admin,CRITICAL, implemented, done
 tv/:id/season/:id/episode/:id,GET,unrestricted,SMALL,params in url are not validated!USE paramIdRules TO FIX, done
