@@ -55,7 +55,7 @@ router.post('/',
       return res.json({ msg: 'Serie created' });
     }
 
-    return res.json({ err: 'Error creating serie' });
+    return res.status('404').json({ err: 'Error creating serie' });
   });
 
 // /tv/:id
@@ -70,17 +70,18 @@ router.get('/:serieId',
       userId = req.user.id;
     }
     const data = await db.getSerieByIdWithSeasons(serieId, userId);
-    console.log(data);
-    if (!data) {
-      return res.status(404).json({ errors: [
-       {
-        msg: "not found",
-        param: "id",
-        location: "params"
-      }
-      ] });
+    if (data) {
+      return res.json({ data });
     }
-    return res.json({ data });
+    return res.status(404).json({
+      errors: [
+        {
+          msg: "not found",
+          param: "id",
+          location: "params"
+        }
+      ]
+    });
   });
 
 router.patch('/:serieId',
@@ -89,7 +90,6 @@ router.patch('/:serieId',
   fr.patchSerieRules(),
   fr.checkValidationResult,
   async (req, res) => {
-
     const { serieId } = req.params;
     const newSerie = await db.updateSerieById(serieId, req.body);
     return res.json(newSerie);
@@ -163,8 +163,8 @@ router.delete('/:serieId/season/:seasonNum',
   fr.paramIdRules('seasonNum'),
   fr.checkValidationResult,
   async (req, res) => {
-    const {serieId, seasonNum} = req.params;
-    await db.deleteSeasonBySerieIdAndSeasonNumber(serieId,seasonNum);
+    const { serieId, seasonNum } = req.params;
+    await db.deleteSeasonBySerieIdAndSeasonNumber(serieId, seasonNum);
     return res.json({});
   });
 
@@ -179,19 +179,23 @@ router.post('/:serieId/season/:seasonNum/episode',
     episode[serieId] = serieId;
     episode[seasonNum] = seasonNum;
     const result = await db.createNewEpisode(episode);
-    if(result) return res.json({msg: "Sköpun þáttar tókst"});
-    return res.status(404).json({msg: "Sköpun þáttar tókst ekki"});
+    if (result) return res.json({ msg: "Sköpun þáttar tókst" });
+    return res.status(404).json({ msg: "Sköpun þáttar tókst ekki" });
   });
 
 // /tv/:id/season/:id/episode/:id
-router.get('/:serieId/season/:seasonNum/episode/:episodeNum', async (req, res) => {
-  const { serieId, seasonNum, episodeNum } = req.params;
-  await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
-  if (!data) {
-    res.status('404').json({ msg: 'Fann ekki þátt' });
-  }
-  res.json(data);
-});
+router.get('/:serieId/season/:seasonNum/episode/:episodeNum',
+  fr.paramIdRules('serieId'),
+  fr.paramIdRules('seasonNum'),
+  fr.paramIdRules('episodeNum'),
+  async (req, res) => {
+    const { serieId, seasonNum, episodeNum } = req.params;
+    await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
+    if (!data) {
+      res.status('404').json({ msg: 'Fann ekki þátt' });
+    }
+    res.json(data);
+  });
 
 router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
   requireAdminAuthentication,
@@ -201,8 +205,8 @@ router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
   async (req, res) => {
     const { serieId, seasonNum, episodeNum } = req.params;
     const del = await db.deleteEpisode(episodeNum, serieId, seasonNum);
-    if(del) return res.json({msg: 'Þætti hefur verið eytt'});
-    return res.status('404').json({msg: 'Ekki tókst að eyða þætti'});
+    if (del) return res.json({ msg: 'Þætti hefur verið eytt' });
+    return res.status('404').json({ msg: 'Ekki tókst að eyða þætti' });
   });
 
 router.post('/:serieId/rate',
@@ -287,9 +291,9 @@ router.delete('/:serieId/state',
   requireAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
-async (req, res) => {
-  const { serieId } = req.params;
-  const userId = req.user.id;
+  async (req, res) => {
+    const { serieId } = req.params;
+    const userId = req.user.id;
     const del = await db.deleteSerie(serieId, userId);
     if (del) return;
     else return res.json({ msg: 'Tókst ekki að eyða' });
