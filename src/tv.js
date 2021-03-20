@@ -272,7 +272,7 @@ router.delete('/:serieId/state',
 requireAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
-(req, res) => {
+async (req, res) => {
   const { serieId } = req.params;
   const userId = req.user.id;
     const del = await db.deleteSerie(serieId, userId);
