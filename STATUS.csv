@@ -8,7 +8,7 @@ tv/:id/season,GET,unrestricted,done,
 tv/:id/season,POST,admin,CRITICAL,if poster is not provided server errors out,api key, mig grunar ad þad se haegt ad setja tvo season med sama number thott thað se i sama thaetti
 tv/:id/season/:id,GET,unrestricted,MEDIUM, poster in response is not a cloudinary url
 tv/:id/season/:id,DELETE,admin,done,implemented
-tv/:id/season/:id/episode,POST,admin,CRITICAL, NOT IMPLEMENTED
+tv/:id/season/:id/episode,POST,admin,CRITICAL, implemented, done
 tv/:id/season/:id/episode/:id,GET,unrestricted,SMALL,params in url are not validated!USE paramIdRules TO FIX
 tv/:id/season/:id/episode/:id,DELETE,admin,CRITICAL, NOT IMPLEMENTED AND MISSING FROM tv.js
 ,,
