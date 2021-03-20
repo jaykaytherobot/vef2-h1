@@ -54,7 +54,7 @@ export async function updateSeasonPosterById(id, poster) {
 
 export async function getSerieByIdWithSeasons(id, userId = false) {
   const serieQuery = 'SELECT * FROM Series s WHERE id = $1;';
-  const ratingQuery = 'SELECT COUNT(*), AVG(grade) FROM SerieToUser WHERE serieId = $1;'
+  const ratingQuery = 'SELECT COUNT(*), AVG(grade) FROM SerieToUser WHERE serieId = $1;';
   const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genres ON genreId = Genres.id WHERE serieId = $1;';
   const seasonQuery = 'SELECT * FROM Seasons WHERE serieId = $1;';
 
@@ -86,7 +86,7 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
 
 export async function getSeasonsBySerieId(serieId, offset = 0, limit = 10) {
   const q = 'SELECT * FROM Seasons WHERE serieId = $1 ORDER BY number OFFSET $2 LIMIT $3;';
-  let result = await query(q, [serieId, offset, limit]);
+  const result = await query(q, [serieId, offset, limit]);
   return result.rows;
 }
 
