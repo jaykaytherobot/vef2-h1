@@ -15,9 +15,6 @@ if (!connectionString) {
   console.error('Vantar DATABASE_URL!');
   process.exit(1);
 }
-
-const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/dqjwkhuoh/image/upload/v1615736248/';
-
 // Notum SSL tengingu við gagnagrunn ef við erum *ekki* í development mode, þ.e.a.s. á local vél
 const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
 
@@ -47,22 +44,25 @@ export async function getAllFromTable(table, offset = 0, limit = 10) {
   return result.rows;
 }
 
-export async function getSerieById(id, userId = false, offset = 0, limit = 10) {
+export async function updateSerieImageById(id, image) {
+  await query('UPDATE Series SET image = $1 WHERE id = $2', [image, id]);
+}
+
+export async function updateSeasonPosterById(id, poster) {
+  await query('UPDATE Seasons SET poster = $1 WHERE id = $2', [poster, id]);
+}
+
+export async function getSerieByIdWithSeasons(id, userId = false, offset = 0, limit = 10) {
   const serieQuery = 'SELECT * FROM Series s WHERE id = $1;';
   const ratingQuery = 'SELECT COUNT(*), AVG(grade) FROM SerieToUser WHERE serieId = $1;'
   const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genres ON genreId = Genres.id WHERE serieId = $1;';
   const seasonQuery = 'SELECT * FROM Seasons WHERE serieId = $1;';
 
   try {
-    let serieResult = await query(serieQuery, [id]);
-    serieResult = serieResult.rows[0];
-    serieResult.image = CLOUDINARY_BASE_URL + serieResult.image;
+    const serieResult = await query(serieQuery, [id]);
     const ratingResult = await query(ratingQuery, [id]);
     const genreResult = await query(genreQuery, [id]);
     const seasonResult = await query(seasonQuery, [id]);
-    seasonResult.rows.forEach((season, index) => {
-      seasonResult.rows[index].poster = CLOUDINARY_BASE_URL + season.poster;
-    });
     let userResult;
     if (userId) {
       const userQuery = 'SELECT grade, status from SerieToUser WHERE serieId = $1 AND userId = $2;';
@@ -71,12 +71,12 @@ export async function getSerieById(id, userId = false, offset = 0, limit = 10) {
 
     if (serieResult.rowCount === 1) {
       return {
-        info: serieResult,
+        info: serieResult.rows[0],
         user: userResult.rows,
         ratings: ratingResult.rows[0],
         genres: genreResult.rows,
-        seasons: seasonResult.rows
-      }
+        seasons: seasonResult.rows,
+      };
     }
   } catch (e) {
     console.info('Error occured :>> ', e);
