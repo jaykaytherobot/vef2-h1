@@ -301,17 +301,19 @@ export async function updateSerieById(id, attributes) {
       airDate: attributes.airDate || curVals.airdate,
       inProduction: attributes.inProduction || curVals.inproduction,
       tagline: attributes.tagline || curVals.tagline,
+      image: attributes.image || curVals.image,
       description: attributes.description || curVals.description,
       language: attributes.language || curVals.language,
       network: attributes.network || curVals.network,
       url: attributes.url || curVals.url
     }
     console.log(newVals);
-    const q = `UPDATE Series SET name=$1,airDate=$2,
-                    inProduction=$3,tagline=$4,
-                    description=$5,language=$6,
-                    network=$7,url=$8 WHERE id=$9 RETURNING *`;
-    const result = await query(q, [newVals.name,newVals.airDate,newVals.inProduction,newVals.tagline,newVals.description,newVals.language,newVals.network,newVals.url,id])
+    const q = `UPDATE Series SET name=$1, airDate=$2,
+                    inProduction=$3, tagline=$4,
+                    image=$5,
+                    description=$6, language=$7,
+                    network=$8, url=$9 WHERE id=$10 RETURNING *`;
+    const result = await query(q, [newVals.name,newVals.airDate,newVals.inProduction,newVals.tagline, newVals.image, newVals.description,newVals.language,newVals.network,newVals.url,id])
     if(result.rowCount === 1) {
       return result.rows[0];
     }

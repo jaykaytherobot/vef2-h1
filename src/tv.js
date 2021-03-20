@@ -1,7 +1,7 @@
 import express from 'express';
 import cloudinary from 'cloudinary';
 import * as db from './db.js';
-import { withMulter } from './upload.js';
+import { uploadImage, uploadPoster } from './upload.js';
 import {
   createTokenForUser,
   requireAuthentication,
@@ -25,7 +25,6 @@ router.get('/',
     const items = await db.getAllFromTable('Series', offset, limit, orderBy);
     if (items) {
       const length = await db.getCountOfTable('Series');
-      console.log('LENNNGTH', length);
       const { next, prev, href } = getLinks('tv', length, offset, limit);
       return res.json({
         limit,
@@ -45,11 +44,11 @@ router.get('/',
 
 router.post('/',
   requireAdminAuthentication,
-  withMulter,
+  uploadImage,
   fr.serieRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    req.body.image = req.file.path; // eða path
+    req.body.image = req.file.path;
     if (req.body.id) req.body.id = null;
     const createdSerie = await db.createNewSerie(req.body);
     if (createdSerie) {
@@ -86,13 +85,14 @@ router.get('/:serieId',
   });
 
 router.patch('/:serieId',
-  requireAdminAuthentication,
+  // requireAdminAuthentication,
+  uploadImage,
   fr.paramIdRules('serieId'),
   fr.patchSerieRules(),
   fr.checkValidationResult,
   async (req, res) => {
-
     const { serieId } = req.params;
+    req.body.image = req.file.path;
     const newSerie = await db.updateSerieById(serieId, req.body);
     return res.json(newSerie);
   });
@@ -134,7 +134,7 @@ router.get('/:serieId/season',
 
 router.post('/:serieId/season',
   requireAdminAuthentication,
-  withMulter,
+  uploadPoster,
   fr.seasonRules(),
   fr.checkValidationResult,
   async (req, res) => {
