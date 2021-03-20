@@ -1,0 +1,32 @@
+url,method,role,status,todo
+tv,GET,unrestricted,MEDIUM,img in response is not a cloudinary url
+tv,POST,admin,CRITICAL,if image is not provided server errors out, must supply api key is an anoying error i cant figure out
+tv/:id,GET,unrestricted,SMALL,average rating has too many decimal points,error msg on serie not found is not wrapped in errors list like Ólis solution
+tv/:id,PATCH,admin,CRITICAL,patch should only require at least 1 attribute but requires all of them
+tv/:id,DELETE,admin,done
+tv/:id/season,GET,unrestricted,BIG,result is not paginated
+tv/:id/season,POST,admin,CRITICAL,if poster is not provided server errors out,api key, mig grunar ad þad se haegt ad setja tvo season med sama number thott thað se i sama thaetti
+tv/:id/season/:id,GET,unrestricted,MEDIUM, poster in response is not a cloudinary url
+tv/:id/season/:id,DELETE,admin,CRITICAL,NOT IMPLEMENTED
+tv/:id/season/:id/episode,POST,admin,CRITICAL, NOT IMPLEMENTED
+tv/:id/season/:id/episode/:id,GET,unrestricted,SMALL,params in url are not validated!USE paramIdRules TO FIX
+tv/:id/season/:id/episode/:id,DELETE,admin,CRITICAL, NOT IMPLEMENTED AND MISSING FROM tv.js
+,,
+genres,GET,unrestricted,SMALL,id should not be in the response
+genres,POST,admin,MEDIUM,body is not validated correctly,json is return in a list but doesnt need to be
+,,
+users,GET,admin,SMALL,
+users/:id,GET,admin,no fields for created and last modified
+users/:id,PATCH,admin,
+users/register,POST,unrestricted,
+users/login,POST,unrestricted,
+users/me,GET,users,
+users/me,PATCH,users,
+,,
+tv/:id/rate,POST,users,
+tv/:id/rate,PATCH,users,
+tv/:id/rate,DELETE,users,
+tv/:id/state,POST,users,
+tv/:id/state,PATCH,users,
+tv/:id/state,DELETE,users,
+tv/:id,GET,users,

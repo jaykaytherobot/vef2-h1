@@ -71,13 +71,16 @@ router.get('/:serieId',
   optionalAuthentication,
   async (req, res) => {
     const { serieId } = req.params;
-    const userId = req.user.id;
+    let userId;
+    if (req.user) {
+      userId = req.user.id;
+    }
     const data = await db.getSerieById(serieId, userId);
     // Ef authenticated þá bæta við einkunn og stöðu
     if (!data) {
       return res.status(404).json({ msg: 'Fann ekki sjónvarpsþátt' });
     }
-    return res.json({ data });
+    return res.json(data);
   });
 
 router.patch('/:serieId', 
@@ -164,10 +167,6 @@ router.get('/:serieId/season/:seasonNum/episode/:episodeNum', async (req, res) =
     res.status(404).json({ msg: 'Fann ekki þátt' });
   }
   res.json(data);
-});
-
-router.post('/:serieId/season/:seasonNum/episode/:episodeNum', (req, res) => {
-  res.json({ foo: 'bar' });
 });
 
 router.post('/:serieId/rate',
