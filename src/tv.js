@@ -105,14 +105,28 @@ router.delete('/:serieId',
   });
 
 // /tv/:id/season/
-router.get('/:serieId/season', async (req, res) => {
+router.get('/:serieId/season', 
+  fr.paramIdRules('serieId'),
+  fr.paginationRules(),
+  fr.checkValidationResult,
+  async (req, res) => {
   const { serieId } = req.params;
-  const data = await db.getSeasonsBySerieId(serieId);
-  // Ef authenticated þá bæta við einkunn og stöðu
+
+  let {
+    offset = 0, limit = 10
+  } = req.query;
+  offset = Number.parseInt(offset, 10);
+  limit = Number.parseInt(limit, 10);
+
+  const data = await db.getSeasonsBySerieId(serieId, offset, limit);
+  console.log(data.length, limit)
+  const next =  data.length === limit ? { href: `http://localhost:3000/tv/${serieId}/season?offset=${offset+limit}&limit=${limit}`}: undefined;
+  const prev = offset > 0 ? { href: `http://localhost:3000/tv/${serieId}/season?offset=${Math.max(offset-limit, 0)}&limit=${limit}`}: undefined;
+
   if (!data) {
-    res.status(404).json({ msg: 'Fann ekki þátt' });
+    res.status(404).json({ errors: [{param: 'id', msg:'Fann ekki þátt'}] });
   }
-  res.json({ data });
+  res.json({ limit, offset, items: data, links: {self:`http://localhost:3000/tv/${serieId}/season?offset=${offset}&limit=${limit}`, prev, next} });
 });
 
 router.post('/:serieId/season',

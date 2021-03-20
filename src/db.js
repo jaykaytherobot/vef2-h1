@@ -85,13 +85,8 @@ export async function getSerieByIdWithSeasons(id, userId = false, offset = 0, li
 }
 
 export async function getSeasonsBySerieId(serieId, offset = 0, limit = 10) {
-  const q = 'SELECT * FROM Seasons WHERE serieId = $1 OFFSET $2 LIMIT $3;';
-  let result = '';
-  try {
-    result = await query(q, [serieId, offset, limit]);
-  } catch (e) {
-    console.info('Error occured :>> ', e);
-  }
+  const q = 'SELECT * FROM Seasons WHERE serieId = $1 ORDER BY number OFFSET $2 LIMIT $3;';
+  let result = await query(q, [serieId, offset, limit]);
   return result.rows;
 }
 
