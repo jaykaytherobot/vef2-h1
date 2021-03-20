@@ -52,7 +52,7 @@ export async function updateSeasonPosterById(id, poster) {
   await query('UPDATE Seasons SET poster = $1 WHERE id = $2', [poster, id]);
 }
 
-export async function getSerieByIdWithSeasons(id, userId = false, offset = 0, limit = 10) {
+export async function getSerieByIdWithSeasons(id, userId = false) {
   const serieQuery = 'SELECT * FROM Series s WHERE id = $1;';
   const ratingQuery = 'SELECT COUNT(*), AVG(grade) FROM SerieToUser WHERE serieId = $1;'
   const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genres ON genreId = Genres.id WHERE serieId = $1;';
