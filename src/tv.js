@@ -1,5 +1,4 @@
 import express from 'express';
-import { validationResult } from 'express-validator';
 import cloudinary from 'cloudinary';
 import * as db from './db.js';
 import { upload } from './upload.js';
@@ -10,7 +9,6 @@ import {
   optionalAuthentication
 } from './login.js';
 import * as fr from './form-rules.js';
-//import { serieRules, seasonRules, paramIdRules, paginationRules, checkValidationResult } from './form-rules.js';
 
 export const router = express.Router();
 
@@ -28,7 +26,7 @@ router.get('/',
       offset = 0, limit = 10,
     } = req.query;
 
-    const items = await db.getAllFromTable('Shows', offset, limit);
+    const items = await db.getAllFromTable('Series', offset, limit);
 
     const next = items.length === limit ? { href: `http://localhost:3000/tv?offset=${offset + limit}&limit=${limit}` } : undefined;
     const prev = offset > 0 ? { href: `http://localhost:3000/tv?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
@@ -56,7 +54,7 @@ router.post('/',
   fr.serieRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    req.body.image = req.file.filename; // eða path
+    req.body.image = req.file.path; // eða path
     if (req.body.id) req.body.id = null;
     const createdSerie = await db.createNewSerie(req.body);
     if (createdSerie) {
@@ -75,7 +73,8 @@ router.get('/:serieId',
     if (req.user) {
       userId = req.user.id;
     }
-    const data = await db.getSerieById(serieId, userId);
+    const data = await db.getSerieByIdWithSeasons(serieId, userId);
+    console.log('DATA', data)
     // Ef authenticated þá bæta við einkunn og stöðu
     if (!data) {
       return res.status(404).json({ msg: 'Fann ekki sjónvarpsþátt' });
@@ -83,7 +82,7 @@ router.get('/:serieId',
     return res.json(data);
   });
 
-router.patch('/:serieId', 
+router.patch('/:serieId',
   requireAdminAuthentication,
   fr.paramIdRules('serieId'),
   fr.serieRules(),
@@ -96,7 +95,7 @@ router.patch('/:serieId',
 
   });
 
-router.delete('/:serieId', 
+router.delete('/:serieId',
   requireAdminAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
@@ -200,7 +199,7 @@ router.post('/:serieId/rate',
     return res.json({msg: 'Uppfærsla tókst'});
   });
 
-router.patch('/:serieId/rate', 
+router.patch('/:serieId/rate',
   requireAuthentication,
   fr.paramIdRules('serieId'),
   fr.ratingRules(),

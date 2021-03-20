@@ -3,6 +3,7 @@ import fs from 'fs';
 import { readFile } from 'fs/promises';
 import dotenv from 'dotenv';
 import csv from 'csv-parser';
+import cloudinary from 'cloudinary';
 
 import {
   createNewSerie,
@@ -10,6 +11,8 @@ import {
   createNewSeason,
   createNewEpisode,
   initializeSeriesSequence,
+  updateSerieImageById,
+  updateSeasonPosterById,
 } from './db.js';
 
 import { createUser } from './userdb.js';
@@ -32,34 +35,30 @@ async function createTables() {
   const createTable = await readFile('./sql/schema.sql');
   const tData = createTable.toString('utf-8');
   await query(tData);
-  return;
 }
 
-async function setupSeries() {
-  fs.createReadStream('./data/series.csv')
-    .pipe(csv())
-    .on('data', async (serie) => {
-      await createNewSerie(serie);
-    })
-    .on('end', async () => {
-      await initializeSeriesSequence();
-      console.info('Finished reading series.csv');
-      setTimeout(async () => await setupSeasons(), 2000);
-    });
-    return;
+async function uploadSeasonPosters() {
+  const seasons = await query('SELECT * from Seasons;');
+  seasons.rows.forEach((season) => {
+    if (season.poster) {
+      cloudinary.uploader.upload(`data/img/${season.poster}`, async (res) => {
+        await updateSeasonPosterById(season.id, res.secure_url);
+      });
+    }
+  });
+  console.info('Finished uploading season posters');
 }
 
-async function setupSeasons() {
-  fs.createReadStream('./data/seasons.csv')
-    .pipe(csv())
-    .on('data', async (season) => {
-      await createNewSeason(season);
-    })
-    .on('end', async () => {
-      console.info('Finished reading seasons.csv');
-      setTimeout(async () => await setupEpisodes(), 2000);
-    });
-    return;
+async function uploadSerieImages() {
+  const series = await query('SELECT * from Series;');
+  series.rows.forEach((serie) => {
+    if (serie.image) {
+      cloudinary.uploader.upload(`data/img/${serie.image}`, async (res) => {
+        await updateSerieImageById(serie.id, res.secure_url);
+      });
+    }
+  });
+  console.info('Finished uploading serie images');
 }
 
 async function setupEpisodes() {
@@ -71,8 +70,40 @@ async function setupEpisodes() {
     .on('end', async () => {
       console.info('Finished reading episodes.csv');
     });
-    return;
 }
+
+async function setupSeasons() {
+  fs.createReadStream('./data/seasons.csv')
+    .pipe(csv())
+    .on('data', async (season) => {
+      await createNewSeason(season);
+    })
+    .on('end', async () => {
+      console.info('Finished reading seasons.csv');
+      setTimeout(async () => uploadSeasonPosters(), 2000);
+      setTimeout(async () => setupEpisodes(), 2000);
+    });
+}
+
+async function setupSeries() {
+  fs.createReadStream('./data/series.csv')
+    .pipe(csv())
+    .on('data', async (serie) => {
+      await createNewSerie(serie);
+    })
+    .on('end', async () => {
+      await initializeSeriesSequence();
+      console.info('Finished reading series.csv');
+      setTimeout(async () => uploadSerieImages(), 2000);
+      setTimeout(async () => setupSeasons(), 2000);
+    });
+}
+
+
+
+
+
+
 
 async function setup() {
   await createTables();
