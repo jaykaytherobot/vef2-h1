@@ -16,7 +16,7 @@ if (!connectionString) {
   process.exit(1);
 }
 
-const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/dqjwkhuoh/image/upload/v1615736248/'
+const CLOUDINARY_BASE_URL = 'https://res.cloudinary.com/dqjwkhuoh/image/upload/v1615736248/';
 
 // Notum SSL tengingu við gagnagrunn ef við erum *ekki* í development mode, þ.e.a.s. á local vél
 const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
@@ -50,24 +50,28 @@ export async function getAllFromTable(table, offset = 0, limit = 10) {
 export async function getSerieById(id, userId = false, offset = 0, limit = 10) {
   const serieQuery = 'SELECT * FROM Series s WHERE id = $1;';
   const ratingQuery = 'SELECT COUNT(*), AVG(grade) FROM SerieToUser WHERE serieId = $1;'
-  const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genre ON genreId = Genre.id WHERE serieId = $1;';
+  const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genres ON genreId = Genres.id WHERE serieId = $1;';
   const seasonQuery = 'SELECT * FROM Seasons WHERE serieId = $1;';
-  
+
   try {
-    const serieResult = await query(serieQuery, [id]);
+    let serieResult = await query(serieQuery, [id]);
+    serieResult = serieResult.rows[0];
+    serieResult.image = CLOUDINARY_BASE_URL + serieResult.image;
     const ratingResult = await query(ratingQuery, [id]);
     const genreResult = await query(genreQuery, [id]);
     const seasonResult = await query(seasonQuery, [id]);
+    seasonResult.rows.forEach((season, index) => {
+      seasonResult.rows[index].poster = CLOUDINARY_BASE_URL + season.poster;
+    });
     let userResult;
-    if(userId) {
+    if (userId) {
       const userQuery = 'SELECT grade, status from SerieToUser WHERE serieId = $1 AND userId = $2;';
-      userResult = await query(userQuery, [id,userId]);
-    }
-    else userResult = {rows: 'User not logged in'};
+      userResult = await query(userQuery, [id, userId]);
+    } else userResult = { rows: 'User not logged in' };
 
     if (serieResult.rowCount === 1) {
       return {
-        info: serieResult.rows[0],
+        info: serieResult,
         user: userResult.rows,
         ratings: ratingResult.rows[0],
         genres: genreResult.rows,
