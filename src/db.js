@@ -38,7 +38,7 @@ export async function getCountOfTable(table) {
 }
 
 export async function getAllFromTable(table, attr = '*', offset = 0, limit = 10, orderBy = null) {
-  const q = orderBy ? `SELECT ${attr} FROM ${table} ORDER BY ${orderBy} OFFSET ${offset} LIMIT ${limit};` : `SELECT * FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
+  const q = orderBy ? `SELECT ${attr} FROM ${table} ORDER BY ${orderBy} OFFSET ${offset} LIMIT ${limit};` : `SELECT ${attr} FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
   let result = '';
   try {
     result = await query(q);
