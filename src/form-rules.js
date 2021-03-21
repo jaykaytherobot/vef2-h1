@@ -2,7 +2,7 @@ import {
   body, query, param, validationResult,
 } from 'express-validator';
 import { getEpisodeByNo, getSerieById, getSeasonBySerieIdAndSeasonNum } from './db.js';
-import * as userDb from './userDb.js';
+import * as userDb from './userdb.js';
 // Þetta disable verður að vera hér svo þessi validation
 // rules haga sér rétt
 /* eslint-disable consistent-return */
