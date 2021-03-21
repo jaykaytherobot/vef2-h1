@@ -39,3 +39,12 @@ export function sanitize(...request) {
   }
   return req;
 }
+
+export function intToWatch(i) {
+  switch (i) {
+    case 0: return 'Langar að horfa';
+    case 1: return 'Er að horfa';
+    case 2: return 'Hef horft';
+    default: return null;
+  }
+}

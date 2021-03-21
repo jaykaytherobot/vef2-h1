@@ -1,6 +1,7 @@
 // db.js
 import pg from 'pg';
 import dotenv from 'dotenv';
+import { intToWatch } from './utils.js';
 
 dotenv.config();
 
@@ -71,6 +72,7 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
   if (userId) {
     const userQuery = 'SELECT grade, status from SerieToUser WHERE serieId = $1 AND userId = $2;';
     userResult = await query(userQuery, [id, userId]);
+    userResult.rows[2] = intToWatch(userResult.rows[2]);
   } else userResult = { rows: 'User not logged in' };
 
   if (serieResult.rowCount === 1) {
