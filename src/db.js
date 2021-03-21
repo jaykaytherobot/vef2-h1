@@ -185,7 +185,7 @@ export async function createNewSerie(serie) {
       }
     });
   }
-  return s;
+  return s.rows[0];
 }
 
 export async function createNewSeason(season) {

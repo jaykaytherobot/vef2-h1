@@ -50,9 +50,8 @@ router.post('/',
     if (req.body.id) req.body.id = null;
     const createdSerie = await db.createNewSerie(req.body);
     if (createdSerie) {
-      return res.json(createdSerie.rows[0]);
+      return res.json(createdSerie);
     }
-
     return res.status(400).json({ err: 'Error creating serie' });
   });
 
