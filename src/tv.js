@@ -23,18 +23,12 @@ router.get('/',
     const items = await db.getAllFromTable('Series', '*', offset, limit, orderBy);
     if (items) {
       const length = await db.getCountOfTable('Series');
-      const { next, prev, href } = getLinks('tv', length, offset, limit);
+      const _links = getLinks('tv', length, offset, limit);
       return res.json({
         limit,
         offset,
         items,
-        _links: {
-          self: {
-            href,
-          },
-          next,
-          prev,
-        },
+        _links
       });
     }
     return res.status(404).json({ msg: 'Table not found' });
@@ -115,13 +109,13 @@ router.get('/:serieId/season',
     limit = Number.parseInt(limit, 10);
 
     const { data, count } = await db.getSeasonsBySerieId(serieId, offset, limit);
-    const { next, prev, href } = getLinks(`tv/${serieId}/season`, count, offset, limit);
+    const _links = getLinks(`tv/${serieId}/season`, count, offset, limit);
 
     if (!data) {
       res.status(404).json({ errors: [{ param: 'id', msg: 'Fann ekki þátt' }] });
     }
     res.json({
-      limit, offset, items: data, links: { self: href, prev, next },
+      limit, offset, items: data, _links,
     });
   });
 
@@ -156,7 +150,7 @@ router.get('/:serieId/season/:seasonNum',
     }
     const episodes = await db.getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum);
     const combined = Object.assign(season, { episodes });
-    res.json({ combined });
+    res.json(combined);
   });
 
 router.delete('/:serieId/season/:seasonNum',
@@ -311,36 +305,3 @@ router.delete('/:serieId/state',
     return res.status(400).json({ msg: 'Tókst ekki að eyða' });
   });
 
-export const getGenres = async (req, res) => {
-  const {
-    offset = 0,
-    limit = 10,
-  } = req.query;
-  const genres = await db.getAllFromTable('Genres', 'name', offset, limit);
-  const length = await db.getCountOfTable('Genres');
-  const { next, prev, href } = getLinks('genres', length, offset, limit);
-  res.json({
-    offset: offset,
-    limit: limit,
-    genres,
-    _links: {
-      prev,
-      self: {
-        href,
-      },
-      next,
-    },
-  });
-};
-
-export const postGenres = async (req, res) => {
-  const {
-    name,
-  } = sanitize(req.body);
-  const q = 'INSERT INTO Genres(name) VALUES ($1) RETURNING *;';
-  const result = await db.query(q, [name]);
-  if (!result) {
-    res.status(400).json({ err: 'Genre er nú þegar til' });
-  }
-  res.json(result.rows);
-};
