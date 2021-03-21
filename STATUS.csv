@@ -1,5 +1,5 @@
-url,method,role,status,todo
-tv,GET,unrestricted,MEDIUM,img in response is not a cloudinary url
+url,method,role,status,todo,
+tv,GET,unrestricted,MEDIUM,img in response is not a cloudinary url, done
 tv,POST,admin,CRITICAL,if image is not provided server errors out, must supply api key is an anoying error i cant figure out, done
 tv/:id,GET,unrestricted,SMALL,average rating has too many decimal points,error msg on serie not found is not wrapped in errors list like Ólis solution, none
 tv/:id,PATCH,admin,MEDIUM,not possible to patch image, done
