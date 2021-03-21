@@ -197,14 +197,10 @@ export async function createNewEpisode(episode) {
     episode.number,
     episode.airdate,
     episode.overview]);
-<<<<<<< HEAD
-  return result.rows[0];
-=======
   if (result.rowCount === 1) {
     return result.rows[0];
   }
   return false;
->>>>>>> a61fe061c8aef6d2751d30b78fc3f57b6e40f63c
 }
 
 export async function createNewUser(user) {
@@ -312,7 +308,7 @@ export async function deleteSerie(id) {
   return result.rows;
 }
 export async function deleteEpisodesbySeason(id, number) {
-  const q = 'DELETE FROM Episodes WHERE serieId = $2 AND seasonNumber = $3 RETURNING *;';
+  const q = 'DELETE FROM Episodes WHERE serieId = $1 AND seasonNumber = $2 RETURNING *;';
   await query(q, [id, number]);
 }
 
