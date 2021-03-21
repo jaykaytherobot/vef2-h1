@@ -59,12 +59,9 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
   const ratingQuery = 'SELECT COUNT(*) AS ratingcount, AVG(grade) AS rating FROM SerieToUser WHERE serieId = $1;';
   const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genres ON genreId = Genres.id WHERE serieId = $1;';
   const seasonQuery = 'SELECT * FROM Seasons WHERE serieId = $1;';
-  
-  try {
+
     const serieResult = await query(serieQuery, [id]);
     const ratingResult = await query(ratingQuery, [id]);
-    const rate = ratingResult.rows[0].rating;
-    ratingResult.rows[0].rating = rate ? Number.parseInt(rate, 10).toFixed(1) : 0;
     const genreResult = await query(genreQuery, [id]);
     const seasonResult = await query(seasonQuery, [id]);
     let userResult;
@@ -74,6 +71,8 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
     } else userResult = { rows: 'User not logged in' };
 
     if (serieResult.rowCount === 1) {
+      const rate = ratingResult.rows[0].rating;
+      ratingResult.rows[0].rating = rate ? Number.parseInt(rate, 10).toFixed(1) : 0;
       return {
         info: serieResult.rows[0],
         user: userResult.rows,
@@ -82,9 +81,6 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
         seasons: seasonResult.rows,
       };
     }
-  } catch (e) {
-    console.info('Error occured :>> ', e);
-  }
   return false;
 }
 
@@ -153,7 +149,7 @@ export async function createNewSerie(serie) {
   if (serie.id) {
     s = await query(`INSERT INTO Series(id, name, airDate, inProduction, tagline, image, description, language, network, url)
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *;`,
-    [serie.id,
+      [serie.id,
       serie.name,
       serie.airDate,
       serie.inProduction,
@@ -162,30 +158,30 @@ export async function createNewSerie(serie) {
       serie.description,
       serie.language,
       serie.network,
-      serie.homepage]);
-    } else {
-      s = await query('INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;',
+      serie.url]);
+  } else {
+    s = await query('INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;',
       [serie.name,
-        serie.airDate,
-        serie.inProduction,
-        serie.tagline,
-        serie.image,
-        serie.description,
-        serie.language,
-        serie.network,
-        serie.homepage]);
-      }
-      if (serie.genres) {
-        serie.genres.split(',').forEach(async (genre) => {
-          let genreId;
-          let result;
-          try {
-            await query('INSERT INTO Genres(name) VALUES ($1) ON CONFLICT(name) DO NOTHING;', [genre]);
-            result = await query('SELECT id FROM Genres WHERE name = $1;', [genre]);
-            genreId = result.rows[0].id;
-            await query('INSERT INTO SerieToGenre(serieId, genreId) VALUES ($1, $2);', [serie.id, genreId]);
-          } catch (e) {
-            console.info('Error occured :>> ', e);
+      serie.airDate,
+      serie.inProduction,
+      serie.tagline,
+      serie.image,
+      serie.description,
+      serie.language,
+      serie.network,
+      serie.url]);
+  }
+  if (serie.genres) {
+    serie.genres.split(',').forEach(async (genre) => {
+      let genreId;
+      let result;
+      try {
+        await query('INSERT INTO Genres(name) VALUES ($1) ON CONFLICT(name) DO NOTHING;', [genre]);
+        result = await query('SELECT id FROM Genres WHERE name = $1;', [genre]);
+        genreId = result.rows[0].id;
+        await query('INSERT INTO SerieToGenre(serieId, genreId) VALUES ($1, $2);', [serie.id, genreId]);
+      } catch (e) {
+        console.info('Error occured :>> ', e);
       }
     });
   }
@@ -198,14 +194,14 @@ export async function createNewSeason(season) {
   try {
     result = await query(`INSERT INTO Seasons(serieId, name, "number", airDate, overview, poster)
                               VALUES ($1,$2,$3,$4,$5,$6) RETURNING *;`,
-                              [season.serieId,
-                                season.name,
+      [season.serieId,
+      season.name,
       season.number,
-      airDate,
+        airDate,
       season.overview,
       season.poster]);
-      return result.rows[0];
-    } catch (e) {
+    return result.rows[0];
+  } catch (e) {
     console.info('Error occured :>> ', e);
   }
   return null;
@@ -214,7 +210,7 @@ export async function createNewSeason(season) {
 export async function createNewEpisode(episode) {
   const result = await query(`INSERT INTO Episodes(serieId, seasonnumber, name, "number", airdate, overview)
                               VALUES ($1,$2,$3,$4,$5,$6) RETURNING *;`,
-  [episode.serieId,
+    [episode.serieId,
     episode.season,
     episode.name,
     episode.number,
@@ -226,7 +222,7 @@ export async function createNewEpisode(episode) {
 export async function createNewUser(user) {
   await query(`INSERT INTO Users(name, email, password, admin)
   VALUES ($1,$2,$3,$4);`,
-  [user.name, user.email, user.password, user.admin]);
+    [user.name, user.email, user.password, user.admin]);
 }
 
 export async function createUserRatingBySerieId(serieId, userId, grade) {
@@ -235,11 +231,11 @@ export async function createUserRatingBySerieId(serieId, userId, grade) {
   if (existsResult.rowCount === 0) {
     const data = await query(`INSERT INTO SerieToUser(serieId, userId, grade)
     VALUES($1,$2,$3) RETURNING *;`,
-    [serieId, userId, grade]);
+      [serieId, userId, grade]);
     console.log(data);
     return data.rows[0];
   }
-  
+
   return updateUserRatingBySerieId(serieId, userId, grade);
 }
 
@@ -249,17 +245,17 @@ export async function createUserStatusBySerieId(serieId, userId, status) {
   if (existsResult.rowCount === 0) {
     const data = await query(`INSERT INTO SerieToUser(serieId, userId, status)
     VALUES($1,$2,$3) RETURNING *;`,
-    [serieId, userId, status]);
+      [serieId, userId, status]);
     return data.rows[0];
   }
-  
+
   return updateUserStatusBySerieId(serieId, userId, status);
 }
 
 
 export async function updateUserRatingBySerieId(serieId, userId, grade) {
   const result = await query('UPDATE SerieToUser SET grade=$1 WHERE serieId=$2 AND userId=$3 RETURNING *',
-  [grade, serieId, userId]);
+    [grade, serieId, userId]);
   if (result.rowCount === 1) {
     return result.rows[0];
   }
@@ -288,13 +284,13 @@ export async function updateSerieById(id, attributes) {
                     description=$6, language=$7,
                     network=$8, url=$9 WHERE id=$10 RETURNING *`;
     const result = await query(q, [newVals.name, newVals.airDate,
-      newVals.inProduction,
-      newVals.tagline,
-      newVals.image,
-      newVals.description,
-      newVals.language,
-      newVals.network,
-      newVals.url,
+    newVals.inProduction,
+    newVals.tagline,
+    newVals.image,
+    newVals.description,
+    newVals.language,
+    newVals.network,
+    newVals.url,
       id]);
     if (result.rowCount === 1) {
       return result.rows[0];
@@ -305,7 +301,7 @@ export async function updateSerieById(id, attributes) {
 
 export async function updateUserStatusBySerieId(serieId, userId, status) {
   const result = await query('UPDATE SerieToUser SET status=$1 WHERE serieId=$2 AND userId=$3 RETURNING *',
-  [status, serieId, userId]);
+    [status, serieId, userId]);
   if (result.rowCount === 1) {
     return result.rows[0];
   }

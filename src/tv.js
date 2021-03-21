@@ -46,11 +46,11 @@ router.post('/',
   fr.serieRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    req.body.image = sanitize(req.file.path);
+    req.body.image = req.file.path;
     if (req.body.id) req.body.id = null;
     const createdSerie = await db.createNewSerie(req.body);
     if (createdSerie) {
-      return res.json({ msg: 'Serie created' });
+      return res.json(createdSerie.rows[0]);
     }
 
     return res.status(400).json({ err: 'Error creating serie' });
