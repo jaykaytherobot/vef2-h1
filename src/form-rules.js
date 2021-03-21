@@ -3,6 +3,8 @@ import {
 } from 'express-validator';
 import { getEpisodeByNo, getSerieById, getSeasonBySerieIdAndSeasonNum } from './db.js';
 import * as userDb from './userDb.js';
+// Þetta disable verður að vera hér svo þessi validation
+// rules haga sér rétt
 /* eslint-disable consistent-return */
 export const serieRules = () => [
   body('name')
