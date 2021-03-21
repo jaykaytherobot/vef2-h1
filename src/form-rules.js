@@ -2,6 +2,7 @@ import {
   body, query, param, validationResult,
 } from 'express-validator';
 import { getSerieById } from './db.js';
+import * as userDb from './userDb.js';
 
 export const serieRules = () => [
   body('name')
@@ -14,9 +15,6 @@ export const serieRules = () => [
   body('inProduction')
     .isBoolean()
     .withMessage('inProduction must be a boolean'),
-  // body('image')
-  //   .isLength({ min: 10 })
-  //   .withMessage('image is required'),
   body('description')
     .isString()
     .withMessage('description must be a string'),
@@ -46,7 +44,6 @@ export const seasonRules = () => [
   body('number')
     .isInt()
     .custom((value) => Number.parseInt(value, 10) >= 0),
-  // body('image')
 ];
 
 export const paginationRules = () => [
@@ -91,10 +88,64 @@ export const paramIdRules = (idField) => [
     .withMessage(`${idField} must be an integer larger than 0`),
 ];
 
+export const patchUserRules = () => [
+  body('password')
+    .if(body('password').exists())
+    .isLength({ min: 10, max: 256 })
+    .withMessage('password must be from 1 to 256 characters long'),
+  body('email')
+    .if(body('email').exists())
+    .isEmail()
+    .withMessage('email must be an email, example@example.com')
+    .normalizeEmail()
+    .custom((value) => userDb.getUserByEmail(value).then((user) => {
+      if (user) {
+        return Promise.reject('email already exists');
+      }
+    })),
+];
+
+export const loginRules = () => [
+  body('username')
+    .trim()
+    .isLength({ min: 1, max: 256 })
+    .withMessage('username is required, max 256 characters'),
+  body('password')
+    .trim()
+    .isLength({ min: 10, max: 256 })
+    .withMessage('password is required, min 10 characters, max 256 characters'),
+];
+
+export const registerRules = () => [
+  body('username')
+    .trim()
+    .isLength({ min: 1, max: 256 })
+    .withMessage('username is required, max 256 characters')
+    .custom((value) => userDb.getUserByName(value).then((user) => {
+      if (user) {
+        return Promise.reject('username already exists');
+      }
+    })),
+  body('email')
+    .trim()
+    .isEmail()
+    .withMessage('email is required, max 256 characters')
+    .normalizeEmail()
+    .custom((value) => userDb.getUserByEmail(value).then((user) => {
+      if (user) {
+        return Promise.reject('email already exists');
+      }
+    })),
+  body('password')
+    .trim()
+    .isLength({ min: 10, max: 256 })
+    .withMessage('Password is required, min 10 characters, max 256 characters'),
+];
+
 export async function serieExists(req, res, next) {
   const serie = await getSerieById(req.params.serieId);
   if (!serie) {
-    return res.status(404).json({
+    res.status(404).json({
       errors: [{
         param: 'id',
         msg: 'Could not find serie with this id',
@@ -108,7 +159,7 @@ export async function serieExists(req, res, next) {
 export function checkValidationResult(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    res.status(400).json({ errors: errors.array() });
   }
   next();
 }

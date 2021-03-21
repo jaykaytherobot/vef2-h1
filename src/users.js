@@ -1,5 +1,4 @@
 // users.js
-import dotenv from 'dotenv';
 import express from 'express';
 import {
   body,
@@ -8,15 +7,15 @@ import {
 import * as db from './db.js';
 import * as userDb from './userdb.js';
 import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from './login.js';
-import { checkValidationResult, paginationRules, paramIdRules } from './form-rules.js';
+import {
+  checkValidationResult,
+  paginationRules,
+  paramIdRules,
+  patchUserRules,
+  loginRules,
+  registerRules,
+} from './form-rules.js';
 import { getLinks } from './utils.js';
-
-dotenv.config();
-
-const {
-  JWT_SECRET: jwtSecret,
-  JWT_TOKENLIFETIME: jwtTokenlifetime = 3600,
-} = process.env;
 
 export const router = express.Router();
 
@@ -50,29 +49,7 @@ router.get('/',
   });
 
 router.post('/register',
-  body('username')
-    .trim()
-    .isLength({ min: 1, max: 256 })
-    .withMessage('username is required, max 256 characters')
-    .custom((value) => userDb.getUserByName(value).then((user) => {
-      if (user) {
-        return Promise.reject('username already exists');
-      }
-    })),
-  body('email')
-    .trim()
-    .isEmail()
-    .withMessage('email is required, max 256 characters')
-    .normalizeEmail()
-    .custom((value) => userDb.getUserByEmail(value).then((user) => {
-      if (user) {
-        return Promise.reject('email already exists');
-      }
-    })),
-  body('password')
-    .trim()
-    .isLength({ min: 10, max: 256 })
-    .withMessage('Password is required, min 10 characters, max 256 characters'),
+  registerRules(),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -93,14 +70,7 @@ router.post('/register',
   });
 
 router.post('/login',
-  body('username')
-    .trim()
-    .isLength({ min: 1, max: 256 })
-    .withMessage('username is required, max 256 characters'),
-  body('password')
-    .trim()
-    .isLength({ min: 10, max: 256 })
-    .withMessage('password is required, min 10 characters, max 256 characters'),
+  loginRules(),
   async (req, res) => {
     const errors = validationResult(req);
 
@@ -158,20 +128,7 @@ router.get('/me',
   });
 
 router.patch('/me', requireAuthentication,
-  body('password')
-    .if(body('password').exists())
-    .isLength({ min: 10, max: 256 })
-    .withMessage('password must be from 1 to 256 characters long'),
-  body('email')
-    .if(body('email').exists())
-    .isEmail()
-    .withMessage('email must be an email, example@example.com')
-    .normalizeEmail()
-    .custom((value) => userDb.getUserByEmail(value).then((user) => {
-      if (user) {
-        return Promise.reject('email already exists');
-      }
-    })),
+  patchUserRules(),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -181,7 +138,7 @@ router.patch('/me', requireAuthentication,
     const { email, password } = req.body;
 
     if (!email && !password) {
-      return res.status(400).json({
+      res.status(400).json({
         errors: [{
           value: req.body,
           msg: 'require at least one of: email, password',
