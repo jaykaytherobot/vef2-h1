@@ -26,7 +26,6 @@ app.use('/users', userRouter);
 app.use('/tv', tvRouter);
 app.get('/genres', getGenres);
 app.post('/genres', requireAdminAuthentication, postGenres);
-app.use('/users', userRouter);
 
 function notFoundHandler(req, res, next) { // eslint-disable-line
   res.status(404).json({ error: 'Not found' });
