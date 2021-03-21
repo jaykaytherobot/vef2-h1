@@ -6,7 +6,7 @@ import {
   requireAdminAuthentication,
   optionalAuthentication,
 } from './login.js';
-import { getLinks } from './utils.js';
+import { getLinks, sanitize } from './utils.js';
 import * as fr from './form-rules.js';
 
 export const router = express.Router();

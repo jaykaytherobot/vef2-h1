@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import xss from 'xss';
 
 dotenv.config();
 
@@ -28,4 +29,12 @@ export function getLinks(path = '', lengthString, offsetString, limitString) {
     prev,
     href,
   };
+}
+
+export function sanitize(...request) {
+  const req = request[0];
+  for(const value in req) {
+    req[value] = xss(req[value]);
+  }
+  return req;
 }
