@@ -1,4 +1,3 @@
-import pg from 'pg';
 import fs from 'fs';
 import { readFile } from 'fs/promises';
 import dotenv from 'dotenv';

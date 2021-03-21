@@ -1,9 +1,7 @@
 import express from 'express';
-import cloudinary from 'cloudinary';
 import * as db from './db.js';
 import { uploadImage, uploadPoster } from './upload.js';
 import {
-  createTokenForUser,
   requireAuthentication,
   requireAdminAuthentication,
   optionalAuthentication,
@@ -193,7 +191,7 @@ router.get('/:serieId/season/:seasonNum/episode/:episodeNum',
   fr.paramIdRules('episodeNum'),
   async (req, res) => {
     const { serieId, seasonNum, episodeNum } = req.params;
-    await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
+    const data = await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
     if (!data) {
       res.status('404').json({ msg: 'Fann ekki þátt' });
     }
@@ -221,8 +219,7 @@ router.post('/:serieId/rate',
     const { serieId } = req.params;
     const { grade } = req.body;
     const userId = req.user.id;
-    let data;
-    data = await db.createUserRatingBySerieId(serieId, userId, grade);
+    const data = await db.createUserRatingBySerieId(serieId, userId, grade);
     if (!data) {
       return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
     }
@@ -266,8 +263,7 @@ router.post('/:serieId/state',
     const { serieId } = req.params;
     const { status } = req.body;
     const userId = req.user.id;
-    let data;
-    data = await db.createUserStatusBySerieId(serieId, userId, status);
+    const data = await db.createUserStatusBySerieId(serieId, userId, status);
     if (!data) {
       return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
     }
@@ -299,7 +295,7 @@ router.delete('/:serieId/state',
     const userId = req.user.id;
     const del = await db.deleteSerie(serieId, userId);
     if (del) return;
-    return res.status(400).json({ msg: 'Tókst ekki að eyða' });
+    res.status(400).json({ msg: 'Tókst ekki að eyða' });
   });
 
 export const getGenres = async (req, res) => {

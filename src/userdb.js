@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
 import { query } from './db.js';
 
-export async function getAllUsers() {
-  const q = 'SELECT id,name,email,admin FROM Users';
+export async function getAllUsers(offset, limit) {
+  const q = 'SELECT id, name, email, admin FROM Users OFFSET $1 LIMIT $2;';
   try {
-    const result = await query(q);
+    const result = await query(q, [offset, limit]);
     return result.rows;
   } catch (err) {
     console.error(err);
@@ -17,7 +17,8 @@ export async function createUser(user, admin = false) {
     const q = 'INSERT INTO Users (name, email, password, admin) VALUES ($1, $2, $3, $4) RETURNING id,name,email,admin';
 
     try {
-      const result = await query(q, [user.name, user.email, await bcrypt.hash(user.password, 10), true]);
+      const result = await query(q,
+        [user.name, user.email, await bcrypt.hash(user.password, 10), true]);
       if (result.rowCount === 1) {
         return result.rows[0];
       }

@@ -3,13 +3,13 @@ import dotenv from 'dotenv';
 import express from 'express';
 import {
   body,
-  param,
   validationResult,
 } from 'express-validator';
 import * as db from './db.js';
 import * as userDb from './userdb.js';
 import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from './login.js';
 import { checkValidationResult, paginationRules, paramIdRules } from './form-rules.js';
+import { getLinks } from './utils.js';
 
 dotenv.config();
 
@@ -21,7 +21,7 @@ const {
 export const router = express.Router();
 
 router.get('/',
-  requireAdminAuthentication,
+  // requireAdminAuthentication,
   paginationRules(),
   checkValidationResult,
   async (req, res) => {
@@ -29,11 +29,9 @@ router.get('/',
       offset = 0, limit = 10,
     } = req.query;
 
-    const items = await userDb.getAllUsers('Users', offset, limit);
-
-    const next = items.length === limit ? { href: `http://localhost:3000/users?offset=${offset + limit}&limit=${limit}` } : undefined;
-    const prev = offset > 0 ? { href: `http://localhost:3000/users?offset=${Math.max(offset - limit, 0)}&limit=${limit}` } : undefined;
-
+    const items = await userDb.getAllUsers(offset, limit);
+    const count = await db.getCountOfTable('Users');
+    const { next, prev, href } = getLinks('users', count, offset, limit);
     if (items) {
       return res.json({
         limit,
@@ -41,7 +39,7 @@ router.get('/',
         items,
         _links: {
           self: {
-            href: `http://localhost:3000/users?offset=${offset}&limit=${limit}`,
+            href,
           },
           next,
           prev,
@@ -177,7 +175,7 @@ router.patch('/me', requireAuthentication,
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      res.status(400).json({ errors: errors.array() });
     }
 
     const { email, password } = req.body;
@@ -198,8 +196,6 @@ router.patch('/me', requireAuthentication,
     if (password) {
       req.user.password = password;
     }
-
-    console.log(req.user.email, req.user.password);
 
     const user = await userDb.updateUser(req.user);
 

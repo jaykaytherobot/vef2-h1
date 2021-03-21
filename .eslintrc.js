@@ -6,8 +6,8 @@ module.exports = {
     ecmaVersion: 12,
   },
   rules: {
-    'prefer-promise-reject-errors': 0,
-    'object-shorthand': 0,
+    // 'prefer-promise-reject-errors': 0,
+    // 'object-shorthand': 0,
     // Viljum frekar named exports
     'import/prefer-default-export': 0,
 
