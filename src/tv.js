@@ -23,18 +23,12 @@ router.get('/',
     const items = await db.getAllFromTable('Series', '*', offset, limit, orderBy);
     if (items) {
       const length = await db.getCountOfTable('Series');
-      const { next, prev, href } = getLinks('tv', length, offset, limit);
+      const _links = getLinks('tv', length, offset, limit);
       return res.json({
         limit,
         offset,
         items,
-        _links: {
-          self: {
-            href,
-          },
-          next,
-          prev,
-        },
+        _links
       });
     }
     return res.status(404).json({ msg: 'Table not found' });
@@ -115,13 +109,13 @@ router.get('/:serieId/season',
     limit = Number.parseInt(limit, 10);
 
     const { data, count } = await db.getSeasonsBySerieId(serieId, offset, limit);
-    const { next, prev, href } = getLinks(`tv/${serieId}/season`, count, offset, limit);
+    const _links = getLinks(`tv/${serieId}/season`, count, offset, limit);
 
     if (!data) {
       res.status(404).json({ errors: [{ param: 'id', msg: 'Fann ekki þátt' }] });
     }
     res.json({
-      limit, offset, items: data, links: { self: href, prev, next },
+      limit, offset, items: data, _links,
     });
   });
 
@@ -156,7 +150,7 @@ router.get('/:serieId/season/:seasonNum',
     }
     const episodes = await db.getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum);
     const combined = Object.assign(season, { episodes });
-    res.json({ combined });
+    res.json(combined);
   });
 
 router.delete('/:serieId/season/:seasonNum',
