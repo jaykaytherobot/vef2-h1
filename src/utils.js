@@ -33,7 +33,7 @@ export function getLinks(path = '', lengthString, offsetString, limitString) {
 
 export function sanitize(...request) {
   const req = request[0];
-  for(const value in req) {
+  for (const value in req) {
     req[value] = xss(req[value]);
   }
   return req;

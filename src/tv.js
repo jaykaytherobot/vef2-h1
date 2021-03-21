@@ -308,7 +308,7 @@ router.delete('/:serieId/state',
     const userId = req.user.id;
     const del = await db.deleteSerie(serieId, userId);
     if (del) return res.json({});
-    res.status(400).json({ msg: 'Tókst ekki að eyða' });
+    return res.status(400).json({ msg: 'Tókst ekki að eyða' });
   });
 
 export const getGenres = async (req, res) => {
