@@ -21,6 +21,7 @@ Einnig er krafa að notandi sé búinn að setja API key í system environment v
 
 ## Dæmi um köll í vefþjónustu
 Öll requests sem notast við req.body notfæra raw JSON body í Postman, hér eru slík dæmi:
+
 Fyrir þetta dæmi er nauðsynlegt að vera stjórnandi
 
 <img src= "./examples/Episode POST.png">
