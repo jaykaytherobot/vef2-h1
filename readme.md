@@ -1,9 +1,9 @@
 # Hópverkefni 1
 ## Höfundar
 Höfundar þessa verkefnis eru
-* Jóhannes Kári Sólmundarson -jks21@hi.is- `jaykaytherobot`
-* Marcelo Felix Audibert -mfa5@hi.is- `Gitcelo`
-* Sverrir Arnórsson -sva19@hi.is-  `sverrirarnors`
+* Jóhannes Kári Sólmundarson - jks21@hi.is - `jaykaytherobot`
+* Marcelo Felix Audibert - mfa5@hi.is - `Gitcelo`
+* Sverrir Arnórsson - sva19@hi.is -  `sverrirarnors`
 * Tryggvi Freyr Sigurgeirsson - tfs2@hi.is - `TryggviF`
 
 ## Uppsetning verkefnis
