@@ -89,6 +89,7 @@ router.patch('/:serieId',
   fr.paramIdRules('serieId'),
   fr.patchSerieRules(),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId } = sanitize(req.params);
     req.body.image = sanitize(req.file.path);
@@ -100,6 +101,7 @@ router.delete('/:serieId',
   requireAdminAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
+  fr.serieExists,
   (req, res) => {
     const { serieId } = sanitize(req.params);
     const deletedSerie = db.deleteSerie(serieId);
@@ -111,6 +113,7 @@ router.get('/:serieId/season',
   fr.paramIdRules('serieId'),
   fr.paginationRules(),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId } = req.params;
 
@@ -136,6 +139,7 @@ router.post('/:serieId/season',
   uploadPoster,
   fr.seasonRules(),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId } = req.params;
     req.body.poster = req.file.path;
@@ -148,21 +152,27 @@ router.post('/:serieId/season',
   });
 
 // /tv/:id/season/:id
-router.get('/:serieId/season/:seasonNum', async (req, res) => {
-  const { serieId, seasonNum } = req.params;
-  const season = await db.getSeasonBySerieIdAndSeasonNum(serieId, seasonNum);
-  if (!season) {
-    res.status(404).json({ msg: 'Fann ekki þátt' });
-  }
-  const episodes = await db.getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum);
-  const combined = Object.assign(season, { episodes });
-  res.json({ combined });
-});
+router.get('/:serieId/season/:seasonNum',
+  fr.paramIdRules('serieId'),
+  fr.paramIdRules('seasonNum'),
+  fr.checkValidationResult,
+  fr.serieExists,
+  async (req, res) => {
+    const { serieId, seasonNum } = req.params;
+    const season = await db.getSeasonBySerieIdAndSeasonNum(serieId, seasonNum);
+    if (!season) {
+      res.status(404).json({ msg: 'Fann ekki þátt' });
+    }
+    const episodes = await db.getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum);
+    const combined = Object.assign(season, { episodes });
+    res.json({ combined });
+  });
 
 router.delete('/:serieId/season/:seasonNum',
   fr.paramIdRules('serieId'),
   fr.paramIdRules('seasonNum'),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId, seasonNum } = req.params;
     await db.deleteSeasonBySerieIdAndSeasonNumber(serieId, seasonNum);
@@ -174,6 +184,8 @@ router.post('/:serieId/season/:seasonNum/episode',
   requireAdminAuthentication,
   fr.paramIdRules('serieId'),
   fr.paramIdRules('seasonNum'),
+  fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId, seasonNum } = req.params;
     const episode = req.body;
@@ -189,6 +201,8 @@ router.get('/:serieId/season/:seasonNum/episode/:episodeNum',
   fr.paramIdRules('serieId'),
   fr.paramIdRules('seasonNum'),
   fr.paramIdRules('episodeNum'),
+  fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId, seasonNum, episodeNum } = req.params;
     const data = await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
@@ -203,6 +217,8 @@ router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
   fr.paramIdRules('serieId'),
   fr.paramIdRules('seasonNum'),
   fr.paramIdRules('episodeNum'),
+  fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId, seasonNum, episodeNum } = req.params;
     const del = await db.deleteEpisode(episodeNum, serieId, seasonNum);
@@ -215,6 +231,7 @@ router.post('/:serieId/rate',
   fr.paramIdRules('serieId'),
   fr.ratingRules(),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId } = req.params;
     const { grade } = req.body;
@@ -231,6 +248,7 @@ router.patch('/:serieId/rate',
   fr.paramIdRules('serieId'),
   fr.ratingRules(),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId } = req.params;
     const { grade } = req.body;
@@ -246,6 +264,7 @@ router.delete('/:serieId/rate',
   requireAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId } = req.params;
     const userId = req.user.id;
@@ -259,6 +278,7 @@ router.post('/:serieId/state',
   fr.paramIdRules('serieId'),
   fr.statusRules(),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId } = req.params;
     const { status } = req.body;
@@ -275,6 +295,7 @@ router.patch('/:serieId/state',
   fr.paramIdRules('serieId'),
   fr.statusRules(),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId } = req.params;
     const { status } = req.body;
@@ -290,6 +311,7 @@ router.delete('/:serieId/state',
   requireAuthentication,
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
+  fr.serieExists,
   async (req, res) => {
     const { serieId } = req.params;
     const userId = req.user.id;
