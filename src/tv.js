@@ -180,8 +180,9 @@ router.post('/:serieId/season/:seasonNum/episode',
   async (req, res) => {
     const { serieId, seasonNum } = sanitize(req.params);
     const episode = sanitize(req.body);
-    episode[serieId] = serieId;
-    episode[seasonNum] = seasonNum;
+    episode.serieId = serieId;
+    episode.seasonNum = seasonNum;
+    console.log(episode.seasonNum);
     const result = await db.createNewEpisode(episode);
     if (result) return res.json(result);
     return res.status(400).json({ msg: 'Sköpun þáttar tókst ekki' });
