@@ -147,7 +147,7 @@ router.get('/:serieId/season/:seasonNum',
   fr.paramIdRules('serieId'),
   fr.paramIdRules('seasonNum'),
   fr.checkValidationResult,
-  fr.serieExists,
+  fr.seasonExists,
   async (req, res) => {
     const { serieId, seasonNum } = req.params;
     const season = await db.getSeasonBySerieIdAndSeasonNum(serieId, seasonNum);
@@ -163,7 +163,7 @@ router.delete('/:serieId/season/:seasonNum',
   fr.paramIdRules('serieId'),
   fr.paramIdRules('seasonNum'),
   fr.checkValidationResult,
-  fr.serieExists,
+  fr.seasonExists,
   async (req, res) => {
     const { serieId, seasonNum } = req.params;
     await db.deleteSeasonBySerieIdAndSeasonNumber(serieId, seasonNum);
@@ -176,7 +176,7 @@ router.post('/:serieId/season/:seasonNum/episode',
   fr.paramIdRules('serieId'),
   fr.paramIdRules('seasonNum'),
   fr.checkValidationResult,
-  fr.serieExists,
+  fr.seasonExists,
   async (req, res) => {
     const { serieId, seasonNum } = sanitize(req.params);
     const episode = sanitize(req.body);
@@ -193,7 +193,7 @@ router.get('/:serieId/season/:seasonNum/episode/:episodeNum',
   fr.paramIdRules('seasonNum'),
   fr.paramIdRules('episodeNum'),
   fr.checkValidationResult,
-  fr.serieExists,
+  fr.episodeExists,
   async (req, res) => {
     const { serieId, seasonNum, episodeNum } = req.params;
     const data = await db.getEpisodeByNo(serieId, seasonNum, episodeNum);
@@ -209,7 +209,7 @@ router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
   fr.paramIdRules('seasonNum'),
   fr.paramIdRules('episodeNum'),
   fr.checkValidationResult,
-  fr.serieExists,
+  fr.episodeExists,
   async (req, res) => {
     const { serieId, seasonNum, episodeNum } = req.params;
     const del = await db.deleteEpisode(episodeNum, serieId, seasonNum);
