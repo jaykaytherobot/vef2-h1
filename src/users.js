@@ -35,29 +35,22 @@ router.post('/register',
   fr.registerRules(),
   fr.checkValidationResult,
   async (req, res) => {
-
     const { username, email, password } = sanitize(req.body);
-
     const createdUser = await userDb.createUser({ name: username, email, password });
-
     if (createdUser) {
       return res.json(
         createdUser,
       );
     }
-
-    return res.json({ error: 'Error registering' });
+    return res.status(404).json({ error: 'Error registering' });
   });
 
 router.post('/login',
   fr.loginRules(),
   fr.checkValidationResult,
   async (req, res) => {
-
     const { username, password } = sanitize(req.body);
-
     const user = await userDb.getUserByName(username);
-
     if (!user) {
       return res.status(401).json({
         errors: [{
@@ -68,9 +61,7 @@ router.post('/login',
         }],
       });
     }
-
     const passwordIsCorrect = userDb.comparePasswords(password, user.password);
-
     if (passwordIsCorrect) {
       const token = createTokenForUser(user.id);
       return res.json({
@@ -84,7 +75,6 @@ router.post('/login',
         expiresIn: token.tokenLifetime,
       });
     }
-
     return res.status(401).json({
       errors: [{
         value: username,
@@ -107,11 +97,9 @@ router.patch('/me', requireAuthentication,
   fr.patchUserRules(),
   fr.checkValidationResult,
   async (req, res) => {
-
     const { email, password } = sanitize(req.body);
-
     if (!email && !password) {
-      res.status(400).json({
+      res.status(404).json({
         errors: [{
           value: req.body,
           msg: 'require at least one of: email, password',
@@ -120,15 +108,11 @@ router.patch('/me', requireAuthentication,
         }],
       });
     }
-
     req.user.email = email || req.user.email;
-
     if (password) {
       req.user.password = password;
     }
-
     const user = await userDb.updateUser(req.user);
-
     res.json({
       user,
     });

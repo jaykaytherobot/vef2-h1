@@ -42,7 +42,10 @@ export async function getAllFromTable(table, attr = '*', offset = 0, limit = 10,
   const q = orderBy ? `SELECT ${attr} FROM ${table} ORDER BY ${orderBy} OFFSET ${offset} LIMIT ${limit};` : `SELECT ${attr} FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
   let result = '';
   result = await query(q);
-  return result.rows;
+  if(result.rowCount>0){
+    return result.rows;
+  }
+  return false;
 }
 
 export async function getSerieById(id) {
@@ -97,34 +100,13 @@ export async function getSeasonsBySerieId(serieId, offset = 0, limit = 10) {
 
 export async function getSeasonBySerieIdAndSeasonNum(serieId, seasonNum) {
   const q = 'SELECT * FROM Seasons WHERE number = $1 and serieId = $2;';
-  let result = '';
-  try {
-    result = await query(q, [seasonNum, serieId]);
-  } catch (e) {
-    console.info('Error occured :>> ', e);
-  }
+  const result = await query(q, [seasonNum, serieId]);
   return result.rows[0];
 }
 
 export async function getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum, offset = 0, limit = 10) {
   const q = 'SELECT * FROM Episodes WHERE seasonnumber = $1 and serieId = $2  ORDER BY Episodes.number ASC OFFSET $3 LIMIT $4;';
-  let result = '';
-  try {
-    result = await query(q, [seasonNum, serieId, offset, limit]);
-  } catch (e) {
-    console.info('Error occured :>> ', e);
-  }
-  return result.rows;
-}
-
-export async function getEpisodeById(id) {
-  const q = 'SELECT * FROM Episodes WHERE id = $1;';
-  let result = '';
-  try {
-    result = await query(q, [id]);
-  } catch (e) {
-    console.info('Error occured :>> ', e);
-  }
+  const result = await query(q, [seasonNum, serieId, offset, limit]);
   return result.rows;
 }
 
@@ -137,7 +119,6 @@ export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
   return false;
 }
 
-// passa id seinna
 export async function initializeSeriesSequence() {
   const s = await query('SELECT MAX(id) from series');
   const maxId = s.rows[0].max;
@@ -216,7 +197,7 @@ export async function createNewEpisode(episode) {
     episode.number,
     episode.airdate,
     episode.overview]);
-  return result;
+  return result.rows[0];
 }
 
 export async function createNewUser(user) {
@@ -235,7 +216,6 @@ export async function createUserRatingBySerieId(serieId, userId, grade) {
     console.log(data);
     return data.rows[0];
   }
-
   return updateUserRatingBySerieId(serieId, userId, grade);
 }
 
@@ -248,7 +228,6 @@ export async function createUserStatusBySerieId(serieId, userId, status) {
       [serieId, userId, status]);
     return data.rows[0];
   }
-
   return updateUserStatusBySerieId(serieId, userId, status);
 }
 
