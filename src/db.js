@@ -258,12 +258,11 @@ export async function createUserRatingBySerieId(serieId, userId, grade) {
     const data = await query(`INSERT INTO SerieToUser(serieId, userId, grade)
                                 VALUES($1,$2,$3) RETURNING *;`,
     [serieId, userId, grade]);
+    console.log(data);
     return data.rows[0];
   }
 
-  updateUserRatingBySerieId(serieId, userId, grade);
-
-  return '';
+  return updateUserRatingBySerieId(serieId, userId, grade);
 }
 
 export async function createUserStatusBySerieId(serieId, userId, status) {
@@ -276,9 +275,7 @@ export async function createUserStatusBySerieId(serieId, userId, status) {
     return data.rows[0];
   }
 
-  updateUserRatingBySerieId(serieId, userId, status);
-
-  return '';
+  return updateUserStatusBySerieId(serieId, userId, status);
 }
 
 export async function updateUserStatusBySerieId(serieId, userId, status) {
