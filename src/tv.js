@@ -55,7 +55,7 @@ router.get('/:serieId',
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
   fr.serieExists,
-  async (req, res) => {
+  async (req, res, next) => {
     const { serieId } = req.params;
     let userId;
     if (req.user) {
@@ -65,6 +65,7 @@ router.get('/:serieId',
     if (data) {
       return res.json({ data });
     }
+    return next();
   });
 
 router.patch('/:serieId',

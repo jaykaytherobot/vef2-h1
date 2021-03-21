@@ -47,7 +47,7 @@ export function optionalAuthentication(req, res, next) {
   return passport.authenticate(
     'jwt',
     { session: false },
-    (err, user, info) => {
+    (err, user) => {
       if (err) {
         next(err);
       }
