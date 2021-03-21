@@ -20,7 +20,8 @@ Einnig er krafa að notandi sé búinn að setja API key í system environment v
 * `set CLOUDINARY_URL=cloudinary://<API KEY HERE>`
 
 ## Dæmi um köll í vefþjónustu
-Hvaða dæmi viljum við gefa?
+Öll requests sem notast við req.body notfæra raw JSON body í Postman, hér eru slík dæmi:
+<img src= "./examples/Episode POST.png">
 
 ## Innskráning sem almennur notandi:
 Hægt er að fá bearer token sem almennur notandi með því að gera POST beiðni á `/users/login` með því að skila body með JSON gögnum:
