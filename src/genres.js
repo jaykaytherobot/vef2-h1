@@ -1,8 +1,9 @@
 import express from 'express';
 import * as db from './db.js';
 import { getLinks, sanitize } from './utils.js';
-import { paginationRules } from './form-rules.js';
+import { checkValidationResult, paginationRules } from './form-rules.js';
 import { requireAdminAuthentication } from './login.js';
+import { body } from 'express-validator';
 
 export const router = express.Router();
 
@@ -25,15 +26,19 @@ async (req, res) => {
 });
 
 router.post('/', 
-requireAdminAuthentication,
-async (req, res) => {
-  const {
-    name,
-  } = sanitize(req.body);
-  const q = 'INSERT INTO Genres(name) VALUES ($1) RETURNING *;';
-  const result = await db.query(q, [name]);
-  if (!result) {
-    res.status(400).json({ err: 'Genre er nú þegar til' });
-  }
-  res.json(result.rows);
-});
+  requireAdminAuthentication,
+  body('name')
+    .isLength({ min: 1 })
+    .withMessage('Body must have field "name"'),
+  checkValidationResult,
+  async (req, res) => {
+    const {
+      name,
+    } = sanitize(req.body);
+    const q = 'INSERT INTO Genres(name) VALUES ($1) RETURNING *;';
+    const result = await db.query(q, [name]);
+    if (!result) {
+      return res.status(400).json({ err: 'Genre er nú þegar til' });
+    }
+    return res.json(result.rows);
+  });
