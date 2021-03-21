@@ -72,7 +72,7 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
   if (userId) {
     const userQuery = 'SELECT grade, status from SerieToUser WHERE serieId = $1 AND userId = $2;';
     userResult = await query(userQuery, [id, userId]);
-    userResult.rows[2] = intToWatch(userResult.rows[2]);
+    userResult.rows[1] = intToWatch(userResult.rows[1]);
   } else userResult = { rows: 'User not logged in' };
 
   if (serieResult.rowCount === 1) {
@@ -132,7 +132,7 @@ export async function createNewSerie(serie) {
   if (serie.id) {
     s = await query(`INSERT INTO Series(id, name, airDate, inProduction, tagline, image, description, language, network, url)
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *;`,
-      [serie.id,
+    [serie.id,
       serie.name,
       serie.airDate,
       serie.inProduction,
@@ -145,14 +145,14 @@ export async function createNewSerie(serie) {
   } else {
     s = await query('INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;',
       [serie.name,
-      serie.airDate,
-      serie.inProduction,
-      serie.tagline,
-      serie.image,
-      serie.description,
-      serie.language,
-      serie.network,
-      serie.url]);
+        serie.airDate,
+        serie.inProduction,
+        serie.tagline,
+        serie.image,
+        serie.description,
+        serie.language,
+        serie.network,
+        serie.url]);
   }
   if (serie.genres) {
     serie.genres.split(',').forEach(async (genre) => {
@@ -177,10 +177,10 @@ export async function createNewSeason(season) {
   try {
     result = await query(`INSERT INTO Seasons(serieId, name, "number", airDate, overview, poster)
                               VALUES ($1,$2,$3,$4,$5,$6) RETURNING *;`,
-      [season.serieId,
+    [season.serieId,
       season.name,
       season.number,
-        airDate,
+      airDate,
       season.overview,
       season.poster]);
     return result.rows[0];
@@ -193,7 +193,7 @@ export async function createNewSeason(season) {
 export async function createNewEpisode(episode) {
   const result = await query(`INSERT INTO Episodes(serieId, seasonnumber, name, "number", airdate, overview)
                               VALUES ($1,$2,$3,$4,$5,$6) RETURNING *;`,
-    [episode.serieId,
+  [episode.serieId,
     episode.season,
     episode.name,
     episode.number,
@@ -208,7 +208,7 @@ export async function createNewEpisode(episode) {
 export async function createNewUser(user) {
   await query(`INSERT INTO Users(name, email, password, admin)
   VALUES ($1,$2,$3,$4);`,
-    [user.name, user.email, user.password, user.admin]);
+  [user.name, user.email, user.password, user.admin]);
 }
 
 export async function updateUserRatingBySerieId(serieId, userId, grade) {
@@ -235,8 +235,8 @@ export async function createUserRatingBySerieId(serieId, userId, grade) {
   if (existsResult.rowCount === 0) {
     const data = await query(`INSERT INTO SerieToUser(serieId, userId, grade)
     VALUES($1,$2,$3) RETURNING *;`,
-      [serieId, userId, grade]);
-      return data.rows[0];
+    [serieId, userId, grade]);
+    return data.rows[0];
   }
   return updateUserRatingBySerieId(serieId, userId, grade);
 }
@@ -247,7 +247,7 @@ export async function createUserStatusBySerieId(serieId, userId, status) {
   if (existsResult.rowCount === 0) {
     const data = await query(`INSERT INTO SerieToUser(serieId, userId, status)
     VALUES($1,$2,$3) RETURNING *;`,
-      [serieId, userId, status]);
+    [serieId, userId, status]);
     return data.rows[0];
   }
   return updateUserStatusBySerieId(serieId, userId, status);
@@ -275,13 +275,13 @@ export async function updateSerieById(id, attributes) {
                     description=$6, language=$7,
                     network=$8, url=$9 WHERE id=$10 RETURNING *`;
     const result = await query(q, [newVals.name, newVals.airDate,
-    newVals.inProduction,
-    newVals.tagline,
-    newVals.image,
-    newVals.description,
-    newVals.language,
-    newVals.network,
-    newVals.url,
+      newVals.inProduction,
+      newVals.tagline,
+      newVals.image,
+      newVals.description,
+      newVals.language,
+      newVals.network,
+      newVals.url,
       id]);
     if (result.rowCount === 1) {
       return result.rows[0];
