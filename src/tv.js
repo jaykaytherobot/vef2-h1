@@ -72,15 +72,6 @@ router.get('/:serieId',
     if (data) {
       return res.json({ data });
     }
-    return res.status(404).json({
-      errors: [
-        {
-          msg: 'not found',
-          param: 'id',
-          location: 'params',
-        },
-      ],
-    });
   });
 
 router.patch('/:serieId',
@@ -101,7 +92,7 @@ router.delete('/:serieId',
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
   (req, res) => {
-    const { serieId } = sanitize(req.params);
+    const { serieId } = req.params;
     const deletedSerie = db.deleteSerie(serieId);
     return res.json(deletedSerie);
   });
@@ -137,8 +128,8 @@ router.post('/:serieId/season',
   fr.seasonRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    const { serieId } = req.params;
-    req.body.poster = req.file.path;
+    const { serieId } = sanitize(req.params);
+    req.body.poster = sanitize(req.file.path);
     req.body.serieId = serieId;
     const createdSeason = await db.createNewSeason(req.body);
     if (createdSeason) {
@@ -175,12 +166,12 @@ router.post('/:serieId/season/:seasonNum/episode',
   fr.paramIdRules('serieId'),
   fr.paramIdRules('seasonNum'),
   async (req, res) => {
-    const { serieId, seasonNum } = req.params;
-    const episode = req.body;
+    const { serieId, seasonNum } = sanitize(req.params);
+    const episode = sanitize(req.body);
     episode[serieId] = serieId;
     episode[seasonNum] = seasonNum;
     const result = await db.createNewEpisode(episode);
-    if (result) return res.json({ msg: 'Sköpun þáttar tókst' });
+    if (result) return res.json(result);
     return res.status(400).json({ msg: 'Sköpun þáttar tókst ekki' });
   });
 
@@ -216,9 +207,9 @@ router.post('/:serieId/rate',
   fr.ratingRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    const { serieId } = req.params;
-    const { grade } = req.body;
-    const userId = req.user.id;
+    const { serieId } = sanitize(req.params);
+    const { grade } = sanitize(req.body);
+    const userId = sanitize(req.user.id);
     const data = await db.createUserRatingBySerieId(serieId, userId, grade);
     if (!data) {
       return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
@@ -232,9 +223,9 @@ router.patch('/:serieId/rate',
   fr.ratingRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    const { serieId } = req.params;
-    const { grade } = req.body;
-    const userId = req.user.id;
+    const { serieId } = sanitize(req.params);
+    const { grade } = sanitize(req.body);
+    const userId = sanitize(req.user.id);
     const data = await db.updateUserRatingBySerieId(serieId, userId, grade);
     if (!data) {
       return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
@@ -260,9 +251,9 @@ router.post('/:serieId/state',
   fr.statusRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    const { serieId } = req.params;
-    const { status } = req.body;
-    const userId = req.user.id;
+    const { serieId } = sanitize(req.params);
+    const { status } = sanitize(req.body);
+    const userId = sanitize(req.user.id);
     const data = await db.createUserStatusBySerieId(serieId, userId, status);
     if (!data) {
       return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
@@ -276,9 +267,9 @@ router.patch('/:serieId/state',
   fr.statusRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    const { serieId } = req.params;
-    const { status } = req.body;
-    const userId = req.user.id;
+    const { serieId } = sanitize(req.params);
+    const { status } = sanitize(req.body);
+    const userId = sanitize(req.user.id);
     const data = await db.updateUserStatusBySerieId(serieId, userId, status);
     if (!data) {
       return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
