@@ -223,7 +223,7 @@ router.post('/:serieId/rate',
     if (!data) {
       return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
     }
-    return res.json({ msg: 'Uppfærsla tókst' });
+    return res.json(data);
   });
 
 router.patch('/:serieId/rate',
@@ -239,7 +239,7 @@ router.patch('/:serieId/rate',
     if (!data) {
       return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
     }
-    return res.json({ msg: 'Uppfærsla tókst' });
+    return res.json(data);
   });
 
 router.delete('/:serieId/rate',
@@ -250,8 +250,8 @@ router.delete('/:serieId/rate',
     const { serieId } = req.params;
     const userId = req.user.id;
     const del = await db.deleteUserData(serieId, userId);
-    if (del) return;
-    res.status(400).json({ msg: 'Tókst ekki að eyða' });
+    if (del) return res.json({});
+    return res.status(400).json({ msg: 'Tókst ekki að eyða' });
   });
 
 router.post('/:serieId/state',
@@ -267,7 +267,7 @@ router.post('/:serieId/state',
     if (!data) {
       return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
     }
-    return res.json({ msg: 'Uppfærsla tókst' });
+    return res.json(data);
   });
 
 router.patch('/:serieId/state',
@@ -283,7 +283,7 @@ router.patch('/:serieId/state',
     if (!data) {
       return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
     }
-    return res.json({ msg: 'Uppfærsla tókst' });
+    return res.json(data);
   });
 
 router.delete('/:serieId/state',
@@ -294,7 +294,7 @@ router.delete('/:serieId/state',
     const { serieId } = req.params;
     const userId = req.user.id;
     const del = await db.deleteSerie(serieId, userId);
-    if (del) return;
+    if (del) return res.json({});
     res.status(400).json({ msg: 'Tókst ekki að eyða' });
   });
 
