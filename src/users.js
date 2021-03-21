@@ -19,19 +19,13 @@ router.get('/',
 
     const items = await userDb.getAllUsers(offset, limit);
     const count = await db.getCountOfTable('Users');
-    const { next, prev, href } = getLinks('users', count, offset, limit);
+    const _links = getLinks('users', count, offset, limit);
     if (items) {
       return res.json({
         limit,
         offset,
         items,
-        _links: {
-          self: {
-            href,
-          },
-          next,
-          prev,
-        },
+        _links
       });
     }
     return res.status(404).json({ msg: 'Table not found' });

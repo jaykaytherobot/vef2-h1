@@ -12,6 +12,7 @@ export function getLinks(path = '', lengthString, offsetString, limitString) {
   const offset = Number(offsetString);
   const limit = Number(limitString);
   let next; let prev;
+
   if (length > limit + offset) {
     next = { href: new URL(`${path}?offset=${offset + limit}&limit=${limit}`, url) };
   } else {
@@ -22,18 +23,18 @@ export function getLinks(path = '', lengthString, offsetString, limitString) {
   } else {
     prev = undefined;
   }
-  const href = new URL(`${path}?offset=${offset}&limit=${limit}`, url);
+  const self = { href: new URL(`${path}?offset=${offset}&limit=${limit}`, url) };
 
   return {
+    self,
     next,
     prev,
-    href,
   };
 }
 
 export function sanitize(...request) {
   const req = request[0];
-  for(const value in req) {
+  for (const value in req) {
     req[value] = xss(req[value]);
   }
   return req;
