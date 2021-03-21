@@ -103,8 +103,8 @@ router.post('/login',
           email: user.email,
           admin: user.admin,
         },
-        token,
-        expiresIn: 'not implemented',
+        token: token.token,
+        expiresIn: token.tokenLifetime,
       });
     }
 
