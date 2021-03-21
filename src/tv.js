@@ -239,6 +239,7 @@ router.patch('/:serieId/rate',
   async (req, res) => {
     const { serieId } = sanitize(req.params);
     const { grade } = sanitize(req.body);
+    console.log(grade);
     const userId = sanitize(req.user.id);
     const data = await db.updateUserRatingBySerieId(serieId, userId, grade);
     if (!data) {
