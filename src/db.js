@@ -63,27 +63,27 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
   const genreQuery = 'SELECT name FROM SerieToGenre JOIN Genres ON genreId = Genres.id WHERE serieId = $1;';
   const seasonQuery = 'SELECT * FROM Seasons WHERE serieId = $1;';
 
-    const serieResult = await query(serieQuery, [id]);
-    const ratingResult = await query(ratingQuery, [id]);
-    const genreResult = await query(genreQuery, [id]);
-    const seasonResult = await query(seasonQuery, [id]);
-    let userResult;
-    if (userId) {
-      const userQuery = 'SELECT grade, status from SerieToUser WHERE serieId = $1 AND userId = $2;';
-      userResult = await query(userQuery, [id, userId]);
-    } else userResult = { rows: 'User not logged in' };
+  const serieResult = await query(serieQuery, [id]);
+  const ratingResult = await query(ratingQuery, [id]);
+  const genreResult = await query(genreQuery, [id]);
+  const seasonResult = await query(seasonQuery, [id]);
+  let userResult;
+  if (userId) {
+    const userQuery = 'SELECT grade, status from SerieToUser WHERE serieId = $1 AND userId = $2;';
+    userResult = await query(userQuery, [id, userId]);
+  } else userResult = { rows: 'User not logged in' };
 
-    if (serieResult.rowCount === 1) {
-      const rate = ratingResult.rows[0].rating;
-      ratingResult.rows[0].rating = rate ? Number.parseInt(rate, 10).toFixed(1) : 0;
-      return {
-        info: serieResult.rows[0],
-        user: userResult.rows,
-        ratings: ratingResult.rows[0],
-        genres: genreResult.rows,
-        seasons: seasonResult.rows,
-      };
-    }
+  if (serieResult.rowCount === 1) {
+    const rate = ratingResult.rows[0].rating;
+    ratingResult.rows[0].rating = rate ? Number.parseInt(rate, 10).toFixed(1) : 0;
+    return {
+      info: serieResult.rows[0],
+      user: userResult.rows,
+      ratings: ratingResult.rows[0],
+      genres: genreResult.rows,
+      seasons: seasonResult.rows,
+    };
+  }
   return false;
 }
 
@@ -112,7 +112,7 @@ export async function getEpisodesBySerieIdAndSeasonNum(serieId, seasonNum, offse
 
 export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
   const q = 'SELECT e.*, s.id as seasonid FROM Episodes e, Seasons s WHERE e.number = $1 AND e.seasonnumber = $2 AND e.serieId = $3 AND s.serieId = e.serieId AND s.number = $2;';
-  let result = await query(q, [episodeNum, seasonNum, serieId]);
+  const result = await query(q, [episodeNum, seasonNum, serieId]);
   if (result.rowCount === 1) {
     return result.rows[0];
   }
@@ -130,7 +130,7 @@ export async function createNewSerie(serie) {
   if (serie.id) {
     s = await query(`INSERT INTO Series(id, name, airDate, inProduction, tagline, image, description, language, network, url)
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *;`,
-      [serie.id,
+    [serie.id,
       serie.name,
       serie.airDate,
       serie.inProduction,
@@ -143,14 +143,14 @@ export async function createNewSerie(serie) {
   } else {
     s = await query('INSERT INTO Series(name, airDate, inProduction, tagline, image, description, language, network, url) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *;',
       [serie.name,
-      serie.airDate,
-      serie.inProduction,
-      serie.tagline,
-      serie.image,
-      serie.description,
-      serie.language,
-      serie.network,
-      serie.url]);
+        serie.airDate,
+        serie.inProduction,
+        serie.tagline,
+        serie.image,
+        serie.description,
+        serie.language,
+        serie.network,
+        serie.url]);
   }
   if (serie.genres) {
     serie.genres.split(',').forEach(async (genre) => {
@@ -175,10 +175,10 @@ export async function createNewSeason(season) {
   try {
     result = await query(`INSERT INTO Seasons(serieId, name, "number", airDate, overview, poster)
                               VALUES ($1,$2,$3,$4,$5,$6) RETURNING *;`,
-      [season.serieId,
+    [season.serieId,
       season.name,
       season.number,
-        airDate,
+      airDate,
       season.overview,
       season.poster]);
     return result.rows[0];
@@ -191,19 +191,44 @@ export async function createNewSeason(season) {
 export async function createNewEpisode(episode) {
   const result = await query(`INSERT INTO Episodes(serieId, seasonnumber, name, "number", airdate, overview)
                               VALUES ($1,$2,$3,$4,$5,$6) RETURNING *;`,
-    [episode.serieId,
+  [episode.serieId,
     episode.season,
     episode.name,
     episode.number,
     episode.airdate,
     episode.overview]);
+<<<<<<< HEAD
   return result.rows[0];
+=======
+  if (result.rowCount === 1) {
+    return result.rows[0];
+  }
+  return false;
+>>>>>>> a61fe061c8aef6d2751d30b78fc3f57b6e40f63c
 }
 
 export async function createNewUser(user) {
   await query(`INSERT INTO Users(name, email, password, admin)
   VALUES ($1,$2,$3,$4);`,
-    [user.name, user.email, user.password, user.admin]);
+  [user.name, user.email, user.password, user.admin]);
+}
+
+export async function updateUserRatingBySerieId(serieId, userId, grade) {
+  const result = await query('UPDATE SerieToUser SET grade=$1 WHERE serieId=$2 AND userId=$3 RETURNING *',
+    [grade, serieId, userId]);
+  if (result.rowCount === 1) {
+    return result.rows[0];
+  }
+  return false;
+}
+
+export async function updateUserStatusBySerieId(serieId, userId, status) {
+  const result = await query('UPDATE SerieToUser SET status=$1 WHERE serieId=$2 AND userId=$3 RETURNING *',
+    [status, serieId, userId]);
+  if (result.rowCount === 1) {
+    return result.rows[0];
+  }
+  return false;
 }
 
 export async function createUserRatingBySerieId(serieId, userId, grade) {
@@ -212,8 +237,7 @@ export async function createUserRatingBySerieId(serieId, userId, grade) {
   if (existsResult.rowCount === 0) {
     const data = await query(`INSERT INTO SerieToUser(serieId, userId, grade)
     VALUES($1,$2,$3) RETURNING *;`,
-      [serieId, userId, grade]);
-    console.log(data);
+    [serieId, userId, grade]);
     return data.rows[0];
   }
   return updateUserRatingBySerieId(serieId, userId, grade);
@@ -225,20 +249,10 @@ export async function createUserStatusBySerieId(serieId, userId, status) {
   if (existsResult.rowCount === 0) {
     const data = await query(`INSERT INTO SerieToUser(serieId, userId, status)
     VALUES($1,$2,$3) RETURNING *;`,
-      [serieId, userId, status]);
+    [serieId, userId, status]);
     return data.rows[0];
   }
   return updateUserStatusBySerieId(serieId, userId, status);
-}
-
-
-export async function updateUserRatingBySerieId(serieId, userId, grade) {
-  const result = await query('UPDATE SerieToUser SET grade=$1 WHERE serieId=$2 AND userId=$3 RETURNING *',
-    [grade, serieId, userId]);
-  if (result.rowCount === 1) {
-    return result.rows[0];
-  }
-  return false;
 }
 
 export async function updateSerieById(id, attributes) {
@@ -263,26 +277,17 @@ export async function updateSerieById(id, attributes) {
                     description=$6, language=$7,
                     network=$8, url=$9 WHERE id=$10 RETURNING *`;
     const result = await query(q, [newVals.name, newVals.airDate,
-    newVals.inProduction,
-    newVals.tagline,
-    newVals.image,
-    newVals.description,
-    newVals.language,
-    newVals.network,
-    newVals.url,
+      newVals.inProduction,
+      newVals.tagline,
+      newVals.image,
+      newVals.description,
+      newVals.language,
+      newVals.network,
+      newVals.url,
       id]);
     if (result.rowCount === 1) {
       return result.rows[0];
     }
-  }
-  return false;
-}
-
-export async function updateUserStatusBySerieId(serieId, userId, status) {
-  const result = await query('UPDATE SerieToUser SET status=$1 WHERE serieId=$2 AND userId=$3 RETURNING *',
-    [status, serieId, userId]);
-  if (result.rowCount === 1) {
-    return result.rows[0];
   }
   return false;
 }
@@ -306,9 +311,14 @@ export async function deleteSerie(id) {
   const result = await query(q, [id]);
   return result.rows;
 }
+export async function deleteEpisodesbySeason(id, number) {
+  const q = 'DELETE FROM Episodes WHERE serieId = $2 AND seasonNumber = $3 RETURNING *;';
+  await query(q, [id, number]);
+}
 
 export async function deleteSeasonBySerieIdAndSeasonNumber(id, number) {
   const q = 'DELETE FROM Seasons WHERE serieId=$1 AND number=$2';
+  await deleteEpisodesbySeason(id, number);
   await query(q, [id, number]);
 }
 

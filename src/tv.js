@@ -28,7 +28,7 @@ router.get('/',
         limit,
         offset,
         items,
-        _links
+        _links,
       });
     }
     return res.status(404).json({ msg: 'Table not found' });
@@ -55,7 +55,7 @@ router.get('/:serieId',
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
   fr.serieExists,
-  async (req, res) => {
+  async (req, res, next) => {
     const { serieId } = req.params;
     let userId;
     if (req.user) {
@@ -65,6 +65,7 @@ router.get('/:serieId',
     if (data) {
       return res.json({ data });
     }
+    return next();
   });
 
 router.patch('/:serieId',
@@ -124,6 +125,7 @@ router.post('/:serieId/season',
   fr.seasonRules(),
   fr.checkValidationResult,
   fr.serieExists,
+  fr.uniqueSeason,
   async (req, res) => {
     const { serieId } = sanitize(req.params);
     req.body.poster = req.file.path;
@@ -170,6 +172,7 @@ router.post('/:serieId/season/:seasonNum/episode',
   fr.paramIdRules('seasonNum'),
   fr.checkValidationResult,
   fr.seasonExists,
+  fr.uniqueEpisode,
   async (req, res) => {
     const { serieId, seasonNum } = sanitize(req.params);
     const episode = sanitize(req.body);
@@ -303,4 +306,3 @@ router.delete('/:serieId/state',
     if (del) return res.json({});
     return res.status(404).json({ msg: 'Tókst ekki að eyða' });
   });
-

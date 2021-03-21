@@ -40,14 +40,14 @@ export function createTokenForUser(id) {
   const payload = { id };
   const tokenOptions = { expiresIn: tokenLifetime };
   const token = jwt.sign(payload, jwtSecret, tokenOptions);
-  return {token, tokenLifetime};
+  return { token, tokenLifetime };
 }
 
 export function optionalAuthentication(req, res, next) {
   return passport.authenticate(
     'jwt',
     { session: false },
-    (err, user, info) => {
+    (err, user) => {
       if (err) {
         next(err);
       }

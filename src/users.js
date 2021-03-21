@@ -25,7 +25,7 @@ router.get('/',
         limit,
         offset,
         items,
-        _links
+        _links,
       });
     }
     return res.status(404).json({ msg: 'Table not found' });
