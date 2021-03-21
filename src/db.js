@@ -72,7 +72,7 @@ export async function getSerieByIdWithSeasons(id, userId = false) {
   if (userId) {
     const userQuery = 'SELECT grade, status from SerieToUser WHERE serieId = $1 AND userId = $2;';
     userResult = await query(userQuery, [id, userId]);
-    userResult.rows[1] = intToWatch(userResult.rows[1]);
+    userResult.rows[0].status = intToWatch(userResult.rows[0].status);
   } else userResult = { rows: 'User not logged in' };
 
   if (serieResult.rowCount === 1) {
