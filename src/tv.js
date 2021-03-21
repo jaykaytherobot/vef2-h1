@@ -46,7 +46,7 @@ router.post('/',
     if (createdSerie) {
       return res.json(createdSerie);
     }
-    return res.status(400).json({ err: 'Error creating serie' });
+    return res.status(404).json({ err: 'Error creating serie' });
   });
 
 // /tv/:id
@@ -77,7 +77,7 @@ router.patch('/:serieId',
   fr.serieExists,
   async (req, res) => {
     const { serieId } = sanitize(req.params);
-    req.body.image = sanitize(req.file.path);
+    req.body.image = req.file.path;
     const newSerie = await db.updateSerieById(serieId, req.body);
     return res.json(newSerie);
   });
@@ -128,13 +128,13 @@ router.post('/:serieId/season',
   fr.uniqueSeason,
   async (req, res) => {
     const { serieId } = sanitize(req.params);
-    req.body.poster = sanitize(req.file.path);
+    req.body.poster = req.file.path;
     req.body.serieId = serieId;
     const createdSeason = await db.createNewSeason(req.body);
     if (createdSeason) {
       return res.json({ msg: 'Season created' });
     }
-    return res.status(400).json({ err: 'Error creating season' });
+    return res.status(404).json({ err: 'Error creating season' });
   });
 
 // /tv/:id/season/:id
@@ -180,7 +180,7 @@ router.post('/:serieId/season/:seasonNum/episode',
     episode.season = seasonNum;
     const result = await db.createNewEpisode(episode);
     if (result) return res.json(result);
-    return res.status(400).json({ msg: 'Sköpun þáttar tókst ekki' });
+    return res.status(404).json({ msg: 'Sköpun þáttar tókst ekki' });
   });
 
 // /tv/:id/season/:id/episode/:id
@@ -210,7 +210,7 @@ router.delete('/:serieId/season/:seasonNum/episode/:episodeNum',
     const { serieId, seasonNum, episodeNum } = req.params;
     const del = await db.deleteEpisode(episodeNum, serieId, seasonNum);
     if (del) return res.json({ msg: 'Þætti hefur verið eytt' });
-    return res.status(400).json({ msg: 'Ekki tókst að eyða þætti' });
+    return res.status(404).json({ msg: 'Ekki tókst að eyða þætti' });
   });
 
 router.post('/:serieId/rate',
@@ -225,7 +225,7 @@ router.post('/:serieId/rate',
     const userId = sanitize(req.user.id);
     const data = await db.createUserRatingBySerieId(serieId, userId, grade);
     if (!data) {
-      return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
+      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
     }
     return res.json(data);
   });
@@ -242,7 +242,7 @@ router.patch('/:serieId/rate',
     const userId = sanitize(req.user.id);
     const data = await db.updateUserRatingBySerieId(serieId, userId, grade);
     if (!data) {
-      return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
+      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
     }
     return res.json(data);
   });
@@ -257,7 +257,7 @@ router.delete('/:serieId/rate',
     const userId = req.user.id;
     const del = await db.deleteUserData(serieId, userId);
     if (del) return res.json({});
-    return res.status(400).json({ msg: 'Tókst ekki að eyða' });
+    return res.status(404).json({ msg: 'Tókst ekki að eyða' });
   });
 
 router.post('/:serieId/state',
@@ -272,7 +272,7 @@ router.post('/:serieId/state',
     const userId = sanitize(req.user.id);
     const data = await db.createUserStatusBySerieId(serieId, userId, status);
     if (!data) {
-      return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
+      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
     }
     return res.json(data);
   });
@@ -289,7 +289,7 @@ router.patch('/:serieId/state',
     const userId = sanitize(req.user.id);
     const data = await db.updateUserStatusBySerieId(serieId, userId, status);
     if (!data) {
-      return res.status(400).json({ msg: 'Uppfærsla tókst ekki' });
+      return res.status(404).json({ msg: 'Uppfærsla tókst ekki' });
     }
     return res.json(data);
   });
@@ -304,5 +304,5 @@ router.delete('/:serieId/state',
     const userId = req.user.id;
     const del = await db.deleteSerie(serieId, userId);
     if (del) return res.json({});
-    return res.status(400).json({ msg: 'Tókst ekki að eyða' });
+    return res.status(404).json({ msg: 'Tókst ekki að eyða' });
   });
