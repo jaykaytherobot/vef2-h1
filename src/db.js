@@ -32,6 +32,7 @@ export async function query(q, values = []) {
   }
   return result;
 }
+
 export async function getCountOfTable(table) {
   const result = await query(`SELECT COUNT(*) FROM ${table};`);
   return Number(result.rows[0].count);
@@ -136,14 +137,12 @@ export async function getEpisodeById(id) {
 }
 
 export async function getEpisodeByNo(serieId, seasonNum, episodeNum) {
-  const q = 'SELECT e.*, s.id as seasonid FROM Episodes e, Seasons s WHERE e."number" = $1 AND e.seasonnumber = $2 AND e.serieId = $3 AND s.serieId = e.serieId AND s.number = $2;';
-  let result = '';
-  try {
-    result = await query(q, [episodeNum, seasonNum, serieId]);
-  } catch (e) {
-    console.info('Error occured :>> ', e);
+  const q = 'SELECT e.*, s.id as seasonid FROM Episodes e, Seasons s WHERE e.number = $1 AND e.seasonnumber = $2 AND e.serieId = $3 AND s.serieId = e.serieId AND s.number = $2;';
+  let result = await query(q, [episodeNum, seasonNum, serieId]);
+  if (result.rowCount === 1) {
+    return result.rows[0];
   }
-  return result.rows[0];
+  return false;
 }
 
 // passa id seinna
