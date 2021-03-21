@@ -329,7 +329,7 @@ export async function deleteSerie(id) {
   return result.rows;
 }
 export async function deleteEpisodesbySeason(id, number) {
-  const q = 'DELETE FROM Episodes WHERE serieId = $2 AND seasonNumber = $3 RETURNING *;';
+  const q = 'DELETE FROM Episodes WHERE serieId = $1 AND seasonNumber = $2 RETURNING *;';
   await query(q, [id, number]);
 }
 
