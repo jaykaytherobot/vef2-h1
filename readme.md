@@ -21,9 +21,12 @@ Einnig er krafa að notandi sé búinn að setja API key í system environment v
 
 ## Dæmi um köll í vefþjónustu
 Öll requests sem notast við req.body notfæra raw JSON body í Postman, hér eru slík dæmi:
+Fyrir þetta dæmi er nauðsynlegt að vera stjórnandi
 <img src= "./examples/Episode POST.png">
+Fyrir næstu þrjú dæmi er notandi skráður inn
 <img src = "./examples/rate PATCH.png">
-
+<img src = "./examples/state PATCH.png">
+<img src = "./examples/serie GET.png">
 
 ## Innskráning sem almennur notandi:
 Hægt er að fá bearer token sem almennur notandi með því að gera POST beiðni á `/users/login` með því að skila body með JSON gögnum:
