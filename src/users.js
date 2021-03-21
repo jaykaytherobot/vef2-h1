@@ -1,27 +1,17 @@
 // users.js
 import express from 'express';
-import {
-  validationResult,
-} from 'express-validator';
 import * as db from './db.js';
 import * as userDb from './userdb.js';
 import { createTokenForUser, requireAuthentication, requireAdminAuthentication } from './login.js';
-import {
-  checkValidationResult,
-  paginationRules,
-  paramIdRules,
-  patchUserRules,
-  loginRules,
-  registerRules,
-} from './form-rules.js';
-import { getLinks } from './utils.js';
+import * as fr from './form-rules.js';
+import { getLinks, sanitize } from './utils.js';
 
 export const router = express.Router();
 
 router.get('/',
-  // requireAdminAuthentication,
-  paginationRules(),
-  checkValidationResult,
+  requireAdminAuthentication,
+  fr.paginationRules(),
+  fr.checkValidationResult,
   async (req, res) => {
     const {
       offset = 0, limit = 10,
@@ -42,14 +32,11 @@ router.get('/',
   });
 
 router.post('/register',
-  registerRules(),
+  fr.registerRules(),
+  fr.checkValidationResult,
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
-    const { username, email, password } = req.body;
+    const { username, email, password } = sanitize(req.body);
 
     const createdUser = await userDb.createUser({ name: username, email, password });
 
@@ -63,15 +50,11 @@ router.post('/register',
   });
 
 router.post('/login',
-  loginRules(),
+  fr.loginRules(),
+  fr.checkValidationResult,
   async (req, res) => {
-    const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-      return res.status(404).json({ errors: errors.array() });
-    }
-
-    const { username, password } = req.body;
+    const { username, password } = sanitize(req.body);
 
     const user = await userDb.getUserByName(username);
 
@@ -121,14 +104,11 @@ router.get('/me',
   });
 
 router.patch('/me', requireAuthentication,
-  patchUserRules(),
+  fr.patchUserRules(),
+  fr.checkValidationResult,
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-    }
 
-    const { email, password } = req.body;
+    const { email, password } = sanitize(req.body);
 
     if (!email && !password) {
       res.status(400).json({
@@ -156,13 +136,9 @@ router.patch('/me', requireAuthentication,
 
 router.get('/:id',
   requireAdminAuthentication,
-  paramIdRules('id'),
+  fr.paramIdRules('id'),
+  fr.checkValidationResult,
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const data = await userDb.getUserById(req.params.id);
     if (data) return res.json(data);
     return res.status(404).json({ msg: 'User not found' });

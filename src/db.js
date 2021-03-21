@@ -217,7 +217,7 @@ export async function createNewSeason(season) {
 
 export async function createNewEpisode(episode) {
   const result = await query(`INSERT INTO Episodes(serieId, seasonnumber, name, "number", airdate, overview)
-  VALUES ($1,$2,$3,$4,$5,$6);`,
+                              VALUES ($1,$2,$3,$4,$5,$6) RETURNING *;`,
   [episode.serieId,
     episode.season,
     episode.name,

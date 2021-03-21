@@ -175,8 +175,7 @@ router.post('/:serieId/season/:seasonNum/episode',
     const { serieId, seasonNum } = sanitize(req.params);
     const episode = sanitize(req.body);
     episode.serieId = serieId;
-    episode.seasonNum = seasonNum;
-    console.log(episode.seasonNum);
+    episode.season = seasonNum;
     const result = await db.createNewEpisode(episode);
     if (result) return res.json(result);
     return res.status(400).json({ msg: 'Sköpun þáttar tókst ekki' });
@@ -331,7 +330,7 @@ export const getGenres = async (req, res) => {
 export const postGenres = async (req, res) => {
   const {
     name,
-  } = req.body;
+  } = sanitize(req.body);
   const q = 'INSERT INTO Genres(name) VALUES ($1) RETURNING *;';
   const result = await db.query(q, [name]);
   if (!result) {
