@@ -336,7 +336,7 @@ export const getGenres = async (req, res) => {
 export const postGenres = async (req, res) => {
   const {
     name,
-  } = req.body;
+  } = sanitize(req.body);
   const q = 'INSERT INTO Genres(name) VALUES ($1) RETURNING *;';
   const result = await db.query(q, [name]);
   if (!result) {
