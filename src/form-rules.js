@@ -1,7 +1,7 @@
 import {
   body, query, param, validationResult,
 } from 'express-validator';
-import { getSerieById } from './db.js';
+import { getEpisodeByNo, getSerieById, getSeasonBySerieIdAndSeasonNum } from './db.js';
 import * as userDb from './userDb.js';
 
 export const serieRules = () => [
@@ -141,7 +141,7 @@ export const registerRules = () => [
 export async function serieExists(req, res, next) {
   const serie = await getSerieById(req.params.serieId);
   if (!serie) {
-    res.status(404).json({
+    return res.status(404).json({
       errors: [{
         param: 'id',
         msg: 'Could not find serie with this id',
@@ -149,7 +149,37 @@ export async function serieExists(req, res, next) {
       }],
     });
   }
-  next();
+  return next();
+}
+
+export async function seasonExists(req, res, next) {
+  const { serieId, seasonNum } = req.params;
+  const season = await getSeasonBySerieIdAndSeasonNum(serieId, seasonNum);
+  if (!season) {
+    return res.status(404).json({
+      errors: [{
+        param: 'id',
+        msg: 'Could not find season with this serie id + season number',
+        location: 'params'
+      }]
+    });
+  }
+  return next();
+}
+
+export async function episodeExists(req, res, next) {
+  const {serieId, seasonNum, episodeNum} = req.params;
+  const episode = await getEpisodeByNo(serieId, seasonNum, episodeNum);
+  if (!episode) {
+    return res.status(404).json({
+      errors: [{
+        param: 'id',
+        msg: 'Could not find episode with this serie id + season number + episode number',
+        location: 'params'
+      }]
+    });
+  }
+  return next();
 }
 
 export function checkValidationResult(req, res, next) {
