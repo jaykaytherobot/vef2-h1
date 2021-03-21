@@ -15,6 +15,7 @@ Verkefnið notast við Postgres, Cloudinary og JWT tokens, því þarf að skilg
 * `JWT_SECRET=<secret name>`
 * `JWT_TOKENLIFETIME=<token lifetime>`
 * `CLOUDINARY_URL=cloudinary://<API KEY HERE>`
+
 Einnig er krafa að notandi sé búinn að setja API key í system environment variables, sem er hægt að gera með CMD skipuninni
 
 * `set CLOUDINARY_URL=cloudinary://<API KEY HERE>`
