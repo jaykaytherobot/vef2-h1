@@ -25,7 +25,7 @@ router.get('/',
         limit,
         offset,
         items,
-        _links
+        _links,
       });
     }
     return res.status(404).json({ msg: 'Table not found' });
@@ -35,7 +35,6 @@ router.post('/register',
   fr.registerRules(),
   fr.checkValidationResult,
   async (req, res) => {
-
     const { username, email, password } = sanitize(req.body);
 
     const createdUser = await userDb.createUser({ name: username, email, password });
@@ -53,7 +52,6 @@ router.post('/login',
   fr.loginRules(),
   fr.checkValidationResult,
   async (req, res) => {
-
     const { username, password } = sanitize(req.body);
 
     const user = await userDb.getUserByName(username);
@@ -107,7 +105,6 @@ router.patch('/me', requireAuthentication,
   fr.patchUserRules(),
   fr.checkValidationResult,
   async (req, res) => {
-
     const { email, password } = sanitize(req.body);
 
     if (!email && !password) {

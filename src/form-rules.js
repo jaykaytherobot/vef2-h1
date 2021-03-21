@@ -160,23 +160,23 @@ export async function seasonExists(req, res, next) {
       errors: [{
         param: 'id',
         msg: 'Could not find season with this serie id + season number',
-        location: 'params'
-      }]
+        location: 'params',
+      }],
     });
   }
   return next();
 }
 
 export async function episodeExists(req, res, next) {
-  const {serieId, seasonNum, episodeNum} = req.params;
+  const { serieId, seasonNum, episodeNum } = req.params;
   const episode = await getEpisodeByNo(serieId, seasonNum, episodeNum);
   if (!episode) {
     return res.status(404).json({
       errors: [{
         param: 'id',
         msg: 'Could not find episode with this serie id + season number + episode number',
-        location: 'params'
-      }]
+        location: 'params',
+      }],
     });
   }
   return next();
@@ -186,6 +186,38 @@ export function checkValidationResult(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
+  }
+  return next();
+}
+
+export async function uniqueSeason(req, res, next) {
+  const { serieId } = req.params;
+  const seasonNum = req.body.number;
+  const season = await getSeasonBySerieIdAndSeasonNum(serieId, seasonNum);
+  if (season) {
+    return res.status(400).json({
+      errors: [{
+        param: 'non-unique',
+        msg: 'Given season number already exists',
+        location: 'params',
+      }],
+    });
+  }
+  return next();
+}
+
+export async function uniqueEpisode(req, res, next) {
+  const { serieId, seasonNum } = req.params;
+  const episodeNum = req.body.number;
+  const episode = await getEpisodeByNo(serieId, seasonNum, episodeNum);
+  if (episode) {
+    return res.status(400).json({
+      errors: [{
+        param: 'non-unique',
+        msg: 'Given episode number already exists',
+        location: 'body',
+      }],
+    });
   }
   return next();
 }

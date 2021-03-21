@@ -6,6 +6,7 @@ module.exports = {
     ecmaVersion: 12,
   },
   rules: {
+    'no-underscore-dangle': 0,
     'prefer-promise-reject-errors': 0,
     'object-shorthand': 0,
     // Viljum frekar named exports
