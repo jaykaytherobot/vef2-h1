@@ -216,7 +216,10 @@ export async function createNewEpisode(episode) {
     episode.number,
     episode.airdate,
     episode.overview]);
-  return result;
+  if (result.rowCount === 1) {
+    return result.rows[0];
+  }
+  return false;
 }
 
 export async function createNewUser(user) {
