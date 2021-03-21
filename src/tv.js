@@ -46,7 +46,7 @@ router.post('/',
   fr.serieRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    req.body.image = req.file.path;
+    req.body.image = sanitize(req.file.path);
     if (req.body.id) req.body.id = null;
     const createdSerie = await db.createNewSerie(req.body);
     if (createdSerie) {
@@ -90,8 +90,8 @@ router.patch('/:serieId',
   fr.patchSerieRules(),
   fr.checkValidationResult,
   async (req, res) => {
-    const { serieId } = req.params;
-    req.body.image = req.file.path;
+    const { serieId } = sanitize(req.params);
+    req.body.image = sanitize(req.file.path);
     const newSerie = await db.updateSerieById(serieId, req.body);
     return res.json(newSerie);
   });
@@ -101,7 +101,7 @@ router.delete('/:serieId',
   fr.paramIdRules('serieId'),
   fr.checkValidationResult,
   (req, res) => {
-    const { serieId } = req.params;
+    const { serieId } = sanitize(req.params);
     const deletedSerie = db.deleteSerie(serieId);
     return res.json(deletedSerie);
   });

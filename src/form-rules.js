@@ -50,15 +50,11 @@ export const paginationRules = () => [
   query('offset')
     .if(query('offset').exists())
     .custom((value) => Number.parseInt(value, 10) >= 0)
-    .withMessage('offset must be a positive integer')
-    .isInt()
-    .withMessage('offset must be an integer'),
+    .withMessage('offset must be a positive integer'),
   query('limit')
     .if(query('limit').exists())
     .custom((value) => Number.parseInt(value, 10) >= 0)
-    .withMessage('limit must be a positive integer')
-    .isInt()
-    .withMessage('limit must be an integer'),
+    .withMessage('limit must be a positive integer'),
 ];
 
 export const ratingRules = () => [
@@ -159,7 +155,7 @@ export async function serieExists(req, res, next) {
 export function checkValidationResult(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ errors: errors.array() });
   }
-  next();
+  return next();
 }
