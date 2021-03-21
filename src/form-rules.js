@@ -3,7 +3,7 @@ import {
 } from 'express-validator';
 import { getEpisodeByNo, getSerieById, getSeasonBySerieIdAndSeasonNum } from './db.js';
 import * as userDb from './userDb.js';
-
+/* eslint-disable consistent-return */
 export const serieRules = () => [
   body('name')
     .isLength({ min: 1 })

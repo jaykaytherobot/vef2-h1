@@ -42,7 +42,7 @@ export async function getAllFromTable(table, attr = '*', offset = 0, limit = 10,
   const q = orderBy ? `SELECT ${attr} FROM ${table} ORDER BY ${orderBy} OFFSET ${offset} LIMIT ${limit};` : `SELECT ${attr} FROM ${table} OFFSET ${offset} LIMIT ${limit};`;
   let result = '';
   result = await query(q);
-  if(result.rowCount>0){
+  if (result.rowCount > 0) {
     return result.rows;
   }
   return false;
