@@ -25,6 +25,13 @@ function withMulter(req, res, next, imageFieldName) {
         }
         return next(err);
       }
+      if (!req.file) {
+        return res.status(400).json({
+          msg: `${imageFieldName} required`,
+          param: imageFieldName,
+          location: 'body',
+        });
+      }
       return next();
     });
 }
